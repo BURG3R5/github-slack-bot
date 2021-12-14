@@ -1,6 +1,7 @@
-from webhooks import parse_github_event
 from bottle import post, run, request
+
 import messages
+from webhooks import parse_github_event
 
 
 @post('/test')
@@ -17,4 +18,5 @@ def manage_github_events():
     parse_github_event(request.json)
 
 
+messages.init()
 run(host='', port=5556, debug=True)

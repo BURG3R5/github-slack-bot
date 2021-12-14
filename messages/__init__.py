@@ -4,8 +4,13 @@ from pathlib import Path
 import slack
 from dotenv import load_dotenv
 
-load_dotenv(Path('.') / '.env')
-client = slack.WebClient(os.environ['SLACK_OAUTH_TOKEN'])
+client: slack.WebClient
+
+
+def init() -> None:
+    global client
+    load_dotenv(Path('.') / '.env')
+    client = slack.WebClient(os.environ['SLACK_OAUTH_TOKEN'])
 
 
 def send_message(message='', channel='#github-bot-testing', details=''):

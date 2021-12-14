@@ -15,7 +15,7 @@ def handle_push_event(json: JSON):
     # Extract valuable info.
     # Repo
     repo = json['repository']['name']
-    base_url = repo["html_url"]
+    base_url = json['repository']['html_url']
 
     # User
     user = json[('pusher', 'sender')][('name', 'login')]
