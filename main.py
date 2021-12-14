@@ -1,6 +1,6 @@
 from bottle import post, run, request
 
-import messages
+from slack_bot import SlackBot
 from webhooks import parse_github_event
 
 
@@ -18,5 +18,5 @@ def manage_github_events():
     parse_github_event(request.json)
 
 
-messages.init()
+SlackBot()
 run(host='', port=5556, debug=True)
