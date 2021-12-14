@@ -1,7 +1,7 @@
 from bottle import post, run, request
 
+from github_payload_parser import GitHubPayloadParser
 from slack_bot import SlackBot
-from webhooks import parse_github_event
 
 
 @post('/test')
@@ -15,7 +15,7 @@ def test():
 
 @post('/github/events')
 def manage_github_events():
-    parse_github_event(request.json)
+    GitHubPayloadParser.parse(request.json)
 
 
 SlackBot()
