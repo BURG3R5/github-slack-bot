@@ -6,11 +6,11 @@ class GitHubEvent:
         self.type = event_type
         self.repo = repo
 
-        self.number: Optional[int] = kwargs.get('number', None)
-        self.number_of_commits: Optional[int] = kwargs.get('number_of_commits', None)
-        self.branch: Optional[str] = kwargs.get('branch', None)
-        self.status: Optional[str] = kwargs.get('status', None)
-        self.title: Optional[str] = kwargs.get('title', None)
-        self.user: Optional[str] = kwargs.get('user', None)
-        self.commits: Optional[list[str]] = kwargs.get('commits', None)
-        self.reviewers: Optional[list[str]] = kwargs.get('reviewers', None)
+        self.number: Optional[int] = kwargs.get("number", None)
+        self.number_of_commits: Optional[int] = kwargs.get("number_of_commits", None)
+        self.branch: Optional[str] = kwargs.get("branch", None)
+        self.status: Optional[str] = kwargs.get("status", None)
+        self.title: Optional[str] = kwargs.get("title", None)
+        self.user: Optional[str] = kwargs.get("user", None)
+        self.commits: Optional[list[str]] = kwargs.get("commits", None)
+        self.reviewers: Optional[list[str]] = kwargs.get("reviewers", None)

@@ -11,12 +11,12 @@ from models.github_event import GitHubEvent
 
 class SlackBot:
     def __init__(self):
-        load_dotenv(Path('.') / '.env')
-        self.client = WebClient(os.environ['SLACK_OAUTH_TOKEN'])
+        load_dotenv(Path(".") / ".env")
+        self.client = WebClient(os.environ["SLACK_OAUTH_TOKEN"])
         self.channels: dict[str, list[Channel]] = {
-            'fake-rdrive-flutter': [
-                Channel('#github-slack-bot', ['push', 'pull']),
-                Channel('#bottesting', ['issue'])
+            "fake-rdrive-flutter": [
+                Channel("#github-slack-bot", ["push", "pull"]),
+                Channel("#bottesting", ["issue"]),
             ]
         }
 
@@ -38,43 +38,55 @@ class SlackBot:
 
     @staticmethod
     def compose_message(event: GitHubEvent) -> tuple[str, Optional[str]]:
-        message = ''
+        message = ""
         details = None
 
         # TODO: Beautify messages.
-        if event.type == 'branch':
-            message = f"{event.repo}::\t" \
-                      f"Branch created by {event.user}: `{event.branch}`."
-        elif event.type == 'issue':
-            message = f"{event.repo}::\t" \
-                      f"Issue opened by {event.user}: " \
-                      f"#{event.number} {event.title}"
-        elif event.type == 'pull_open':
-            message = f"{event.repo}::\t" \
-                      f"Pull request opened by {event.user}: " \
-                      f"#{event.number} {event.title}"
-        elif event.type == 'pull_ready':
-            message = f"{event.repo}::\t" \
-                      f"Review requested on #{event.number} {event.title}: " \
-                      f"{', '.join(event.reviewers)}"
-        elif event.type == 'push':
+        if event.type == "branch":
+            message = (
+                f"{event.repo}::\tBranch created by {event.user}: `{event.branch}`."
+            )
+        elif event.type == "issue":
+            message = (
+                f"{event.repo}::\t"
+                f"Issue opened by {event.user}: "
+                f"#{event.number} {event.title}"
+            )
+        elif event.type == "pull_open":
+            message = (
+                f"{event.repo}::\t"
+                f"Pull request opened by {event.user}: "
+                f"#{event.number} {event.title}"
+            )
+        elif event.type == "pull_ready":
+            message = (
+                f"{event.repo}::\t"
+                f"Review requested on #{event.number} {event.title}: "
+                f"{', '.join(event.reviewers)}"
+            )
+        elif event.type == "push":
             if event.number_of_commits == 1:
-                message = f'{event.user} pushed to {event.branch}, one new commit:\n>{event.commits[0]}'
+                message = f"{event.user} pushed to {event.branch}, one new commit:\n>{event.commits[0]}"
             else:
-                message = f'{event.user} pushed to {event.branch}, {event.number_of_commits} new commits:'
+                message = f"{event.user} pushed to {event.branch}, {event.number_of_commits} new commits:"
                 for i, commit in enumerate(event.commits):
-                    message += f'\n>{i}. {commit}'
-        elif event.type == 'review':
-            message = f"{event.repo}::\t" \
-                      f"Review on #{event.number} by {event.reviewers[0]}: " \
-                      f"STATUS: {event.status}"
+                    message += f"\n>{i}. {commit}"
+        elif event.type == "review":
+            message = (
+                f"{event.repo}::\t"
+                f"Review on #{event.number} by {event.reviewers[0]}: "
+                f"STATUS: {event.status}"
+            )
 
         return message, details
 
     def send_message(self, channel: str, message: str, details: Optional[str]):
         if details is None:
+            print(channel, message)
             self.client.chat_postMessage(channel=channel, text=message)
         else:
             response = self.client.chat_postMessage(channel=channel, text=message)
-            message_id = response.data['ts']
-            self.client.chat_postMessage(channel=channel, text=details, thread_ts=message_id)
+            message_id = response.data["ts"]
+            self.client.chat_postMessage(
+                channel=channel, text=details, thread_ts=message_id
+            )
