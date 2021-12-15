@@ -1,6 +1,6 @@
 from bottle import post, run, request
 
-from github_payload_parser import GitHubPayloadParser
+from github_parsers import GitHubPayloadParser
 from slack_bot import SlackBot
 
 
