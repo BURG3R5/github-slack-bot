@@ -1,8 +1,6 @@
 import os
-from pathlib import Path
 from typing import Optional
 
-from dotenv import load_dotenv
 from slack import WebClient
 
 from models.channel import Channel
@@ -11,8 +9,7 @@ from models.github_event import GitHubEvent
 
 class SlackBot:
     def __init__(self):
-        load_dotenv(Path(".") / ".env")
-        self.client = WebClient(os.environ["SLACK_OAUTH_TOKEN"])
+        self.client = WebClient(os.environ.get("SLACK_OAUTH_TOKEN"))
         self.channels: dict[str, list[Channel]] = {
             "fake-rdrive-flutter": [
                 Channel("#github-slack-bot", ["push", "pull"]),

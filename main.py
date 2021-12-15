@@ -1,4 +1,8 @@
+import os
+from pathlib import Path
+
 from bottle import post, run, request
+from dotenv import load_dotenv
 
 from github_parsers import GitHubPayloadParser
 from models.github_event import GitHubEvent
@@ -22,5 +26,9 @@ def manage_github_events():
     bot.inform(event)
 
 
+load_dotenv(Path(".") / ".env")
 bot: SlackBot = SlackBot()
-run(host="", port=5556, debug=True)
+if os.environ.get("APP_LOCATION") == "heroku":
+    run(host="0.0.0.0", port=int(os.environ.get("PORT", 5556)))
+else:
+    run(host="localhost", port=5556, debug=True)
