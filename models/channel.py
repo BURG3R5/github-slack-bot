@@ -1,4 +1,4 @@
-class Subscription:
+class Channel:
     def __init__(self, name: str, events: list[str]):
         self.name = name
         self.events = events

@@ -5,18 +5,18 @@ from typing import Optional
 from dotenv import load_dotenv
 from slack import WebClient
 
+from models.channel import Channel
 from models.github_event import GitHubEvent
-from models.subscription import Subscription
 
 
 class SlackBot:
     def __init__(self):
         load_dotenv(Path('.') / '.env')
         self.client = WebClient(os.environ['SLACK_OAUTH_TOKEN'])
-        self.channels: dict[str, list[Subscription]] = {
+        self.channels: dict[str, list[Channel]] = {
             'fake-rdrive-flutter': [
-                Subscription('#github-slack-bot', ['push', 'pull']),
-                Subscription('#bottesting', ['issue'])
+                Channel('#github-slack-bot', ['push', 'pull']),
+                Channel('#bottesting', ['issue'])
             ]
         }
 
