@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 
+from models.event_type import EventType
 from models.github_event import GitHubEvent
 from utils.json_utils import JSON
 
@@ -48,7 +49,8 @@ class BranchEventParser(EventParser):
     @staticmethod
     def cast_payload_to_event(json: JSON) -> GitHubEvent:
         return GitHubEvent(
-            event_type="branch",
+            # TODO: Classify branch events into created and deleted.
+            event_type=EventType.branch_created,
             repo=json["repository"]["name"],
             user=json["sender"][("name", "login")],
             branch=json["ref"].split("/")[-1],
@@ -63,7 +65,7 @@ class IssueEventParser(EventParser):
     @staticmethod
     def cast_payload_to_event(json: JSON) -> GitHubEvent:
         return GitHubEvent(
-            event_type="issue",
+            event_type=EventType.issue_opened,
             repo=json["repository"]["name"],
             user=json["issue"]["user"]["login"],
             number=json["issue"]["number"],
@@ -79,7 +81,7 @@ class PullOpenEventParser(EventParser):
     @staticmethod
     def cast_payload_to_event(json: JSON) -> GitHubEvent:
         return GitHubEvent(
-            event_type="pull_open",
+            event_type=EventType.pull_opened,
             repo=json["repository"]["name"],
             number=json["number"],
             title=json["pull_request"]["title"],
@@ -95,7 +97,7 @@ class PullReadyEventParser(EventParser):
     @staticmethod
     def cast_payload_to_event(json: JSON) -> GitHubEvent:
         return GitHubEvent(
-            event_type="pull_ready",
+            event_type=EventType.pull_ready,
             repo=json["repository"]["name"],
             number=json["number"],
             title=json["pull_request"]["title"],
@@ -122,7 +124,7 @@ class PushEventParser(EventParser):
             commits.append(f"`<{commit_link}|{sha[:8]}>` - " f'*{commit["message"]}*')
 
         return GitHubEvent(
-            event_type="push",
+            event_type=EventType.push,
             repo=json["repository"]["name"],
             number_of_commits=len(commits),
             branch=f"`<{base_url}/tree/{branch_name}|{branch_name}>`",
@@ -143,7 +145,7 @@ class ReviewEventParser(EventParser):
     @staticmethod
     def cast_payload_to_event(json: JSON) -> GitHubEvent:
         return GitHubEvent(
-            event_type="review",
+            event_type=EventType.review,
             repo=json["repository"]["name"],
             number=json["pull_request"]["number"],
             status=json["review"]["state"].lower(),

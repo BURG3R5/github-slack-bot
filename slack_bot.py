@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 from slack import WebClient
 
 from models.channel import Channel
+from models.event_type import EventType
 from models.github_event import GitHubEvent
 
 
@@ -15,8 +16,10 @@ class SlackBot:
         self.client = WebClient(os.environ["SLACK_OAUTH_TOKEN"])
         self.channels: dict[str, list[Channel]] = {
             "fake-rdrive-flutter": [
-                Channel("#github-slack-bot", ["push", "pull"]),
-                Channel("#bottesting", ["issue"]),
+                Channel("#github-slack-bot", [EventType.push, EventType.pull_opened]),
+                Channel(
+                    "#bottesting", [EventType.branch_created, EventType.issue_opened]
+                ),
             ]
         }
 
@@ -26,7 +29,7 @@ class SlackBot:
         for channel in correct_channels:
             self.send_message(channel, message, details)
 
-    def calculate_channels(self, repo: str, event_type: str) -> list[str]:
+    def calculate_channels(self, repo: str, event_type: EventType) -> list[str]:
         if repo not in self.channels:
             return []
         else:

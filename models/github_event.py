@@ -1,8 +1,10 @@
 from typing import Optional
 
+from models.event_type import EventType
+
 
 class GitHubEvent:
-    def __init__(self, event_type: str, repo: str, **kwargs):
+    def __init__(self, event_type: EventType, repo: str, **kwargs):
         self.type = event_type
         self.repo = repo
 
