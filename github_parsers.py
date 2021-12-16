@@ -11,7 +11,8 @@ class GitHubPayloadParser:
         json: JSON = JSON(raw_json)
         event_parsers: list = [
             BranchEventParser,
-            IssueEventParser,
+            IssueOpenEventParser,
+            IssueCloseEventParser,
             PullOpenEventParser,
             PullReadyEventParser,
             PushEventParser,
@@ -57,7 +58,7 @@ class BranchEventParser(EventParser):
         )
 
 
-class IssueEventParser(EventParser):
+class IssueOpenEventParser(EventParser):
     @staticmethod
     def verify_payload(json: JSON) -> bool:
         return ("issue" in json) and (json["action"] == "opened")
@@ -66,6 +67,22 @@ class IssueEventParser(EventParser):
     def cast_payload_to_event(json: JSON) -> GitHubEvent:
         return GitHubEvent(
             event_type=EventType.issue_opened,
+            repo=json["repository"]["name"],
+            user=json["issue"]["user"]["login"],
+            number=json["issue"]["number"],
+            title=json["issue"]["title"],
+        )
+
+
+class IssueCloseEventParser(EventParser):
+    @staticmethod
+    def verify_payload(json: JSON) -> bool:
+        return ("issue" in json) and (json["action"] == "closed")
+
+    @staticmethod
+    def cast_payload_to_event(json: JSON) -> GitHubEvent:
+        return GitHubEvent(
+            event_type=EventType.issue_closed,
             repo=json["repository"]["name"],
             user=json["issue"]["user"]["login"],
             number=json["issue"]["number"],
