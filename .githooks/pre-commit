@@ -1,0 +1,25 @@
+#!/bin/bash
+
+. venv/Scripts/activate
+
+# If no changes, exit cleanly.
+changed=$(git diff --cached --name-only)
+if [[ -z "$changed" ]]; then
+    exit 0
+fi
+
+# If merge markers in changelist, throw error.
+echo "$changed" | xargs egrep '^[><=]{7}( |$)' -H -I --line-number
+if [ $? == 0 ]; then
+    echo "WARNING: You have merge markers in the above files. Fix them before committing."
+    exit 1
+fi
+
+# If wrongly formatted Python files in directory, throw error.
+black --check .
+if [ $? == 1 ]; then
+    echo "WARNING: Some Python files in the working directory are not properly formatted."
+    exit 1
+fi
+
+deactivate
