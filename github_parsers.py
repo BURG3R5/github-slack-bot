@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
-from models.event_type import EventType
-from models.github_event import GitHubEvent
+from models.github import Commit, EventType, GitHubEvent, Ref, User, Repository
+from models.slack import Link
 from utils.json_utils import JSON
 
 
@@ -53,9 +53,9 @@ class BranchEventParser(EventParser):
         return GitHubEvent(
             # TODO: Classify branch events into created and deleted.
             event_type=EventType.branch_created,
-            repo=json["repository"]["name"],
-            user=json["sender"][("name", "login")],
-            branch=json["ref"].split("/")[-1],
+            repo=Repository(name=json["repository"]["name"]),
+            user=User(name=json["sender"][("name", "login")]),
+            branch=Ref(name=json["ref"].split("/")[-1]),
         )
 
 
@@ -68,11 +68,11 @@ class CommitCommentEventParser(EventParser):
     def cast_payload_to_event(json: JSON) -> GitHubEvent:
         return GitHubEvent(
             event_type=EventType.commit_comment,
-            repo=json["repository"]["name"],
-            user=json["comment"]["user"]["login"],
+            repo=Repository(name=json["repository"]["name"]),
+            user=User(name=json["comment"]["user"]["login"]),
             comments=[json["comment"]["body"]],
-            commits=[json["comment"]["commit_id"][:8]],
-            links=[json["comment"]["html_url"]],
+            commits=[Commit(sha=json["comment"]["commit_id"][:8])],
+            links=[Link(url=json["comment"]["html_url"])],
         )
 
 
@@ -85,8 +85,8 @@ class IssueOpenEventParser(EventParser):
     def cast_payload_to_event(json: JSON) -> GitHubEvent:
         return GitHubEvent(
             event_type=EventType.issue_opened,
-            repo=json["repository"]["name"],
-            user=json["issue"]["user"]["login"],
+            repo=Repository(name=json["repository"]["name"]),
+            user=User(name=json["issue"]["user"]["login"]),
             number=json["issue"]["number"],
             title=json["issue"]["title"],
         )
@@ -101,8 +101,8 @@ class IssueCloseEventParser(EventParser):
     def cast_payload_to_event(json: JSON) -> GitHubEvent:
         return GitHubEvent(
             event_type=EventType.issue_closed,
-            repo=json["repository"]["name"],
-            user=json["issue"]["user"]["login"],
+            repo=Repository(name=json["repository"]["name"]),
+            user=User(name=json["issue"]["user"]["login"]),
             number=json["issue"]["number"],
             title=json["issue"]["title"],
         )
@@ -117,10 +117,10 @@ class PullOpenEventParser(EventParser):
     def cast_payload_to_event(json: JSON) -> GitHubEvent:
         return GitHubEvent(
             event_type=EventType.pull_opened,
-            repo=json["repository"]["name"],
+            repo=Repository(name=json["repository"]["name"]),
+            user=User(name=json["pull_request"]["user"]["login"]),
             number=json["number"],
             title=json["pull_request"]["title"],
-            user=json["pull_request"]["user"]["login"],
         )
 
 
@@ -133,10 +133,12 @@ class PullReadyEventParser(EventParser):
     def cast_payload_to_event(json: JSON) -> GitHubEvent:
         return GitHubEvent(
             event_type=EventType.pull_ready,
-            repo=json["repository"]["name"],
+            repo=Repository(name=json["repository"]["name"]),
             number=json["number"],
             title=json["pull_request"]["title"],
-            reviewers=[user["login"] for user in json["requested_reviewers"]],
+            reviewers=[
+                User(name=user["login"]) for user in json["requested_reviewers"]
+            ],
         )
 
 
@@ -148,22 +150,24 @@ class PushEventParser(EventParser):
     @staticmethod
     def cast_payload_to_event(json: JSON) -> GitHubEvent:
         base_url = json["repository"]["html_url"]
-        username = json[("pusher", "sender")][("name", "login")]
         branch_name = json["ref"].split("/")[-1]
 
         # Commits
-        commits: list[str] = []
+        commits: list[Commit] = []
         for commit in json["commits"]:
-            sha = commit["id"]
-            commit_link = base_url + f"/commit/{sha}"
-            commits.append(f"`<{commit_link}|{sha[:8]}>` - " f'*{commit["message"]}*')
+            commits.append(
+                Commit(
+                    message=commit["message"],
+                    sha=commit["id"],
+                    link=base_url + f"/commit/{commit['id']}",
+                )
+            )
 
         return GitHubEvent(
             event_type=EventType.push,
-            repo=json["repository"]["name"],
-            number_of_commits=len(commits),
-            branch=f"`<{base_url}/tree/{branch_name}|{branch_name}>`",
-            user=f"<https://github.com/{username}|{username}>",
+            repo=Repository(name=json["repository"]["name"], link=base_url),
+            branch=Ref(name=branch_name, link=f"{base_url}/tree/{branch_name}"),
+            user=User(name=json[("pusher", "sender")][("name", "login")]),
             commits=commits,
         )
 
@@ -181,10 +185,10 @@ class ReviewEventParser(EventParser):
     def cast_payload_to_event(json: JSON) -> GitHubEvent:
         return GitHubEvent(
             event_type=EventType.review,
-            repo=json["repository"]["name"],
+            repo=Repository(name=json["repository"]["name"]),
             number=json["pull_request"]["number"],
             status=json["review"]["state"].lower(),
-            reviewers=[json["review"]["user"]["login"]],
+            reviewers=[User(name=json["review"]["user"]["login"])],
         )
 
 
@@ -202,7 +206,7 @@ class TagEventParser(EventParser):
         return GitHubEvent(
             # TODO: Classify tag events into created and deleted.
             event_type=EventType.tag_created,
-            repo=json["repository"]["name"],
-            user=json["sender"][("name", "login")],
-            branch=json["ref"].split("/")[-1],
+            repo=Repository(name=json["repository"]["name"]),
+            user=User(name=json["sender"][("name", "login")]),
+            branch=Ref(name=json["ref"].split("/")[-1], ref_type="tag"),
         )

@@ -1,7 +1,7 @@
 from bottle import post, run, request
 
 from github_parsers import GitHubPayloadParser
-from models.github_event import GitHubEvent
+from models.github import GitHubEvent
 from slack_bot import SlackBot
 
 

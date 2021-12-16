@@ -5,9 +5,8 @@ from typing import Optional
 from dotenv import load_dotenv
 from slack import WebClient
 
-from models.channel import Channel
-from models.event_type import EventType
-from models.github_event import GitHubEvent
+from models.slack import Channel
+from models.github import GitHubEvent, EventType
 
 
 class SlackBot:
@@ -25,7 +24,7 @@ class SlackBot:
 
     def inform(self, event: GitHubEvent) -> None:
         message, details = SlackBot.compose_message(event)
-        correct_channels = self.calculate_channels(event.repo, event.type)
+        correct_channels = self.calculate_channels(event.repo.name, event.type)
         for channel in correct_channels:
             self.send_message(channel, message, details)
 
@@ -65,13 +64,13 @@ class SlackBot:
             message = (
                 f"{event.repo}::\t"
                 f"Review requested on #{event.number} {event.title}: "
-                f"{', '.join(event.reviewers)}"
+                f"{', '.join(reviewer.name for reviewer in event.reviewers)}"
             )
         elif event.type == EventType.push:
-            if event.number_of_commits == 1:
+            if len(event.commits) == 1:
                 message = f"{event.user} pushed to {event.branch}, one new commit:\n>{event.commits[0]}"
             else:
-                message = f"{event.user} pushed to {event.branch}, {event.number_of_commits} new commits:"
+                message = f"{event.user} pushed to {event.branch}, {len(event.commits)} new commits:"
                 for i, commit in enumerate(event.commits):
                     message += f"\n>{i}. {commit}"
         elif event.type == EventType.review:
