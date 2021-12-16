@@ -4,7 +4,7 @@ import enum
 class EventType(enum.Enum):
     branch_created = "branch created"
     # branch_deleted = 'BD'
-    # tag_created = 'TC'
+    tag_created = "tag created"
     # tag_deleted = 'TD'
 
     pull_opened = "pull request opened"

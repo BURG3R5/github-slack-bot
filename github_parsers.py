@@ -17,6 +17,7 @@ class GitHubPayloadParser:
             PullReadyEventParser,
             PushEventParser,
             ReviewEventParser,
+            TagEventParser,
         ]
         for event_parser in event_parsers:
             if event_parser.verify_payload(json):
@@ -167,4 +168,24 @@ class ReviewEventParser(EventParser):
             number=json["pull_request"]["number"],
             status=json["review"]["state"].lower(),
             reviewers=[json["review"]["user"]["login"]],
+        )
+
+
+class TagEventParser(EventParser):
+    @staticmethod
+    def verify_payload(json: JSON) -> bool:
+        return (
+            "ref_type" in json
+            and json["ref_type"] == "tag"
+            and json["pusher_type"] == "user"
+        )
+
+    @staticmethod
+    def cast_payload_to_event(json: JSON) -> GitHubEvent:
+        return GitHubEvent(
+            # TODO: Classify tag events into created and deleted.
+            event_type=EventType.tag_created,
+            repo=json["repository"]["name"],
+            user=json["sender"][("name", "login")],
+            branch=json["ref"].split("/")[-1],
         )
