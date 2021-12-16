@@ -2,11 +2,13 @@ import enum
 
 
 class EventType(enum.Enum):
+    # Ref
     branch_created = "branch created"
     # branch_deleted = 'BD'
     tag_created = "tag created"
     # tag_deleted = 'TD'
 
+    # PR/Issue
     pull_opened = "pull request opened"
     pull_ready = "pull request marked ready for review"
     # pull_merged = 'pull request merged'
@@ -17,3 +19,6 @@ class EventType(enum.Enum):
     push = "code pushed"
 
     review = "R"
+
+    # Discussion
+    commit_comment = "comment on commit"

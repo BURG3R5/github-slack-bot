@@ -14,5 +14,7 @@ class GitHubEvent:
         self.status: Optional[str] = kwargs.get("status", None)
         self.title: Optional[str] = kwargs.get("title", None)
         self.user: Optional[str] = kwargs.get("user", None)
+        self.comments: Optional[list[str]] = kwargs.get("comments", None)
         self.commits: Optional[list[str]] = kwargs.get("commits", None)
+        self.links: Optional[list[str]] = kwargs.get("links", None)
         self.reviewers: Optional[list[str]] = kwargs.get("reviewers", None)

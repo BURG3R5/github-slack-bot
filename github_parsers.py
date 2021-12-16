@@ -59,6 +59,23 @@ class BranchEventParser(EventParser):
         )
 
 
+class CommitCommentEventParser(EventParser):
+    @staticmethod
+    def verify_payload(json: JSON) -> bool:
+        return "comment" in json and json["action"] == "created"
+
+    @staticmethod
+    def cast_payload_to_event(json: JSON) -> GitHubEvent:
+        return GitHubEvent(
+            event_type=EventType.commit_comment,
+            repo=json["repository"]["name"],
+            user=json["comment"]["user"]["login"],
+            comments=[json["comment"]["body"]],
+            commits=[json["comment"]["commit_id"][:8]],
+            links=[json["comment"]["html_url"]],
+        )
+
+
 class IssueOpenEventParser(EventParser):
     @staticmethod
     def verify_payload(json: JSON) -> bool:
