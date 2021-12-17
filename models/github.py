@@ -1,8 +1,19 @@
 import enum
-from typing import Optional
+from typing import Optional, Literal
 
-from models.github import Commit, Ref, User, Repository
 from models.slack import Link
+
+
+class Commit:
+    def __init__(
+        self,
+        message: Optional[str] = None,
+        sha: Optional[str] = None,
+        link: Optional[str] = None,
+    ):
+        self.message = message
+        self.sha = sha
+        self.link = link
 
 
 class EventType(enum.Enum):
@@ -26,6 +37,30 @@ class EventType(enum.Enum):
 
     # Discussion
     commit_comment = "comment on commit"
+
+
+class Ref:
+    def __init__(
+        self,
+        name: str,
+        ref_type: Literal["branch", "tag"] = "branch",
+        **kwargs,
+    ):
+        self.name = name
+        self.link: Optional[str] = kwargs.get("link", None)
+        self.type = ref_type
+
+
+class Repository:
+    def __init__(self, name: str, **kwargs):
+        self.name = name
+        self.link: Optional[str] = kwargs.get("link", None)
+
+
+class User:
+    def __init__(self, name: str, **kwargs):
+        self.name = name
+        self.link = kwargs.get("link", f"https://github.com/{name}")
 
 
 class GitHubEvent:

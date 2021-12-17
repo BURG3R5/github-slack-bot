@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 from models.github import Commit, EventType, GitHubEvent, Ref, User, Repository
 from models.slack import Link
-from utils.json_utils import JSON
+from utils import JSON
 
 
 class GitHubPayloadParser:
