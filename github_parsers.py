@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 from models.github import Commit, EventType, GitHubEvent, Ref, User, Repository
-from models.slack import Link
+from models.link import Link
 from utils import JSON
 
 

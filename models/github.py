@@ -1,7 +1,7 @@
 import enum
 from typing import Optional, Literal
 
-from models.slack import Link
+from models.link import Link
 
 
 class Commit:
