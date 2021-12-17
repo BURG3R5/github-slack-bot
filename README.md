@@ -13,6 +13,11 @@ than the official GitHub-Slack integration.
 
 ### Setup for development
 
+#### 0. Requirements:
+
+ - Python 3.10.1 or above.
+ - Git
+
 #### 1. Clone this repo
    
 ```
@@ -56,3 +61,8 @@ $ git config --local --add core.hooksPath .githooks
 #### 6. Get the environment variables from another contributor
 #### 7. [Download and configure ngrok](https://betterprogramming.pub/ngrok-make-your-localhost-accessible-to-anyone-333b99e44b07)
 #### 8. Send your generated URL to MDG org admins
+#### 9. Run the bot
+
+```
+$ python main.py
+```
