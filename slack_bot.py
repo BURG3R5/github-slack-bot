@@ -45,36 +45,36 @@ class SlackBot:
         details = None
 
         # TODO: Beautify messages.
-        if event.type == "branch":
+        if event.type == EventType.branch_created:
             message = (
                 f"{event.repo}::\tBranch created by {event.user}: `{event.branch}`."
             )
-        elif event.type == "issue":
+        elif event.type == EventType.issue_opened:
             message = (
                 f"{event.repo}::\t"
                 f"Issue opened by {event.user}: "
                 f"#{event.number} {event.title}"
             )
-        elif event.type == "pull_open":
+        elif event.type == EventType.pull_opened:
             message = (
                 f"{event.repo}::\t"
                 f"Pull request opened by {event.user}: "
                 f"#{event.number} {event.title}"
             )
-        elif event.type == "pull_ready":
+        elif event.type == EventType.pull_ready:
             message = (
                 f"{event.repo}::\t"
                 f"Review requested on #{event.number} {event.title}: "
                 f"{', '.join(event.reviewers)}"
             )
-        elif event.type == "push":
+        elif event.type == EventType.push:
             if event.number_of_commits == 1:
                 message = f"{event.user} pushed to {event.branch}, one new commit:\n>{event.commits[0]}"
             else:
                 message = f"{event.user} pushed to {event.branch}, {event.number_of_commits} new commits:"
                 for i, commit in enumerate(event.commits):
                     message += f"\n>{i}. {commit}"
-        elif event.type == "review":
+        elif event.type == EventType.review:
             message = (
                 f"{event.repo}::\t"
                 f"Review on #{event.number} by {event.reviewers[0]}: "
