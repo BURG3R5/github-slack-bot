@@ -15,7 +15,7 @@ than the official GitHub-Slack integration.
 
 #### 0. Requirements:
 
- - Python 3.10.1 or above.
+ - Python 3.9 or above.
  - Git
 
 #### 1. Clone this repo
