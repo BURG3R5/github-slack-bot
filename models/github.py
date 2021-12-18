@@ -39,6 +39,7 @@ class EventType(enum.Enum):
     commit_comment = "comment on commit"
 
     # Misc.
+    fork = "repository forked"
     star_added = "repository starred"
     star_removed = "repository unstarred"
 

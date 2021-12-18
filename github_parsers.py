@@ -12,6 +12,7 @@ class GitHubPayloadParser:
         event_parsers: list = [
             BranchEventParser,
             CommitCommentEventParser,
+            ForkEventParser,
             IssueOpenEventParser,
             IssueCloseEventParser,
             PullOpenEventParser,
@@ -76,6 +77,21 @@ class CommitCommentEventParser(EventParser):
             comments=[json["comment"]["body"]],
             commits=[Commit(sha=json["comment"]["commit_id"][:8])],
             links=[Link(url=json["comment"]["html_url"])],
+        )
+
+
+class ForkEventParser(EventParser):
+    @staticmethod
+    def verify_payload(json: JSON) -> bool:
+        return "forkee" in json
+
+    @staticmethod
+    def cast_payload_to_event(json: JSON) -> GitHubEvent:
+        return GitHubEvent(
+            event_type=EventType.fork,
+            repo=Repository(name=json["repository"]["name"]),
+            user=User(name=json["forkee"]["sender"]["login"]),
+            links=[json["forkee"]["html_url"]],
         )
 
 
