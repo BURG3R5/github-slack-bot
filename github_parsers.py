@@ -11,12 +11,15 @@ class GitHubPayloadParser:
         json: JSON = JSON(raw_json)
         event_parsers: list = [
             BranchEventParser,
+            CommitCommentEventParser,
             IssueOpenEventParser,
             IssueCloseEventParser,
             PullOpenEventParser,
             PullReadyEventParser,
             PushEventParser,
             ReviewEventParser,
+            StarAddEventParser,
+            StarRemoveEventParser,
             TagEventParser,
         ]
         for event_parser in event_parsers:
@@ -189,6 +192,32 @@ class ReviewEventParser(EventParser):
             number=json["pull_request"]["number"],
             status=json["review"]["state"].lower(),
             reviewers=[User(name=json["review"]["user"]["login"])],
+        )
+
+
+class StarAddEventParser(EventParser):
+    @staticmethod
+    def verify_payload(json: JSON) -> bool:
+        return "starred_at" in json and json["action"] == "created"
+
+    @staticmethod
+    def cast_payload_to_event(json: JSON) -> GitHubEvent:
+        return GitHubEvent(
+            event_type=EventType.star_added,
+            repo=Repository(name=json["repository"]["name"]),
+        )
+
+
+class StarRemoveEventParser(EventParser):
+    @staticmethod
+    def verify_payload(json: JSON) -> bool:
+        return "starred_at" in json and json["action"] == "deleted"
+
+    @staticmethod
+    def cast_payload_to_event(json: JSON) -> GitHubEvent:
+        return GitHubEvent(
+            event_type=EventType.star_removed,
+            repo=Repository(name=json["repository"]["name"]),
         )
 
 

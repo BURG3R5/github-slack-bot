@@ -38,6 +38,10 @@ class EventType(enum.Enum):
     # Discussion
     commit_comment = "comment on commit"
 
+    # Misc.
+    star_added = "repository starred"
+    star_removed = "repository unstarred"
+
 
 class Ref:
     def __init__(
