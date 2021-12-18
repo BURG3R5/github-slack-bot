@@ -15,6 +15,8 @@ class GitHubPayloadParser:
             ForkEventParser,
             IssueOpenEventParser,
             IssueCloseEventParser,
+            PullCloseEventParser,
+            PullMergeEventParser,
             PullOpenEventParser,
             PullReadyEventParser,
             PushEventParser,
@@ -124,6 +126,46 @@ class IssueCloseEventParser(EventParser):
             user=User(name=json["issue"]["user"]["login"]),
             number=json["issue"]["number"],
             title=json["issue"]["title"],
+        )
+
+
+class PullCloseEventParser(EventParser):
+    @staticmethod
+    def verify_payload(json: JSON) -> bool:
+        return (
+            ("pull_request" in json)
+            and (json["action"] == "closed")
+            and (not json["pull_request"]["merged"])
+        )
+
+    @staticmethod
+    def cast_payload_to_event(json: JSON) -> GitHubEvent:
+        return GitHubEvent(
+            event_type=EventType.pull_closed,
+            repo=Repository(name=json["repository"]["name"]),
+            user=User(name=json["pull_request"]["user"]["login"]),
+            number=json["number"],
+            title=json["pull_request"]["title"],
+        )
+
+
+class PullMergeEventParser(EventParser):
+    @staticmethod
+    def verify_payload(json: JSON) -> bool:
+        return (
+            ("pull_request" in json)
+            and (json["action"] == "closed")
+            and (json["pull_request"]["merged"])
+        )
+
+    @staticmethod
+    def cast_payload_to_event(json: JSON) -> GitHubEvent:
+        return GitHubEvent(
+            event_type=EventType.pull_merged,
+            repo=Repository(name=json["repository"]["name"]),
+            user=User(name=json["pull_request"]["user"]["login"]),
+            number=json["number"],
+            title=json["pull_request"]["title"],
         )
 
 
