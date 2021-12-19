@@ -19,9 +19,9 @@ class Commit:
 class EventType(enum.Enum):
     # Ref
     branch_created = "branch created"
-    # branch_deleted = 'BD'
+    branch_deleted = "branch deleted"
     tag_created = "tag created"
-    # tag_deleted = 'TD'
+    tag_deleted = "tag deleted"
 
     # PR/Issue
     pull_closed = "pull request closed"

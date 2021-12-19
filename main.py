@@ -18,7 +18,9 @@ def test():
 
 @post("/github/events")
 def manage_github_events():
-    event: GitHubEvent = GitHubPayloadParser.parse(request.json)
+    event: GitHubEvent = GitHubPayloadParser.parse(
+        event_type=request.headers["X-GitHub-Event"], raw_json=request.json
+    )
     bot.inform(event)
 
 
