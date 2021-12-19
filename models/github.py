@@ -31,9 +31,9 @@ class EventType(enum.Enum):
     issue_opened = "issue opened"
     issue_closed = "issue closed"
 
-    push = "code pushed"
-
-    review = "R"
+    # Review
+    review = "pull request reviewed"
+    review_comment = "comment on pull request"
 
     # Discussion
     commit_comment = "comment on commit"
@@ -41,6 +41,7 @@ class EventType(enum.Enum):
 
     # Misc.
     fork = "repository forked"
+    push = "code pushed"
     release = "release"
     star_added = "repository starred"
     star_removed = "repository unstarred"

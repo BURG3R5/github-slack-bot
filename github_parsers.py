@@ -24,6 +24,7 @@ class GitHubPayloadParser:
             PushEventParser,
             ReleaseEventParser,
             ReviewEventParser,
+            ReviewCommentEventParser,
             StarAddEventParser,
             StarRemoveEventParser,
             TagCreateEventParser,
@@ -303,6 +304,26 @@ class ReviewEventParser(EventParser):
             repo=Repository(name=json["repository"]["name"]),
             number=json["pull_request"]["number"],
             status=json["review"]["state"].lower(),
+            reviewers=[User(name=json["review"]["user"]["login"])],
+        )
+
+
+class ReviewCommentEventParser(EventParser):
+    @staticmethod
+    def verify_payload(event_type: str, json: JSON) -> bool:
+        return (
+            (event_type == "pull_request_review_comment")
+            and (json["action"] == "created")
+            and (json["review"]["state"].lower() in ["approved", "changes_requested"])
+        )
+
+    @staticmethod
+    def cast_payload_to_event(event_type: str, json: JSON) -> GitHubEvent:
+        return GitHubEvent(
+            event_type=EventType.review_comment,
+            repo=Repository(name=json["repository"]["name"]),
+            number=json["pull_request"]["number"],
+            links=[Link(url=json["comment"]["url"])],
             reviewers=[User(name=json["review"]["user"]["login"])],
         )
 
