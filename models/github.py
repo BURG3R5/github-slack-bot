@@ -40,6 +40,7 @@ class EventType(enum.Enum):
 
     # Misc.
     fork = "repository forked"
+    release = "release"
     star_added = "repository starred"
     star_removed = "repository unstarred"
 

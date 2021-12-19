@@ -21,6 +21,7 @@ class GitHubPayloadParser:
             PullOpenEventParser,
             PullReadyEventParser,
             PushEventParser,
+            ReleaseEventParser,
             ReviewEventParser,
             StarAddEventParser,
             StarRemoveEventParser,
@@ -250,6 +251,21 @@ class PushEventParser(EventParser):
             branch=Ref(name=branch_name, link=f"{base_url}/tree/{branch_name}"),
             user=User(name=json[("pusher", "sender")][("name", "login")]),
             commits=commits,
+        )
+
+
+class ReleaseEventParser(EventParser):
+    @staticmethod
+    def verify_payload(event_type: str, json: JSON) -> bool:
+        return event_type == "release"
+
+    @staticmethod
+    def cast_payload_to_event(event_type: str, json: JSON) -> GitHubEvent:
+        return GitHubEvent(
+            event_type=EventType.release,
+            repo=Repository(name=json["repository"]["name"]),
+            status=json["action"],
+            title=json["tag_name"],
         )
 
 
