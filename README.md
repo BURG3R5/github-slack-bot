@@ -1,3 +1,5 @@
+[![CI](https://github.com/mdg-iitr/github-slack-bot/actions/workflows/ci.yml/badge.svg)](https://github.com/mdg-iitr/github-slack-bot/actions/workflows/ci.yml)
+
 # GitHubBot
 
 A Slack bot that informs users of updates in a GitHub org.
