@@ -15,9 +15,9 @@ class SlackBot:
         self.client = WebClient(os.environ["SLACK_OAUTH_TOKEN"])
         self.channels: dict[str, list[Channel]] = {
             "fake-rdrive-flutter": [
-                Channel("#github-slack-bot", [EventType.push, EventType.pull_opened]),
                 Channel(
-                    "#bottesting", [EventType.branch_created, EventType.issue_opened]
+                    "#github-slack-bot",
+                    [EventType.branch_created, EventType.push, EventType.pull_opened],
                 ),
             ]
         }
@@ -45,38 +45,36 @@ class SlackBot:
 
         # TODO: Beautify messages.
         if event.type == EventType.branch_created:
-            message = (
-                f"{event.repo}::\tBranch created by {event.user}: `{event.branch}`."
-            )
+            message = f"{event.repo.name}::\tBranch created by {event.user.name}: `{event.branch.name}`."
         elif event.type == EventType.issue_opened:
             message = (
-                f"{event.repo}::\t"
-                f"Issue opened by {event.user}: "
+                f"{event.repo.name}::\t"
+                f"Issue opened by {event.user.name}: "
                 f"#{event.number} {event.title}"
             )
         elif event.type == EventType.pull_opened:
             message = (
-                f"{event.repo}::\t"
-                f"Pull request opened by {event.user}: "
+                f"{event.repo.name}::\t"
+                f"Pull request opened by {event.user.name}: "
                 f"#{event.number} {event.title}"
             )
         elif event.type == EventType.pull_ready:
             message = (
-                f"{event.repo}::\t"
+                f"{event.repo.name}::\t"
                 f"Review requested on #{event.number} {event.title}: "
                 f"{', '.join(reviewer.name for reviewer in event.reviewers)}"
             )
         elif event.type == EventType.push:
             if len(event.commits) == 1:
-                message = f"{event.user} pushed to {event.branch}, one new commit:\n>{event.commits[0]}"
+                message = f"{event.user.name} pushed to {event.branch.name}, one new commit:\n>{event.commits[0]}"
             else:
-                message = f"{event.user} pushed to {event.branch}, {len(event.commits)} new commits:"
+                message = f"{event.user.name} pushed to {event.branch.name}, {len(event.commits)} new commits:"
                 for i, commit in enumerate(event.commits):
-                    message += f"\n>{i}. {commit}"
+                    message += f"\n>{i}. {commit.message}"
         elif event.type == EventType.review:
             message = (
-                f"{event.repo}::\t"
-                f"Review on #{event.number} by {event.reviewers[0]}: "
+                f"{event.repo.name}::\t"
+                f"Review on #{event.number} by {event.reviewers[0].name}: "
                 f"STATUS: {event.status}"
             )
 
