@@ -37,6 +37,7 @@ class EventType(enum.Enum):
 
     # Discussion
     commit_comment = "comment on commit"
+    issue_comment = "comment on issue"
 
     # Misc.
     fork = "repository forked"

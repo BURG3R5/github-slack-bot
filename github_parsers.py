@@ -16,6 +16,7 @@ class GitHubPayloadParser:
             ForkEventParser,
             IssueOpenEventParser,
             IssueCloseEventParser,
+            IssueCommentEventParser,
             PullCloseEventParser,
             PullMergeEventParser,
             PullOpenEventParser,
@@ -147,6 +148,23 @@ class IssueCloseEventParser(EventParser):
             user=User(name=json["issue"]["user"]["login"]),
             number=json["issue"]["number"],
             title=json["issue"]["title"],
+        )
+
+
+class IssueCommentEventParser(EventParser):
+    @staticmethod
+    def verify_payload(event_type: str, json: JSON) -> bool:
+        return (event_type == "issue_comment") and (json["action"] == "created")
+
+    @staticmethod
+    def cast_payload_to_event(event_type: str, json: JSON) -> GitHubEvent:
+        return GitHubEvent(
+            event_type=EventType.issue_comment,
+            repo=Repository(name=json["repository"]["name"]),
+            user=User(name=json["sender"]["login"]),
+            number=json["issue"]["number"],
+            title=json["issue"]["title"],
+            comments=[json["body"]],
         )
 
 
