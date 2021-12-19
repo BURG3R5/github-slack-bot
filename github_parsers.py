@@ -88,7 +88,7 @@ class BranchDeleteEventParser(EventParser):
 class CommitCommentEventParser(EventParser):
     @staticmethod
     def verify_payload(event_type: str, json: JSON) -> bool:
-        return "comment" in json and json["action"] == "created"
+        return (event_type == "commit_comment") and (json["action"] == "created")
 
     @staticmethod
     def cast_payload_to_event(event_type: str, json: JSON) -> GitHubEvent:
@@ -105,7 +105,7 @@ class CommitCommentEventParser(EventParser):
 class ForkEventParser(EventParser):
     @staticmethod
     def verify_payload(event_type: str, json: JSON) -> bool:
-        return "forkee" in json
+        return event_type == "fork"
 
     @staticmethod
     def cast_payload_to_event(event_type: str, json: JSON) -> GitHubEvent:
@@ -120,7 +120,7 @@ class ForkEventParser(EventParser):
 class IssueOpenEventParser(EventParser):
     @staticmethod
     def verify_payload(event_type: str, json: JSON) -> bool:
-        return ("issue" in json) and (json["action"] == "opened")
+        return (event_type == "issues") and (json["action"] == "opened")
 
     @staticmethod
     def cast_payload_to_event(event_type: str, json: JSON) -> GitHubEvent:
@@ -136,7 +136,7 @@ class IssueOpenEventParser(EventParser):
 class IssueCloseEventParser(EventParser):
     @staticmethod
     def verify_payload(event_type: str, json: JSON) -> bool:
-        return ("issue" in json) and (json["action"] == "closed")
+        return (event_type == "issues") and (json["action"] == "closed")
 
     @staticmethod
     def cast_payload_to_event(event_type: str, json: JSON) -> GitHubEvent:
@@ -153,7 +153,7 @@ class PullCloseEventParser(EventParser):
     @staticmethod
     def verify_payload(event_type: str, json: JSON) -> bool:
         return (
-            ("pull_request" in json)
+            (event_type == "pull_request")
             and (json["action"] == "closed")
             and (not json["pull_request"]["merged"])
         )
@@ -173,7 +173,7 @@ class PullMergeEventParser(EventParser):
     @staticmethod
     def verify_payload(event_type: str, json: JSON) -> bool:
         return (
-            ("pull_request" in json)
+            (event_type == "pull_request")
             and (json["action"] == "closed")
             and (json["pull_request"]["merged"])
         )
@@ -192,7 +192,7 @@ class PullMergeEventParser(EventParser):
 class PullOpenEventParser(EventParser):
     @staticmethod
     def verify_payload(event_type: str, json: JSON) -> bool:
-        return ("pull_request" in json) and (json["action"] == "opened")
+        return (event_type == "pull_request") and (json["action"] == "opened")
 
     @staticmethod
     def cast_payload_to_event(event_type: str, json: JSON) -> GitHubEvent:
@@ -208,7 +208,7 @@ class PullOpenEventParser(EventParser):
 class PullReadyEventParser(EventParser):
     @staticmethod
     def verify_payload(event_type: str, json: JSON) -> bool:
-        return ("pull_request" in json) and (json["action"] == "review_requested")
+        return (event_type == "pull_request") and (json["action"] == "review_requested")
 
     @staticmethod
     def cast_payload_to_event(event_type: str, json: JSON) -> GitHubEvent:
@@ -226,7 +226,7 @@ class PullReadyEventParser(EventParser):
 class PushEventParser(EventParser):
     @staticmethod
     def verify_payload(event_type: str, json: JSON) -> bool:
-        return ("commits" in json) and (len(json["commits"]) > 0)
+        return (event_type == "push") and (len(json["commits"]) > 0)
 
     @staticmethod
     def cast_payload_to_event(event_type: str, json: JSON) -> GitHubEvent:
@@ -257,7 +257,7 @@ class ReviewEventParser(EventParser):
     @staticmethod
     def verify_payload(event_type: str, json: JSON) -> bool:
         return (
-            ("review" in json)
+            (event_type == "pull_request_review")
             and (json["action"] == "submitted")
             and (json["review"]["state"].lower() in ["approved", "changes_requested"])
         )
@@ -276,7 +276,7 @@ class ReviewEventParser(EventParser):
 class StarAddEventParser(EventParser):
     @staticmethod
     def verify_payload(event_type: str, json: JSON) -> bool:
-        return "starred_at" in json and json["action"] == "created"
+        return (event_type == "star") and (json["action"] == "created")
 
     @staticmethod
     def cast_payload_to_event(event_type: str, json: JSON) -> GitHubEvent:
@@ -289,7 +289,7 @@ class StarAddEventParser(EventParser):
 class StarRemoveEventParser(EventParser):
     @staticmethod
     def verify_payload(event_type: str, json: JSON) -> bool:
-        return "starred_at" in json and json["action"] == "deleted"
+        return (event_type == "star") and (json["action"] == "deleted")
 
     @staticmethod
     def cast_payload_to_event(event_type: str, json: JSON) -> GitHubEvent:
