@@ -88,7 +88,7 @@ class SlackBot:
 
     def send_message(self, channel: str, message: str, details: Optional[str]):
         if details is None:
-            print(channel, message)
+            print(f'Sending {message} to {channel}')
             self.client.chat_postMessage(channel=channel, text=message)
         else:
             response = self.client.chat_postMessage(channel=channel, text=message)
@@ -97,12 +97,12 @@ class SlackBot:
                 channel=channel, text=details, thread_ts=message_id
             )
 
-    def run(self, raw_json: MultiDict) -> None:
+    def run(self, raw_json: MultiDict) -> Optional[dict]:
         json: JSON = JSON.from_multi_dict(raw_json)
         current_channel: str = "#" + json["channel_name"]
         command: str = json["command"]
         args: list[str] = json["text"].split()
-        repo: str = args[0]
+        repo: Optional[str] = args[0] if len(args) > 0 else None
         if command == "/subscribe":
             new_events: set[EventType] = {
                 SlackBot.convert_str_to_event_type(arg) for arg in args[1:]
@@ -171,9 +171,56 @@ class SlackBot:
         elif command == "/list":
             # TODO: List subscriptions for this channel.
             pass
-        else:
-            # TODO: Print a list of available commands and keywords for events.
-            pass
+        elif command == "/help":
+            # TODO: Prettify events section.
+            return {
+                "response_type": "ephemeral",
+                "blocks": [
+                    {
+                        "type": "section",
+                        "text": {
+                            "type": "mrkdwn",
+                            "text": (
+                                "*Commands*\n"
+                                "1. `/subscribe <repo> <event1> [<event2> ...]`\n"
+                                "2. `/unsubsribe <repo> <event1> [<event2> ...]`\n"
+                                "3. `/list`\n"
+                                "4. `/help`"
+                            ),
+                        },
+                    },
+                    {"type": "divider"},
+                    {
+                        "type": "section",
+                        "text": {
+                            "type": "mrkdwn",
+                            "text": (
+                                "*Events*\n"
+                                "GitHub events are abbreviated as follows:\n"
+                                "1. `bc`: branch_created\n"
+                                "2. `bd`: branch_deleted\n"
+                                "3. `tc`: tag_created\n"
+                                "4. `td`: tag_deleted\n"
+                                "5. `prc`: pull_closed\n"
+                                "6. `prm`: pull_merged\n"
+                                "7. `pro`: pull_opened\n"
+                                "8. `prr`: pull_ready\n"
+                                "9. `io`: issue_opened\n"
+                                "10. `ic`: issue_closed\n"
+                                "11. `rv`: review\n"
+                                "12. `rc`: review_comment\n"
+                                "13. `cc`: commit_comment\n"
+                                "14. `fk`: fork\n"
+                                "15. `p`: push\n"
+                                "16. `rl`: release\n"
+                                "17. `sa`: star_added\n"
+                                "18. `sr`: star_removed\n"
+                            ),
+                        },
+                    },
+                ],
+            }
+        return
 
     @staticmethod
     def convert_str_to_event_type(event_name: str) -> EventType:

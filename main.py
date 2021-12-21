@@ -29,8 +29,9 @@ def manage_github_events():
 
 @post("/slack/commands")
 def manage_slack_commands():
-    bot.run(request.forms)
+    response = bot.run(request.forms)
+    return response
 
 
 bot: SlackBot = SlackBot()
-run(host="", port=5556, debug=True)
+run(host="", port=5556, debug=True, reloader=True)
