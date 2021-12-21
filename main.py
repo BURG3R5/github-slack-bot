@@ -5,21 +5,24 @@ from models.github import GitHubEvent
 from slack_bot import SlackBot
 
 
-@post("/test")
-def test():
-    name: str = request.json["name"]
-    response: str = (
-        "This server is working, and to prove it to you, "
-        f"I'll guess your name!\nYour name is... {name}!"
+@get("/")
+def test_get():
+    return "This server is running!"
+
+
+@post("/")
+def test_post():
+    return (
+        f"This server is working, and to prove it to you, "
+        f"I'll guess your name!\nYour name is... {request.json['name']}!"
     )
-    print(response)
-    return response
 
 
 @post("/github/events")
 def manage_github_events():
     event: GitHubEvent = GitHubPayloadParser.parse(
-        event_type=request.headers["X-GitHub-Event"], raw_json=request.json
+        event_type=request.headers["X-GitHub-Event"],
+        raw_json=request.json,
     )
     bot.inform(event)
 

@@ -175,7 +175,6 @@ class SlackBot:
             # TODO: Print a list of available commands and keywords for events.
             pass
 
-
     @staticmethod
     def convert_str_to_event_type(event_name: str) -> EventType:
         for event_type in EventType:
