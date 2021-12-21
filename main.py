@@ -1,4 +1,4 @@
-from bottle import post, run, request
+from bottle import post, run, request, get
 
 from github_parsers import GitHubPayloadParser
 from models.github import GitHubEvent
@@ -22,6 +22,11 @@ def manage_github_events():
         event_type=request.headers["X-GitHub-Event"], raw_json=request.json
     )
     bot.inform(event)
+
+
+@post("/slack/commands")
+def manage_slack_commands():
+    bot.run(request.forms)
 
 
 bot: SlackBot = SlackBot()

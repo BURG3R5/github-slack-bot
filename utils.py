@@ -1,3 +1,6 @@
+from bottle import MultiDict
+
+
 class JSON:
     """Wrapper for a `dict`.
     Safely extracts values using multiple keys."""
@@ -26,3 +29,7 @@ class JSON:
                 return get(key)
         else:
             return keys[0].upper()
+
+    @staticmethod
+    def from_multi_dict(multi_dict: MultiDict):
+        return JSON({key: multi_dict[key] for key in multi_dict.keys()})
