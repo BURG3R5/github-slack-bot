@@ -28,6 +28,7 @@ class SlackBot:
             }
         }
 
+    # Messaging related methods
     def inform(self, event: GitHubEvent) -> None:
         message, details = SlackBot.compose_message(event)
         correct_channels = self.calculate_channels(event.repo.name, event.type)
@@ -88,7 +89,7 @@ class SlackBot:
 
     def send_message(self, channel: str, message: str, details: Optional[str]):
         if details is None:
-            print(f'Sending {message} to {channel}')
+            print(f"Sending {message} to {channel}")
             self.client.chat_postMessage(channel=channel, text=message)
         else:
             response = self.client.chat_postMessage(channel=channel, text=message)
@@ -97,6 +98,7 @@ class SlackBot:
                 channel=channel, text=details, thread_ts=message_id
             )
 
+    # Slash commands related methods
     def run(self, raw_json: MultiDict) -> Optional[dict]:
         json: JSON = JSON.from_multi_dict(raw_json)
         current_channel: str = "#" + json["channel_name"]
@@ -169,8 +171,32 @@ class SlackBot:
                         )
                     )
         elif command == "/list":
-            # TODO: List subscriptions for this channel.
-            pass
+            blocks: list[dict] = []
+            for repo in self.subscriptions.keys():
+                channels: set[Channel] = self.subscriptions[repo]
+                channel: Optional[Channel] = None
+                for subscribed_channel in channels:
+                    if subscribed_channel.name == current_channel:
+                        channel = subscribed_channel
+                if channel is None:
+                    continue
+                events_string = ", ".join(event.name for event in channel.events)
+                blocks += [
+                    {
+                        "type": "section",
+                        "text": {
+                            "type": "mrkdwn",
+                            "text": f"*{repo}*\n" + events_string,
+                        },
+                    },
+                    {
+                        "type": "divider",
+                    },
+                ]
+            return {
+                "response_type": "in_channel",
+                "blocks": blocks,
+            }
         elif command == "/help":
             # TODO: Prettify events section.
             return {
