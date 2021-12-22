@@ -1,4 +1,4 @@
-from models.event_type import EventType
+from models.github import EventType
 
 
 class Channel:

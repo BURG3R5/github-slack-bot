@@ -1,25 +1,38 @@
 from abc import ABC, abstractmethod
 
-from models.event_type import EventType
-from models.github_event import GitHubEvent
-from utils.json_utils import JSON
+from models.github import Commit, EventType, GitHubEvent, Ref, User, Repository
+from models.link import Link
+from utils import JSON
 
 
 class GitHubPayloadParser:
     @staticmethod
-    def parse(raw_json) -> GitHubEvent:
+    def parse(event_type, raw_json) -> GitHubEvent:
         json: JSON = JSON(raw_json)
         event_parsers: list = [
-            BranchEventParser,
-            IssueEventParser,
+            BranchCreateEventParser,
+            BranchDeleteEventParser,
+            CommitCommentEventParser,
+            ForkEventParser,
+            IssueOpenEventParser,
+            IssueCloseEventParser,
+            IssueCommentEventParser,
+            PullCloseEventParser,
+            PullMergeEventParser,
             PullOpenEventParser,
             PullReadyEventParser,
             PushEventParser,
+            ReleaseEventParser,
             ReviewEventParser,
+            ReviewCommentEventParser,
+            StarAddEventParser,
+            StarRemoveEventParser,
+            TagCreateEventParser,
+            TagDeleteEventParser,
         ]
         for event_parser in event_parsers:
-            if event_parser.verify_payload(json):
-                return event_parser.cast_payload_to_event(json)
+            if event_parser.verify_payload(event_type, json):
+                return event_parser.cast_payload_to_event(event_type, json)
 
 
 # Helper classes:
@@ -28,126 +41,352 @@ class GitHubPayloadParser:
 class EventParser(ABC):
     @staticmethod
     @abstractmethod
-    def verify_payload(json: JSON) -> bool:
+    def verify_payload(event_type: str, json: JSON) -> bool:
         pass
 
     @staticmethod
     @abstractmethod
-    def cast_payload_to_event(json: JSON) -> GitHubEvent:
+    def cast_payload_to_event(event_type: str, json: JSON) -> GitHubEvent:
         pass
 
 
-class BranchEventParser(EventParser):
+class BranchCreateEventParser(EventParser):
     @staticmethod
-    def verify_payload(json: JSON) -> bool:
+    def verify_payload(event_type: str, json: JSON) -> bool:
         return (
-            "ref_type" in json
+            event_type == "create"
             and json["ref_type"] == "branch"
             and json["pusher_type"] == "user"
         )
 
     @staticmethod
-    def cast_payload_to_event(json: JSON) -> GitHubEvent:
+    def cast_payload_to_event(event_type: str, json: JSON) -> GitHubEvent:
         return GitHubEvent(
-            # TODO: Classify branch events into created and deleted.
             event_type=EventType.branch_created,
-            repo=json["repository"]["name"],
-            user=json["sender"][("name", "login")],
-            branch=json["ref"].split("/")[-1],
+            repo=Repository(name=json["repository"]["name"]),
+            user=User(name=json["sender"][("name", "login")]),
+            branch=Ref(name=json["ref"].split("/")[-1]),
         )
 
 
-class IssueEventParser(EventParser):
+class BranchDeleteEventParser(EventParser):
     @staticmethod
-    def verify_payload(json: JSON) -> bool:
-        return ("issue" in json) and (json["action"] == "opened")
+    def verify_payload(event_type: str, json: JSON) -> bool:
+        return (
+            event_type == "delete"
+            and json["ref_type"] == "branch"
+            and json["pusher_type"] == "user"
+        )
 
     @staticmethod
-    def cast_payload_to_event(json: JSON) -> GitHubEvent:
+    def cast_payload_to_event(event_type: str, json: JSON) -> GitHubEvent:
+        return GitHubEvent(
+            event_type=EventType.branch_deleted,
+            repo=Repository(name=json["repository"]["name"]),
+            user=User(name=json["sender"][("name", "login")]),
+            branch=Ref(name=json["ref"].split("/")[-1]),
+        )
+
+
+class CommitCommentEventParser(EventParser):
+    @staticmethod
+    def verify_payload(event_type: str, json: JSON) -> bool:
+        return (event_type == "commit_comment") and (json["action"] == "created")
+
+    @staticmethod
+    def cast_payload_to_event(event_type: str, json: JSON) -> GitHubEvent:
+        return GitHubEvent(
+            event_type=EventType.commit_comment,
+            repo=Repository(name=json["repository"]["name"]),
+            user=User(name=json["comment"]["user"]["login"]),
+            comments=[json["comment"]["body"]],
+            commits=[Commit(sha=json["comment"]["commit_id"][:8])],
+            links=[Link(url=json["comment"]["html_url"])],
+        )
+
+
+class ForkEventParser(EventParser):
+    @staticmethod
+    def verify_payload(event_type: str, json: JSON) -> bool:
+        return event_type == "fork"
+
+    @staticmethod
+    def cast_payload_to_event(event_type: str, json: JSON) -> GitHubEvent:
+        return GitHubEvent(
+            event_type=EventType.fork,
+            repo=Repository(name=json["repository"]["name"]),
+            user=User(name=json["forkee"]["sender"]["login"]),
+            links=[json["forkee"]["html_url"]],
+        )
+
+
+class IssueOpenEventParser(EventParser):
+    @staticmethod
+    def verify_payload(event_type: str, json: JSON) -> bool:
+        return (event_type == "issues") and (json["action"] == "opened")
+
+    @staticmethod
+    def cast_payload_to_event(event_type: str, json: JSON) -> GitHubEvent:
         return GitHubEvent(
             event_type=EventType.issue_opened,
-            repo=json["repository"]["name"],
-            user=json["issue"]["user"]["login"],
+            repo=Repository(name=json["repository"]["name"]),
+            user=User(name=json["issue"]["user"]["login"]),
             number=json["issue"]["number"],
             title=json["issue"]["title"],
         )
 
 
-class PullOpenEventParser(EventParser):
+class IssueCloseEventParser(EventParser):
     @staticmethod
-    def verify_payload(json: JSON) -> bool:
-        return ("pull_request" in json) and (json["action"] == "opened")
+    def verify_payload(event_type: str, json: JSON) -> bool:
+        return (event_type == "issues") and (json["action"] == "closed")
 
     @staticmethod
-    def cast_payload_to_event(json: JSON) -> GitHubEvent:
+    def cast_payload_to_event(event_type: str, json: JSON) -> GitHubEvent:
         return GitHubEvent(
-            event_type=EventType.pull_opened,
-            repo=json["repository"]["name"],
+            event_type=EventType.issue_closed,
+            repo=Repository(name=json["repository"]["name"]),
+            user=User(name=json["issue"]["user"]["login"]),
+            number=json["issue"]["number"],
+            title=json["issue"]["title"],
+        )
+
+
+class IssueCommentEventParser(EventParser):
+    @staticmethod
+    def verify_payload(event_type: str, json: JSON) -> bool:
+        return (event_type == "issue_comment") and (json["action"] == "created")
+
+    @staticmethod
+    def cast_payload_to_event(event_type: str, json: JSON) -> GitHubEvent:
+        return GitHubEvent(
+            event_type=EventType.issue_comment,
+            repo=Repository(name=json["repository"]["name"]),
+            user=User(name=json["sender"]["login"]),
+            number=json["issue"]["number"],
+            title=json["issue"]["title"],
+            comments=[json["body"]],
+        )
+
+
+class PullCloseEventParser(EventParser):
+    @staticmethod
+    def verify_payload(event_type: str, json: JSON) -> bool:
+        return (
+            (event_type == "pull_request")
+            and (json["action"] == "closed")
+            and (not json["pull_request"]["merged"])
+        )
+
+    @staticmethod
+    def cast_payload_to_event(event_type: str, json: JSON) -> GitHubEvent:
+        return GitHubEvent(
+            event_type=EventType.pull_closed,
+            repo=Repository(name=json["repository"]["name"]),
+            user=User(name=json["pull_request"]["user"]["login"]),
             number=json["number"],
             title=json["pull_request"]["title"],
-            user=json["pull_request"]["user"]["login"],
+        )
+
+
+class PullMergeEventParser(EventParser):
+    @staticmethod
+    def verify_payload(event_type: str, json: JSON) -> bool:
+        return (
+            (event_type == "pull_request")
+            and (json["action"] == "closed")
+            and (json["pull_request"]["merged"])
+        )
+
+    @staticmethod
+    def cast_payload_to_event(event_type: str, json: JSON) -> GitHubEvent:
+        return GitHubEvent(
+            event_type=EventType.pull_merged,
+            repo=Repository(name=json["repository"]["name"]),
+            user=User(name=json["pull_request"]["user"]["login"]),
+            number=json["number"],
+            title=json["pull_request"]["title"],
+        )
+
+
+class PullOpenEventParser(EventParser):
+    @staticmethod
+    def verify_payload(event_type: str, json: JSON) -> bool:
+        return (event_type == "pull_request") and (json["action"] == "opened")
+
+    @staticmethod
+    def cast_payload_to_event(event_type: str, json: JSON) -> GitHubEvent:
+        return GitHubEvent(
+            event_type=EventType.pull_opened,
+            repo=Repository(name=json["repository"]["name"]),
+            user=User(name=json["pull_request"]["user"]["login"]),
+            number=json["number"],
+            title=json["pull_request"]["title"],
         )
 
 
 class PullReadyEventParser(EventParser):
     @staticmethod
-    def verify_payload(json: JSON) -> bool:
-        return ("pull_request" in json) and (json["action"] == "review_requested")
+    def verify_payload(event_type: str, json: JSON) -> bool:
+        return (event_type == "pull_request") and (json["action"] == "review_requested")
 
     @staticmethod
-    def cast_payload_to_event(json: JSON) -> GitHubEvent:
+    def cast_payload_to_event(event_type: str, json: JSON) -> GitHubEvent:
         return GitHubEvent(
             event_type=EventType.pull_ready,
-            repo=json["repository"]["name"],
+            repo=Repository(name=json["repository"]["name"]),
             number=json["number"],
             title=json["pull_request"]["title"],
-            reviewers=[user["login"] for user in json["requested_reviewers"]],
+            reviewers=[
+                User(name=user["login"]) for user in json["requested_reviewers"]
+            ],
         )
 
 
 class PushEventParser(EventParser):
     @staticmethod
-    def verify_payload(json: JSON) -> bool:
-        return ("commits" in json) and (len(json["commits"]) > 0)
+    def verify_payload(event_type: str, json: JSON) -> bool:
+        return (event_type == "push") and (len(json["commits"]) > 0)
 
     @staticmethod
-    def cast_payload_to_event(json: JSON) -> GitHubEvent:
+    def cast_payload_to_event(event_type: str, json: JSON) -> GitHubEvent:
         base_url = json["repository"]["html_url"]
-        username = json[("pusher", "sender")][("name", "login")]
         branch_name = json["ref"].split("/")[-1]
 
         # Commits
-        commits: list[str] = []
+        commits: list[Commit] = []
         for commit in json["commits"]:
-            sha = commit["id"]
-            commit_link = base_url + f"/commit/{sha}"
-            commits.append(f"`<{commit_link}|{sha[:8]}>` - " f'*{commit["message"]}*')
+            commits.append(
+                Commit(
+                    message=commit["message"],
+                    sha=commit["id"],
+                    link=base_url + f"/commit/{commit['id']}",
+                )
+            )
 
         return GitHubEvent(
             event_type=EventType.push,
-            repo=json["repository"]["name"],
-            number_of_commits=len(commits),
-            branch=f"`<{base_url}/tree/{branch_name}|{branch_name}>`",
-            user=f"<https://github.com/{username}|{username}>",
+            repo=Repository(name=json["repository"]["name"], link=base_url),
+            branch=Ref(name=branch_name, link=f"{base_url}/tree/{branch_name}"),
+            user=User(name=json[("pusher", "sender")][("name", "login")]),
             commits=commits,
+        )
+
+
+class ReleaseEventParser(EventParser):
+    @staticmethod
+    def verify_payload(event_type: str, json: JSON) -> bool:
+        return event_type == "release"
+
+    @staticmethod
+    def cast_payload_to_event(event_type: str, json: JSON) -> GitHubEvent:
+        return GitHubEvent(
+            event_type=EventType.release,
+            repo=Repository(name=json["repository"]["name"]),
+            status=json["action"],
+            title=json["tag_name"],
         )
 
 
 class ReviewEventParser(EventParser):
     @staticmethod
-    def verify_payload(json: JSON) -> bool:
+    def verify_payload(event_type: str, json: JSON) -> bool:
         return (
-            ("review" in json)
+            (event_type == "pull_request_review")
             and (json["action"] == "submitted")
             and (json["review"]["state"].lower() in ["approved", "changes_requested"])
         )
 
     @staticmethod
-    def cast_payload_to_event(json: JSON) -> GitHubEvent:
+    def cast_payload_to_event(event_type: str, json: JSON) -> GitHubEvent:
         return GitHubEvent(
             event_type=EventType.review,
-            repo=json["repository"]["name"],
+            repo=Repository(name=json["repository"]["name"]),
             number=json["pull_request"]["number"],
             status=json["review"]["state"].lower(),
-            reviewers=[json["review"]["user"]["login"]],
+            reviewers=[User(name=json["review"]["user"]["login"])],
+        )
+
+
+class ReviewCommentEventParser(EventParser):
+    @staticmethod
+    def verify_payload(event_type: str, json: JSON) -> bool:
+        return (
+            (event_type == "pull_request_review_comment")
+            and (json["action"] == "created")
+            and (json["review"]["state"].lower() in ["approved", "changes_requested"])
+        )
+
+    @staticmethod
+    def cast_payload_to_event(event_type: str, json: JSON) -> GitHubEvent:
+        return GitHubEvent(
+            event_type=EventType.review_comment,
+            repo=Repository(name=json["repository"]["name"]),
+            number=json["pull_request"]["number"],
+            links=[Link(url=json["comment"]["url"])],
+            reviewers=[User(name=json["review"]["user"]["login"])],
+        )
+
+
+class StarAddEventParser(EventParser):
+    @staticmethod
+    def verify_payload(event_type: str, json: JSON) -> bool:
+        return (event_type == "star") and (json["action"] == "created")
+
+    @staticmethod
+    def cast_payload_to_event(event_type: str, json: JSON) -> GitHubEvent:
+        return GitHubEvent(
+            event_type=EventType.star_added,
+            repo=Repository(name=json["repository"]["name"]),
+        )
+
+
+class StarRemoveEventParser(EventParser):
+    @staticmethod
+    def verify_payload(event_type: str, json: JSON) -> bool:
+        return (event_type == "star") and (json["action"] == "deleted")
+
+    @staticmethod
+    def cast_payload_to_event(event_type: str, json: JSON) -> GitHubEvent:
+        return GitHubEvent(
+            event_type=EventType.star_removed,
+            repo=Repository(name=json["repository"]["name"]),
+        )
+
+
+class TagCreateEventParser(EventParser):
+    @staticmethod
+    def verify_payload(event_type: str, json: JSON) -> bool:
+        return (
+            event_type == "create"
+            and json["ref_type"] == "tag"
+            and json["pusher_type"] == "user"
+        )
+
+    @staticmethod
+    def cast_payload_to_event(event_type: str, json: JSON) -> GitHubEvent:
+        return GitHubEvent(
+            event_type=EventType.tag_created,
+            repo=Repository(name=json["repository"]["name"]),
+            user=User(name=json["sender"][("name", "login")]),
+            branch=Ref(name=json["ref"].split("/")[-1], ref_type="tag"),
+        )
+
+
+class TagDeleteEventParser(EventParser):
+    @staticmethod
+    def verify_payload(event_type: str, json: JSON) -> bool:
+        return (
+            event_type == "delete"
+            and json["ref_type"] == "tag"
+            and json["pusher_type"] == "user"
+        )
+
+    @staticmethod
+    def cast_payload_to_event(event_type: str, json: JSON) -> GitHubEvent:
+        return GitHubEvent(
+            event_type=EventType.tag_deleted,
+            repo=Repository(name=json["repository"]["name"]),
+            user=User(name=json["sender"][("name", "login")]),
+            branch=Ref(name=json["ref"].split("/")[-1], ref_type="tag"),
         )
