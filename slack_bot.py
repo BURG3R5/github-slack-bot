@@ -14,7 +14,7 @@ from utils import JSON
 class SlackBot:
     def __init__(self):
         load_dotenv(Path(".") / ".env")
-        self.client = WebClient(os.environ["SLACK_OAUTH_TOKEN"])
+        self.client: WebClient = WebClient(os.environ["SLACK_OAUTH_TOKEN"])
         self.subscriptions: dict[str, set[Channel]] = {
             "fake-rdrive-flutter": {
                 Channel(
@@ -31,9 +31,12 @@ class SlackBot:
     # Messaging related methods
     def inform(self, event: GitHubEvent) -> None:
         message, details = SlackBot.compose_message(event)
-        correct_channels = self.calculate_channels(event.repo.name, event.type)
+        correct_channels: list[str] = self.calculate_channels(
+            repo=event.repo.name,
+            event_type=event.type,
+        )
         for channel in correct_channels:
-            self.send_message(channel, message, details)
+            self.send_message(channel=channel, message=message, details=details)
 
     def calculate_channels(self, repo: str, event_type: EventType) -> list[str]:
         if repo not in self.subscriptions:
@@ -41,14 +44,14 @@ class SlackBot:
         else:
             correct_channels: list[str] = []
             for channel in self.subscriptions[repo]:
-                if channel.is_subscribed_to(event_type):
+                if channel.is_subscribed_to(event=event_type):
                     correct_channels += [channel.name]
             return correct_channels
 
     @staticmethod
     def compose_message(event: GitHubEvent) -> tuple[str, Optional[str]]:
-        message = ""
-        details = None
+        message: str = ""
+        details: Optional[str] = None
 
         # TODO: Beautify messages.
         if event.type == EventType.branch_created:
@@ -87,7 +90,7 @@ class SlackBot:
 
         return message, details
 
-    def send_message(self, channel: str, message: str, details: Optional[str]):
+    def send_message(self, channel: str, message: str, details: Optional[str]) -> None:
         if details is None:
             print(f"Sending {message} to {channel}")
             self.client.chat_postMessage(channel=channel, text=message)
@@ -95,7 +98,9 @@ class SlackBot:
             response = self.client.chat_postMessage(channel=channel, text=message)
             message_id = response.data["ts"]
             self.client.chat_postMessage(
-                channel=channel, text=details, thread_ts=message_id
+                channel=channel,
+                text=details,
+                thread_ts=message_id,
             )
 
     # Slash commands related methods
@@ -128,7 +133,7 @@ class SlackBot:
                 else:
                     # If this channel has subscribed to some events
                     # from this repo, update the list of events.
-                    old_events = channel.events
+                    old_events: set[EventType] = channel.events
                     self.subscriptions[repo].remove(channel)
                     self.subscriptions[repo].add(
                         Channel(
@@ -186,7 +191,7 @@ class SlackBot:
                         "type": "section",
                         "text": {
                             "type": "mrkdwn",
-                            "text": f"*{repo}*\n" + events_string,
+                            "text": f"*{repo}*\n{events_string}",
                         },
                     },
                     {

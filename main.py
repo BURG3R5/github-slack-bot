@@ -1,3 +1,5 @@
+from typing import Optional
+
 from bottle import post, run, request, get
 
 from github_parsers import GitHubPayloadParser
@@ -29,8 +31,9 @@ def manage_github_events():
 
 @post("/slack/commands")
 def manage_slack_commands():
-    response = bot.run(request.forms)
-    return response
+    response: Optional[dict] = bot.run(raw_json=request.forms)
+    if response is not None:
+        return response
 
 
 bot: SlackBot = SlackBot()

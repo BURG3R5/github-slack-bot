@@ -1,3 +1,5 @@
+from typing import Any
+
 from bottle import MultiDict
 
 
@@ -11,7 +13,7 @@ class JSON:
     def __init__(self, json) -> None:
         self.data = json
 
-    def __getitem__(self, keys):
+    def __getitem__(self, keys) -> Any:
         def get(k):
             if isinstance(self.data[k], dict):
                 return JSON(self.data[k])

@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import Type
 
 from models.github import Commit, EventType, GitHubEvent, Ref, User, Repository
 from models.link import Link
@@ -9,7 +10,7 @@ class GitHubPayloadParser:
     @staticmethod
     def parse(event_type, raw_json) -> GitHubEvent:
         json: JSON = JSON(raw_json)
-        event_parsers: list = [
+        event_parsers: list[Type[EventParser]] = [
             BranchCreateEventParser,
             BranchDeleteEventParser,
             CommitCommentEventParser,
@@ -31,8 +32,11 @@ class GitHubPayloadParser:
             TagDeleteEventParser,
         ]
         for event_parser in event_parsers:
-            if event_parser.verify_payload(event_type, json):
-                return event_parser.cast_payload_to_event(event_type, json)
+            if event_parser.verify_payload(event_type=event_type, json=json):
+                return event_parser.cast_payload_to_event(
+                    event_type=event_type,
+                    json=json,
+                )
 
 
 # Helper classes:
