@@ -119,7 +119,7 @@ class ForkEventParser(EventParser):
         return GitHubEvent(
             event_type=EventType.fork,
             repo=Repository(name=json["repository"]["name"]),
-            user=User(name=json["forkee"]["sender"]["login"]),
+            user=User(name=json["forkee"]["owner"]["login"]),
             links=[json["forkee"]["html_url"]],
         )
 
@@ -242,7 +242,8 @@ class PullReadyEventParser(EventParser):
             number=json["number"],
             title=json["pull_request"]["title"],
             reviewers=[
-                User(name=user["login"]) for user in json["requested_reviewers"]
+                User(name=user["login"])
+                for user in json["pull_request"]["requested_reviewers"]
             ],
         )
 
@@ -280,7 +281,7 @@ class PushEventParser(EventParser):
 class ReleaseEventParser(EventParser):
     @staticmethod
     def verify_payload(event_type: str, json: JSON) -> bool:
-        return event_type == "release"
+        return (event_type == "release") and (json["action"] == "released")
 
     @staticmethod
     def cast_payload_to_event(event_type: str, json: JSON) -> GitHubEvent:
