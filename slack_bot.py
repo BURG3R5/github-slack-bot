@@ -196,6 +196,7 @@ class SlackBot:
                         name=current_channel,
                         events=(old_events.union(new_events)),
                     )
+<<<<<<< HEAD
                 )
         else:
             # If no one has subscribed to this repo, add a repo entry.
@@ -260,6 +261,69 @@ class SlackBot:
                     "text": {
                         "type": "mrkdwn",
                         "text": f"*{repo}*\n{events_string}",
+=======
+        elif command == "/list":
+            blocks: list[dict] = []
+            for repo in self.subscriptions.keys():
+                channels: set[Channel] = self.subscriptions[repo]
+                channel: Optional[Channel] = None
+                for subscribed_channel in channels:
+                    if subscribed_channel.name == current_channel:
+                        channel = subscribed_channel
+                if channel is None:
+                    continue
+                events_string = ", ".join(event.keyword for event in channel.events)
+                blocks += [
+                    {
+                        "type": "section",
+                        "text": {
+                            "type": "mrkdwn",
+                            "text": f"*{repo}*\n{events_string}",
+                        },
+                    },
+                    {
+                        "type": "divider",
+                    },
+                ]
+            return {
+                "response_type": "in_channel",
+                "blocks": blocks,
+            }
+        elif command == "/help":
+            # TODO: Prettify events section.
+            return {
+                "response_type": "ephemeral",
+                "blocks": [
+                    {
+                        "type": "section",
+                        "text": {
+                            "type": "mrkdwn",
+                            "text": (
+                                "*Commands*\n"
+                                "1. `/subscribe <repo> <event1> [<event2> ...]`\n"
+                                "2. `/unsubsribe <repo> <event1> [<event2> ...]`\n"
+                                "3. `/list`\n"
+                                "4. `/help`"
+                            ),
+                        },
+                    },
+                    {"type": "divider"},
+                    {
+                        "type": "section",
+                        "text": {
+                            "type": "mrkdwn",
+                            "text": (
+                                "*Events*\n"
+                                "GitHub events are abbreviated as follows:\n"
+                                + " ".join(
+                                    [
+                                        f"{i + 1}. `{event.keyword}`: {event.docs}\n"
+                                        for i, event in enumerate(EventType)
+                                    ]
+                                )
+                            ),
+                        },
+>>>>>>> 9f4a7c3 (rfac : Improve `EventType` enum.)
                     },
                 },
                 {
@@ -272,6 +336,7 @@ class SlackBot:
         }
 
     @staticmethod
+<<<<<<< HEAD
     def run_help_command() -> dict[str, Any]:
         """
         Triggered by "/help". Sends an ephemeral help message as response.
@@ -325,3 +390,9 @@ class SlackBot:
                 },
             ],
         }
+=======
+    def convert_str_to_event_type(event_name: str) -> EventType:
+        for event_type in EventType:
+            if event_type.keyword == event_name:
+                return event_type
+>>>>>>> 9f4a7c3 (rfac : Improve `EventType` enum.)
