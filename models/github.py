@@ -18,33 +18,33 @@ class Commit:
 
 class EventType(enum.Enum):
     # Ref
-    branch_created = "branch created"
-    branch_deleted = "branch deleted"
-    tag_created = "tag created"
-    tag_deleted = "tag deleted"
+    branch_created = "bc"
+    branch_deleted = "bd"
+    tag_created = "tc"
+    tag_deleted = "td"
 
     # PR/Issue
-    pull_closed = "pull request closed"
-    pull_merged = "pull request merged"
-    pull_opened = "pull request opened"
-    pull_ready = "pull request marked ready for review"
-    issue_opened = "issue opened"
-    issue_closed = "issue closed"
+    pull_closed = "prc"
+    pull_merged = "prm"
+    pull_opened = "pro"
+    pull_ready = "prr"
+    issue_opened = "io"
+    issue_closed = "ic"
 
     # Review
-    review = "pull request reviewed"
-    review_comment = "comment on pull request"
+    review = "rv"
+    review_comment = "rc"
 
     # Discussion
-    commit_comment = "comment on commit"
-    issue_comment = "comment on issue"
+    commit_comment = "cc"
+    issue_comment = "ic"
 
     # Misc.
-    fork = "repository forked"
-    push = "code pushed"
-    release = "release"
-    star_added = "repository starred"
-    star_removed = "repository unstarred"
+    fork = "fk"
+    push = "p"
+    release = "rl"
+    star_added = "sa"
+    star_removed = "sr"
 
 
 class Ref:
