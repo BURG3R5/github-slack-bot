@@ -17,7 +17,13 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-    - name: Lint with black
-      run: |
-        pip install black
-        black --check .
+    - name: Lint with Black and Pylint
+      uses: ricardochaves/python-lint@v1.3.0
+      with:
+        python-root-list: .
+        use-black: true
+        use-pylint: true
+        use-flake8: false
+        use-isort: false
+        use-mypy: false
+        use-pycodestyle: false
