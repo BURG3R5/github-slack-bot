@@ -37,6 +37,7 @@ class GitHubPayloadParser:
                     event_type=event_type,
                     json=json,
                 )
+        raise ValueError(f"Undefined event: {raw_json}")
 
 
 # Helper classes:

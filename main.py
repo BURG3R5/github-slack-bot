@@ -30,10 +30,11 @@ def manage_github_events():
 
 
 @post("/slack/commands")
-def manage_slack_commands():
+def manage_slack_commands() -> Optional[dict]:
     response: Optional[dict] = bot.run(raw_json=request.forms)
     if response is not None:
         return response
+    return None
 
 
 bot: SlackBot = SlackBot()

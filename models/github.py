@@ -71,6 +71,7 @@ class User:
         self.link = kwargs.get("link", f"https://github.com/{name}")
 
 
+# pylint: disable-next=too-many-instance-attributes
 class GitHubEvent:
     def __init__(self, event_type: EventType, repo: Repository, **kwargs):
         self.type = event_type

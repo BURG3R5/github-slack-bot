@@ -31,4 +31,4 @@ jobs:
       run: |
         pip install pylint
         touch __init__.py
-        pylint `pwd` --fail-under=5
+        pylint `pwd` --fail-under=5 --disable=too-few-public-methods,fixme

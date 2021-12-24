@@ -29,8 +29,7 @@ class JSON:
         for key in keys:
             if key in self.data:
                 return get(key)
-        else:
-            return keys[0].upper()
+        return keys[0].upper()
 
     @staticmethod
     def from_multi_dict(multi_dict: MultiDict):
