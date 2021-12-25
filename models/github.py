@@ -34,33 +34,33 @@ class EventType(enum.Enum):
     """
 
     # Ref
-    branch_created = ("bc", "Branch was created")
-    branch_deleted = ("bd", "Branch was deleted")
-    tag_created = ("tc", "Tag was created")
-    tag_deleted = ("td", "Tag was deleted")
+    BRANCH_CREATED = ("bc", "Branch was created")
+    BRANCH_DELETED = ("bd", "Branch was deleted")
+    TAG_CREATED = ("tc", "Tag was created")
+    TAG_DELETED = ("td", "Tag was deleted")
 
     # PR/Issue
-    pull_closed = ("prc", "Pull Request was closed")
-    pull_merged = ("prm", "Pull Request was merged")
-    pull_opened = ("pro", "Pull Request was opened")
-    pull_ready = ("prr", "Pull Request is ready")
-    issue_opened = ("io", "Issue was opened")
-    issue_closed = ("ic", "Issue was closed")
+    PULL_CLOSED = ("prc", "Pull Request was closed")
+    PULL_MERGED = ("prm", "Pull Request was merged")
+    PULL_OPENED = ("pro", "Pull Request was opened")
+    PULL_READY = ("prr", "Pull Request is ready")
+    ISSUE_OPENED = ("io", "Issue was opened")
+    ISSUE_CLOSED = ("ic", "Issue was closed")
 
     # Review
-    review = ("rv", "Review was submitted on a Pull Request")
-    review_comment = ("rc", "Comment was added to a Review")
+    REVIEW = ("rv", "Review was submitted on a Pull Request")
+    REVIEW_COMMENT = ("rc", "Comment was added to a Review")
 
     # Discussion
-    commit_comment = ("cc", "Comment was made on a commit")
-    issue_comment = ("ic", "Comment was made on an Issue")
+    COMMIT_COMMENT = ("cc", "Comment was made on a commit")
+    ISSUE_COMMENT = ("ic", "Comment was made on an Issue")
 
     # Misc.
-    fork = ("fk", "Repository was forked by user")
-    push = ("p", "Commit was pushed")
-    release = ("rl", "New release was published")
-    star_added = ("sa", "Star was added to repository")
-    star_removed = ("sr", "Star was removed from repository")
+    FORK = ("fk", "Repository was forked by user")
+    PUSH = ("p", "Commit was pushed")
+    RELEASE = ("rl", "New release was published")
+    STAR_ADDED = ("sa", "Star was added to repository")
+    STAR_REMOVED = ("sr", "Star was removed from repository")
 
     def __init__(self, keyword, docs):
         self.keyword = keyword
