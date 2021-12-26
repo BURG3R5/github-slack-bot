@@ -1,5 +1,11 @@
+# Singeltons
+.data
 .env
+__init__.py
+
+# Folders
 .idea
 venv
+
+# Patterns
 *.pyc
-__init__.py
