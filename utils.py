@@ -44,7 +44,7 @@ class JSON:
 class StorageUtils:
     @staticmethod
     def export_subscriptions(subscriptions: dict[str, set[Channel]]) -> None:
-        with open(".data", mode="w", encoding='utf-8') as file:
+        with open(".data", mode="w", encoding="utf-8") as file:
             exportable_dict: dict[str, dict[str, list[str]]] = {
                 repo: {
                     channel.name: [event.value for event in channel.events]
@@ -58,7 +58,7 @@ class StorageUtils:
     @staticmethod
     def import_subscriptions() -> dict[str, set[Channel]]:
         if exists(".data"):
-            with open(".data", encoding='utf-8') as file:
+            with open(".data", encoding="utf-8") as file:
                 imported_dict: dict[str, dict[str, list[str]]] = json.load(file)
                 subscriptions: dict[str, set[Channel]] = {
                     repo: {
