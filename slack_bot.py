@@ -8,41 +8,16 @@ from slack import WebClient
 
 from models.slack import Channel
 from models.github import GitHubEvent, EventType
-from utils import JSON
+from utils import JSON, convert_str_to_event_type, StorageUtils
 
 
 class SlackBot:
     def __init__(self):
         load_dotenv(Path(".") / ".env")
         self.client: WebClient = WebClient(os.environ["SLACK_OAUTH_TOKEN"])
-        self.subscriptions: dict[str, set[Channel]] = {
-            "fake-rdrive-flutter": {
-                Channel(
-                    "#github-slack-bot",
-                    {
-                        EventType.branch_created,
-                        EventType.branch_deleted,
-                        EventType.tag_created,
-                        EventType.tag_deleted,
-                        EventType.pull_closed,
-                        EventType.pull_merged,
-                        EventType.pull_opened,
-                        EventType.pull_ready,
-                        EventType.issue_opened,
-                        EventType.issue_closed,
-                        EventType.review,
-                        EventType.review_comment,
-                        EventType.commit_comment,
-                        EventType.issue_comment,
-                        EventType.fork,
-                        EventType.push,
-                        EventType.release,
-                        EventType.star_added,
-                        EventType.star_removed,
-                    },
-                ),
-            }
-        }
+        self.subscriptions: dict[
+            str, set[Channel]
+        ] = StorageUtils.import_subscriptions()
 
     # Messaging related methods
     def inform(self, event: GitHubEvent) -> None:
@@ -117,8 +92,8 @@ class SlackBot:
         return message, details
 
     def send_message(self, channel: str, message: str, details: Optional[str]) -> None:
+        print(f"SENDING: {message}\n\nWITH DETAILS: {details}\n\nTO: {channel}")
         if details is None:
-            print(f"Sending {message} to {channel}")
             self.client.chat_postMessage(channel=channel, text=message)
         else:
             response = self.client.chat_postMessage(channel=channel, text=message)
@@ -143,12 +118,13 @@ class SlackBot:
             return self.run_list_command(current_channel=current_channel)
         elif command == "/help":
             return self.run_help_command()
+        StorageUtils.export_subscriptions(self.subscriptions)
         return None
 
     def run_subscribe_command(self, current_channel: str, args: list[str]):
         repo: [str] = args[0]
         new_events: set[EventType] = {
-            SlackBot.convert_str_to_event_type(arg) for arg in args[1:]
+            convert_str_to_event_type(arg) for arg in args[1:]
         }
         if repo in self.subscriptions:
             channels: set[Channel] = self.subscriptions[repo]
@@ -198,7 +174,7 @@ class SlackBot:
             # from this repo, update the list of events.
             events = channel.events
             for arg in args[1:]:
-                event: EventType = SlackBot.convert_str_to_event_type(arg)
+                event: EventType = convert_str_to_event_type(arg)
                 try:
                     events.remove(event)
                 except KeyError:
