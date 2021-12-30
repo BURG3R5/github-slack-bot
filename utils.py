@@ -1,6 +1,10 @@
+"""
+Collection of miscellaneous utility methods and classes for the project.
+"""
+
 import json
 from os.path import exists
-from typing import Any
+from typing import Any, Optional
 
 from bottle import MultiDict
 
@@ -9,8 +13,11 @@ from models.slack import Channel
 
 
 class JSON:
-    """Wrapper for a `dict`.
-    Safely extracts values using multiple keys."""
+    """
+    Wrapper for a `dict`. Safely extracts values using multiple keys.
+
+    :param dictionary: A normal `dict` object.
+    """
 
     def __contains__(self, key) -> bool:
         return key in self.data
@@ -38,12 +45,25 @@ class JSON:
 
     @staticmethod
     def from_multi_dict(multi_dict: MultiDict):
+        """
+        Converts `bottle.MultiDict` to `JSON`.
+        :param multi_dict: Incoming `MultiDict`.
+        :return: `JSON` object containing the data from the `MultiDict`.
+        """
         return JSON({key: multi_dict[key] for key in multi_dict.keys()})
 
 
 class StorageUtils:
+    """
+    A wrapper around two methods dealing with saving and loading subscriptions.
+    """
+
     @staticmethod
     def export_subscriptions(subscriptions: dict[str, set[Channel]]) -> None:
+        """
+        Saves the passed subscriptions map to the file ".data".
+        :param subscriptions: Map containing the current subscriptions.
+        """
         with open(".data", mode="w", encoding="utf-8") as file:
             exportable_dict: dict[str, dict[str, list[str]]] = {
                 repo: {
@@ -57,6 +77,11 @@ class StorageUtils:
 
     @staticmethod
     def import_subscriptions() -> dict[str, set[Channel]]:
+        """
+        Loads subscriptions from the file ".data", if it exists.
+        If there is no ".data" file, returns default subscriptions for testing and dev.
+        :return: Map containing the saved subscriptions.
+        """
         if exists(".data"):
             with open(".data", encoding="utf-8") as file:
                 imported_dict: dict[str, dict[str, list[str]]] = json.load(file)
@@ -83,7 +108,14 @@ class StorageUtils:
             }
 
 
-def convert_str_to_event_type(event_keyword: str) -> EventType:
+def convert_str_to_event_type(event_keyword: str) -> Optional[EventType]:
+    """
+    Returns the `EventType` member corresponding to the passed keyword.
+    If no `EventType` is matched, returns `None`.
+    :param event_keyword: Short string representing the event.
+    :return: `EventType` member corresponding to the keyword.
+    """
     for event_type in EventType:
         if event_type.value == event_keyword:
             return event_type
+    return None
