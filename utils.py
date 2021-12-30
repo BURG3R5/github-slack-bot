@@ -4,7 +4,7 @@ from bottle import MultiDict
 
 
 class JSON:
-    """Wrapper for a `dict`.
+    """Wrapper for a [dict].
     Safely extracts values using multiple keys."""
 
     def __contains__(self, key) -> bool:
