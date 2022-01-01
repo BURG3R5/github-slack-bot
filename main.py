@@ -66,8 +66,8 @@ def manage_slack_commands() -> Optional[dict]:
     Optionally returns a Slack message dict as a reply.
     :return: Appropriate response for sent slash command in the form of a dict.
     """
-    # Unlike GitHub webhooks, Slack does not allow us to receive the data as a JSON.
-    # Hence, the data is stored in `request.forms`.
+    # Unlike GitHub webhooks, Slack does not send the data in `requests.json`.
+    # Instead, the data is passed in `request.forms`.
     response: Optional[dict] = bot.run(raw_json=request.forms)
     return response
 

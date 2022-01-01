@@ -1,6 +1,7 @@
 """
 Collection of models related to the Slack portion of the bot.
 """
+
 from models.github import EventType
 
 
