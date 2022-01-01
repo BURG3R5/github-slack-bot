@@ -70,7 +70,7 @@ class BranchCreateEventParser(EventParser):
             event_type=EventType.branch_created,
             repo=Repository(name=json["repository"]["name"]),
             user=User(name=json["sender"][("name", "login")]),
-            branch=Ref(name=json["ref"].split("/")[-1]),
+            ref=Ref(name=json["ref"].split("/")[-1]),
         )
 
 
@@ -89,7 +89,7 @@ class BranchDeleteEventParser(EventParser):
             event_type=EventType.branch_deleted,
             repo=Repository(name=json["repository"]["name"]),
             user=User(name=json["sender"][("name", "login")]),
-            branch=Ref(name=json["ref"].split("/")[-1]),
+            ref=Ref(name=json["ref"].split("/")[-1]),
         )
 
 
@@ -273,7 +273,7 @@ class PushEventParser(EventParser):
         return GitHubEvent(
             event_type=EventType.push,
             repo=Repository(name=json["repository"]["name"], link=base_url),
-            branch=Ref(name=branch_name, link=f"{base_url}/tree/{branch_name}"),
+            ref=Ref(name=branch_name, link=f"{base_url}/tree/{branch_name}"),
             user=User(name=json[("pusher", "sender")][("name", "login")]),
             commits=commits,
         )
@@ -375,7 +375,7 @@ class TagCreateEventParser(EventParser):
             event_type=EventType.tag_created,
             repo=Repository(name=json["repository"]["name"]),
             user=User(name=json["sender"][("name", "login")]),
-            branch=Ref(name=json["ref"].split("/")[-1], ref_type="tag"),
+            ref=Ref(name=json["ref"].split("/")[-1], ref_type="tag"),
         )
 
 
@@ -394,5 +394,5 @@ class TagDeleteEventParser(EventParser):
             event_type=EventType.tag_deleted,
             repo=Repository(name=json["repository"]["name"]),
             user=User(name=json["sender"][("name", "login")]),
-            branch=Ref(name=json["ref"].split("/")[-1], ref_type="tag"),
+            ref=Ref(name=json["ref"].split("/")[-1], ref_type="tag"),
         )

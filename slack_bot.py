@@ -74,7 +74,7 @@ class SlackBot:
         if event.type == EventType.branch_created:
             message = (
                 f"{event.repo.name}::\t"
-                f"Branch created by {event.user.name}: `{event.branch.name}`."
+                f"Branch created by {event.user.name}: `{event.ref.name}`."
             )
         elif event.type == EventType.issue_opened:
             message = (
@@ -98,13 +98,13 @@ class SlackBot:
             if len(event.commits) == 1:
                 message = (
                     f"{event.user.name} pushed to "
-                    f"{event.branch.name},"
+                    f"{event.ref.name},"
                     f" one new commit:\n>{event.commits[0]}"
                 )
             else:
                 message = (
                     f"{event.user.name} pushed to "
-                    f"{event.branch.name}, "
+                    f"{event.ref.name}, "
                     f"{len(event.commits)} new commits:"
                 )
                 for i, commit in enumerate(event.commits):
