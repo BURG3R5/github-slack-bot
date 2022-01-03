@@ -44,7 +44,7 @@ class JSON:
 class StorageUtils:
     @staticmethod
     def export_subscriptions(subscriptions: dict[str, set[Channel]]) -> None:
-        with open(".data", mode="w", encoding='utf-8') as file:
+        with open(".data", mode="w", encoding="utf-8") as file:
             exportable_dict: dict[str, dict[str, list[str]]] = {
                 repo: {
                     channel.name: [event.value for event in channel.events]
@@ -58,7 +58,7 @@ class StorageUtils:
     @staticmethod
     def import_subscriptions() -> dict[str, set[Channel]]:
         if exists(".data"):
-            with open(".data", encoding='utf-8') as file:
+            with open(".data", encoding="utf-8") as file:
                 imported_dict: dict[str, dict[str, list[str]]] = json.load(file)
                 subscriptions: dict[str, set[Channel]] = {
                     repo: {
@@ -78,30 +78,7 @@ class StorageUtils:
             # Default subscriptions, for dev and testing
             return {
                 "fake-rdrive-flutter": {
-                    Channel(
-                        "#github-slack-bot",
-                        {
-                            EventType.branch_created,
-                            EventType.branch_deleted,
-                            EventType.tag_created,
-                            EventType.tag_deleted,
-                            EventType.pull_closed,
-                            EventType.pull_merged,
-                            EventType.pull_opened,
-                            EventType.pull_ready,
-                            EventType.issue_opened,
-                            EventType.issue_closed,
-                            EventType.review,
-                            EventType.review_comment,
-                            EventType.commit_comment,
-                            EventType.issue_comment,
-                            EventType.fork,
-                            EventType.push,
-                            EventType.release,
-                            EventType.star_added,
-                            EventType.star_removed,
-                        },
-                    ),
+                    Channel("#github-slack-bot", set(EventType)),
                 }
             }
 
