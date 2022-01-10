@@ -126,6 +126,23 @@ class SlackBot:
         new_events: set[EventType] = {
             convert_str_to_event_type(arg) for arg in args[1:]
         }
+        for arg in args:
+            if ',' in arg:
+                event_branches = arg
+                index = args.index(arg)
+                args.pop(index)
+                colon_index = event_branches.index(':')
+                event_string = event_branches[:colon_index + 1]
+                branches = event_branches[colon_index + 1:]
+                branch = ""
+                for x in range(len(branches)):
+                    if branches[x] != ',':
+                        branch += branches[x]
+                    if branches[x] == ',' or x == len(branches) - 1:
+                        args.insert(index, event_string + branch)
+                        index += 1
+                        branch = ""
+
         if repo in self.subscriptions:
             channels: set[Channel] = self.subscriptions[repo]
             channel: Optional[Channel] = None
