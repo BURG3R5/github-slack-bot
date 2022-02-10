@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Type
+from typing import Type, Optional
 
 from models.github import Commit, EventType, GitHubEvent, Ref, User, Repository
 from models.link import Link
@@ -8,7 +8,7 @@ from utils import JSON
 
 class GitHubPayloadParser:
     @staticmethod
-    def parse(event_type, raw_json) -> GitHubEvent:
+    def parse(event_type, raw_json) -> Optional[GitHubEvent]:
         json: JSON = JSON(raw_json)
         event_parsers: list[Type[EventParser]] = [
             BranchCreateEventParser,
@@ -37,7 +37,8 @@ class GitHubPayloadParser:
                     event_type=event_type,
                     json=json,
                 )
-        raise ValueError(f"Undefined event: {raw_json}")
+        print(f"Undefined event: {raw_json}")
+        return None
 
 
 # Helper classes:

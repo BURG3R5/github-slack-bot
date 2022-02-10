@@ -150,12 +150,18 @@ class SlackBot:
         new_events: set[EventType] = {
             SlackBot.convert_str_to_event_type(arg) for arg in args[1:]
         }
+        # Remove all the entries which do not correspond to a correct [EventType].
+        new_events -= [None]
         if repo in self.subscriptions:
             channels: set[Channel] = self.subscriptions[repo]
-            channel: Optional[Channel] = None
-            for subscribed_channel in channels:
-                if subscribed_channel.name == current_channel:
-                    channel = subscribed_channel
+            channel: Optional[Channel] = next(
+                (
+                    subscribed_channel
+                    for subscribed_channel in channels
+                    if subscribed_channel.name == current_channel
+                ),
+                None,
+            )
             if channel is None:
                 # If this channel has not subscribed to any events
                 # from this repo, add a subscription.
@@ -189,16 +195,20 @@ class SlackBot:
     def run_unsubscribe_command(self, current_channel: str, args: list[str]):
         repo: [str] = args[0]
         channels: set[Channel] = self.subscriptions[repo]
-        channel: Optional[Channel] = None
-        for subscribed_channel in channels:
-            if subscribed_channel.name == current_channel:
-                channel = subscribed_channel
+        channel: Optional[Channel] = next(
+            (
+                subscribed_channel
+                for subscribed_channel in channels
+                if subscribed_channel.name == current_channel
+            ),
+            None,
+        )
         if channel is not None:
             # If this channel has subscribed to some events
             # from this repo, update the list of events.
             events = channel.events
             for arg in args[1:]:
-                event: EventType = SlackBot.convert_str_to_event_type(arg)
+                event: Optional[EventType] = SlackBot.convert_str_to_event_type(arg)
                 try:
                     events.remove(event)
                 except KeyError:
@@ -217,10 +227,14 @@ class SlackBot:
     def run_list_command(self, current_channel: str) -> dict[str, Any]:
         blocks: list[dict] = []
         for repo, channels in self.subscriptions.items():
-            channel: Optional[Channel] = None
-            for subscribed_channel in channels:
-                if subscribed_channel.name == current_channel:
-                    channel = subscribed_channel
+            channel: Optional[Channel] = next(
+                (
+                    subscribed_channel
+                    for subscribed_channel in channels
+                    if subscribed_channel.name == current_channel
+                ),
+                None,
+            )
             if channel is None:
                 continue
             events_string = ", ".join(event.name for event in channel.events)
@@ -293,8 +307,9 @@ class SlackBot:
         }
 
     @staticmethod
-    def convert_str_to_event_type(event_name: str) -> EventType:
+    def convert_str_to_event_type(event_name: str) -> Optional[EventType]:
         for event_type in EventType:
             if event_type.value == event_name:
                 return event_type
-        raise ValueError("Event not in enum")
+        print("Event not in enum")
+        return None
