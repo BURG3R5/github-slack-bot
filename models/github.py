@@ -19,9 +19,9 @@ class Commit:
 
     def __init__(
         self,
-        message: str | None = None,
-        sha: str | None = None,
-        link: str | None = None,
+        message: str,
+        sha: str,
+        link: str,
     ):
         self.message = message
         self.sha = sha
@@ -67,6 +67,42 @@ class EventType(enum.Enum):
         self.docs = docs
 
 
+class Issue:
+    """
+    Model for a GitHub issue.
+
+    :param title: Title of the issue.
+    :param number: Issue number.
+    :param link: Link to the issue.
+    """
+
+    def __init__(self, title: str, number: int, link: str):
+        self.title = title
+        self.number = number
+        self.link = link
+
+    def __str__(self):
+        return f"<{self.link}|#{self.number} {self.title}>"
+
+
+class PullRequest:
+    """
+    Model for a GitHub PR.
+
+    :param title: Title of the PR.
+    :param number: PR number.
+    :param link: Link to the PR.
+    """
+
+    def __init__(self, title: str, number: int, link: str):
+        self.title = title
+        self.number = number
+        self.link = link
+
+    def __str__(self):
+        return f"<{self.link}|#{self.number} {self.title}>"
+
+
 class Ref:
     """
     Model for a Git ref (branch/tag).
@@ -79,11 +115,12 @@ class Ref:
         self,
         name: str,
         ref_type: Literal["branch", "tag"] = "branch",
-        **kwargs,
     ):
         self.name = name
-        self.link: str | None = kwargs.get("link", None)
         self.type = ref_type
+
+    def __str__(self):
+        return self.name
 
 
 class Repository:
@@ -91,12 +128,15 @@ class Repository:
     Model for a GitHub repository.
 
     :param name: Name of the repo.
-    :keyword link: Link to the repo on GitHub.
+    :param link: Link to the repo on GitHub.
     """
 
-    def __init__(self, name: str, **kwargs):
+    def __init__(self, name: str, link: str):
         self.name = name
-        self.link: str | None = kwargs.get("link", None)
+        self.link = link
+
+    def __str__(self):
+        return f"<{self.link}|{self.name}>"
 
 
 class User:
@@ -110,6 +150,9 @@ class User:
     def __init__(self, name: str, **kwargs):
         self.name = name
         self.link = kwargs.get("link", f"https://github.com/{name}")
+
+    def __str__(self):
+        return f"<{self.link}|{self.name}>"
 
 
 # pylint: disable-next=too-many-instance-attributes
@@ -136,11 +179,10 @@ class GitHubEvent:
         self.type = event_type
         self.repo = repo
 
-        self.number: int | None = kwargs.get("number", None)
-
         self.status: str | None = kwargs.get("status", None)
-        self.title: str | None = kwargs.get("title", None)
 
+        self.issue: Issue | None = kwargs.get("issue", None)
+        self.pull_request: PullRequest | None = kwargs.get("pull_request", None)
         self.ref: Ref | None = kwargs.get("ref", None)
         self.user: User | None = kwargs.get("user", None)
 

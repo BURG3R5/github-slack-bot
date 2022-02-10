@@ -72,7 +72,7 @@ class StorageUtils:
                 }
                 for repo, channels in subscriptions.items()
             }
-            print(f"EXPORTING: {exportable_dict}")
+            print(f"EXPORTING:\n{exportable_dict}")
             json.dump(exportable_dict, file)
 
     @staticmethod

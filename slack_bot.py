@@ -61,6 +61,7 @@ class SlackBot:
         ]
         return correct_channels
 
+    # pylint: disable=too-many-branches
     @staticmethod
     def compose_message(event: GitHubEvent) -> tuple[str, str | None]:
         """
@@ -73,49 +74,67 @@ class SlackBot:
 
         # TODO: Beautify messages.
         if event.type == EventType.BRANCH_CREATED:
+            message = f"Branch created by {event.user}: `{event.ref}`"
+        elif event.type == EventType.BRANCH_DELETED:
+            message = f"Branch deleted by {event.user}: `{event.ref}`"
+        elif event.type == EventType.COMMIT_COMMENT:
             message = (
-                f"{event.repo.name}::\t"
-                f"Branch created by {event.user.name}: `{event.ref.name}`."
+                f"<{event.links[0].url}|Comment on `{event.commits[0].sha}`> "
+                f"by {event.user}\n>{event.comments[0]}"
             )
+        elif event.type == EventType.FORK:
+            message = f"<{event.links[0].url}|Repository forked> by {event.user}"
         elif event.type == EventType.ISSUE_OPENED:
+            message = f"Issue opened by {event.user}:\n>{event.issue}"
+        elif event.type == EventType.ISSUE_CLOSED:
+            message = f"Issue closed by {event.user}:\n>{event.issue}"
+        elif event.type == EventType.ISSUE_COMMENT:
+            type_of_discussion = "Issue" if "issue" in event.issue.link else "PR"
             message = (
-                f"{event.repo.name}::\t"
-                f"Issue opened by {event.user.name}: "
-                f"#{event.number} {event.title}"
+                f"<{event.links[0].url}|Comment on {type_of_discussion} #{event.issue.number}> "
+                f"by {event.user}\n>{event.comments[0]}"
             )
+        elif event.type == EventType.PULL_CLOSED:
+            message = f"PR closed by {event.user}:\n>{event.pull_request}"
+        elif event.type == EventType.PULL_MERGED:
+            message = f"PR merged by {event.user}:\n>{event.pull_request}"
         elif event.type == EventType.PULL_OPENED:
-            message = (
-                f"{event.repo.name}::\t"
-                f"Pull request opened by {event.user.name}: "
-                f"#{event.number} {event.title}"
-            )
+            message = f"PR opened by {event.user}:\n>{event.pull_request}"
         elif event.type == EventType.PULL_READY:
             message = (
-                f"{event.repo.name}::\t"
-                f"Review requested on #{event.number} {event.title}: "
-                f"{', '.join(reviewer.name for reviewer in event.reviewers)}"
+                f"Review requested on {event.pull_request}\n"
+                f">Reviewers: {', '.join(str(reviewer) for reviewer in event.reviewers)}"
             )
         elif event.type == EventType.PUSH:
+            message = f"{event.user} pushed to `{event.ref}`, "
             if len(event.commits) == 1:
-                message = (
-                    f"{event.user.name} pushed to "
-                    f"{event.ref.name},"
-                    f" one new commit:\n>{event.commits[0]}"
-                )
+                message += "1 new commit."
             else:
-                message = (
-                    f"{event.user.name} pushed to "
-                    f"{event.ref.name}, "
-                    f"{len(event.commits)} new commits:"
-                )
-                for i, commit in enumerate(event.commits):
-                    message += f"\n>{i}. {commit.message}"
+                message += f"{len(event.commits)} new commits."
+            details = "\n".join(
+                f"`{commit.sha}` - {commit.message}" for commit in event.commits
+            )
+        elif event.type == EventType.RELEASE:
+            message = f"Release {event.status} by {event.user}: `{event.ref}`"
         elif event.type == EventType.REVIEW:
             message = (
-                f"{event.repo.name}::\t"
-                f"Review on #{event.number} by {event.reviewers[0].name}: "
-                f"STATUS: {event.status}"
+                f"Review on <{event.pull_request.link}|#{event.pull_request.number}> "
+                f"by {event.reviewers[0]}:\n>Status: "
+                f"{'Approved' if event.status == 'approved' else 'Changed requested'}"
             )
+        elif event.type == EventType.REVIEW_COMMENT:
+            message = (
+                f"<{event.links[0].url}|Comment on PR #{event.pull_request.number}> "
+                f"by {event.user}\n>{event.comments[0]}"
+            )
+        elif event.type == EventType.STAR_ADDED:
+            message = f"`{event.repo.name}` received a star."
+        elif event.type == EventType.STAR_REMOVED:
+            message = f"`{event.repo.name}` lost a star."
+        elif event.type == EventType.TAG_CREATED:
+            message = f"Tag created by {event.user}: `{event.ref}`"
+        elif event.type == EventType.TAG_DELETED:
+            message = f"Tag deleted by {event.user}: `{event.ref}`"
 
         return message, details
 
@@ -127,16 +146,49 @@ class SlackBot:
         :param message: Main message, briefly summarizing the event.
         :param details: Text to be sent as a reply to the main message. Verbose stuff goes here.
         """
-        print(f"SENDING: {message}\n\nWITH DETAILS: {details}\n\nTO: {channel}")
+        print(f"\n\nSENDING:\n{message}\n\nWITH DETAILS:\n{details}\n\nTO: {channel}")
         if details is None:
-            self.client.chat_postMessage(channel=channel, text=message)
+            self.client.chat_postMessage(
+                channel=channel,
+                blocks=[
+                    {
+                        "type": "section",
+                        "text": {
+                            "type": "mrkdwn",
+                            "text": message,
+                        },
+                    }
+                ],
+                unfurl_links=False,
+            )
         else:
-            response = self.client.chat_postMessage(channel=channel, text=message)
+            response = self.client.chat_postMessage(
+                channel=channel,
+                blocks=[
+                    {
+                        "type": "section",
+                        "text": {
+                            "type": "mrkdwn",
+                            "text": message,
+                        },
+                    }
+                ],
+                unfurl_links=False,
+            )
             message_id = response.data["ts"]
             self.client.chat_postMessage(
                 channel=channel,
-                text=details,
+                blocks=[
+                    {
+                        "type": "section",
+                        "text": {
+                            "type": "mrkdwn",
+                            "text": details,
+                        },
+                    }
+                ],
                 thread_ts=message_id,
+                unfurl_links=False,
             )
 
     # Slash commands related methods

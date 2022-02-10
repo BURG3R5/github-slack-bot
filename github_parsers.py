@@ -7,11 +7,21 @@ Exposed API is only the `GitHubPayloadParser.parse` function, to serialize the r
 from abc import ABC, abstractmethod
 from typing import Type
 
-from models.github import Commit, EventType, GitHubEvent, Ref, User, Repository
+from models.github import (
+    Commit,
+    EventType,
+    GitHubEvent,
+    Issue,
+    PullRequest,
+    Ref,
+    Repository,
+    User,
+)
 from models.link import Link
 from utils import JSON
 
 
+# pylint: disable-next=too-few-public-methods
 class GitHubPayloadParser:
     """
     Wrapper for a single method (`parse`), for consistency's sake only.
@@ -37,7 +47,9 @@ class GitHubPayloadParser:
             PullCloseEventParser,
             PullMergeEventParser,
             PullOpenEventParser,
+            # TODO: vvv Some fine-tuning required vvv
             PullReadyEventParser,
+            # TODO: ^^^ Some fine-tuning required ^^^
             PushEventParser,
             ReleaseEventParser,
             ReviewEventParser,
@@ -103,7 +115,10 @@ class BranchCreateEventParser(EventParser):
     def cast_payload_to_event(event_type: str, json: JSON) -> GitHubEvent:
         return GitHubEvent(
             event_type=EventType.BRANCH_CREATED,
-            repo=Repository(name=json["repository"]["name"]),
+            repo=Repository(
+                name=json["repository"]["name"],
+                link=json["repository"]["html_url"],
+            ),
             user=User(name=json["sender"][("name", "login")]),
             ref=Ref(name=json["ref"].split("/")[-1]),
         )
@@ -126,7 +141,10 @@ class BranchDeleteEventParser(EventParser):
     def cast_payload_to_event(event_type: str, json: JSON) -> GitHubEvent:
         return GitHubEvent(
             event_type=EventType.BRANCH_DELETED,
-            repo=Repository(name=json["repository"]["name"]),
+            repo=Repository(
+                name=json["repository"]["name"],
+                link=json["repository"]["html_url"],
+            ),
             user=User(name=json["sender"][("name", "login")]),
             ref=Ref(name=json["ref"].split("/")[-1]),
         )
@@ -145,10 +163,21 @@ class CommitCommentEventParser(EventParser):
     def cast_payload_to_event(event_type: str, json: JSON) -> GitHubEvent:
         return GitHubEvent(
             event_type=EventType.COMMIT_COMMENT,
-            repo=Repository(name=json["repository"]["name"]),
+            repo=Repository(
+                name=json["repository"]["name"],
+                link=json["repository"]["html_url"],
+            ),
             user=User(name=json["comment"]["user"]["login"]),
             comments=[json["comment"]["body"]],
-            commits=[Commit(sha=json["comment"]["commit_id"][:8])],
+            commits=[
+                Commit(
+                    sha=json["comment"]["commit_id"][:8],
+                    link=json["repository"]["html_url"]
+                    + "/commit/"
+                    + json["comment"]["commit_id"][:8],
+                    message="",
+                )
+            ],
             links=[Link(url=json["comment"]["html_url"])],
         )
 
@@ -166,9 +195,12 @@ class ForkEventParser(EventParser):
     def cast_payload_to_event(event_type: str, json: JSON) -> GitHubEvent:
         return GitHubEvent(
             event_type=EventType.FORK,
-            repo=Repository(name=json["repository"]["name"]),
+            repo=Repository(
+                name=json["repository"]["name"],
+                link=json["repository"]["html_url"],
+            ),
             user=User(name=json["forkee"]["owner"]["login"]),
-            links=[json["forkee"]["html_url"]],
+            links=[Link(url=json["forkee"]["html_url"])],
         )
 
 
@@ -185,10 +217,16 @@ class IssueOpenEventParser(EventParser):
     def cast_payload_to_event(event_type: str, json: JSON) -> GitHubEvent:
         return GitHubEvent(
             event_type=EventType.ISSUE_OPENED,
-            repo=Repository(name=json["repository"]["name"]),
+            repo=Repository(
+                name=json["repository"]["name"],
+                link=json["repository"]["html_url"],
+            ),
             user=User(name=json["issue"]["user"]["login"]),
-            number=json["issue"]["number"],
-            title=json["issue"]["title"],
+            issue=Issue(
+                number=json["issue"]["number"],
+                title=json["issue"]["title"],
+                link=json["issue"]["html_url"],
+            ),
         )
 
 
@@ -205,10 +243,16 @@ class IssueCloseEventParser(EventParser):
     def cast_payload_to_event(event_type: str, json: JSON) -> GitHubEvent:
         return GitHubEvent(
             event_type=EventType.ISSUE_CLOSED,
-            repo=Repository(name=json["repository"]["name"]),
+            repo=Repository(
+                name=json["repository"]["name"],
+                link=json["repository"]["html_url"],
+            ),
             user=User(name=json["issue"]["user"]["login"]),
-            number=json["issue"]["number"],
-            title=json["issue"]["title"],
+            issue=Issue(
+                number=json["issue"]["number"],
+                title=json["issue"]["title"],
+                link=json["issue"]["html_url"],
+            ),
         )
 
 
@@ -225,11 +269,18 @@ class IssueCommentEventParser(EventParser):
     def cast_payload_to_event(event_type: str, json: JSON) -> GitHubEvent:
         return GitHubEvent(
             event_type=EventType.ISSUE_COMMENT,
-            repo=Repository(name=json["repository"]["name"]),
+            repo=Repository(
+                name=json["repository"]["name"],
+                link=json["repository"]["html_url"],
+            ),
             user=User(name=json["sender"]["login"]),
-            number=json["issue"]["number"],
-            title=json["issue"]["title"],
-            comments=[json["body"]],
+            issue=Issue(
+                number=json["issue"]["number"],
+                title=json["issue"]["title"],
+                link=json["issue"]["html_url"],
+            ),
+            comments=[json["comment"]["body"]],
+            links=[Link(url=json["comment"]["html_url"])],
         )
 
 
@@ -250,10 +301,16 @@ class PullCloseEventParser(EventParser):
     def cast_payload_to_event(event_type: str, json: JSON) -> GitHubEvent:
         return GitHubEvent(
             event_type=EventType.PULL_CLOSED,
-            repo=Repository(name=json["repository"]["name"]),
+            repo=Repository(
+                name=json["repository"]["name"],
+                link=json["repository"]["html_url"],
+            ),
             user=User(name=json["pull_request"]["user"]["login"]),
-            number=json["number"],
-            title=json["pull_request"]["title"],
+            pull_request=PullRequest(
+                number=json["pull_request"]["number"],
+                title=json["pull_request"]["title"],
+                link=json["pull_request"]["html_url"],
+            ),
         )
 
 
@@ -274,10 +331,16 @@ class PullMergeEventParser(EventParser):
     def cast_payload_to_event(event_type: str, json: JSON) -> GitHubEvent:
         return GitHubEvent(
             event_type=EventType.PULL_MERGED,
-            repo=Repository(name=json["repository"]["name"]),
+            repo=Repository(
+                name=json["repository"]["name"],
+                link=json["repository"]["html_url"],
+            ),
             user=User(name=json["pull_request"]["user"]["login"]),
-            number=json["number"],
-            title=json["pull_request"]["title"],
+            pull_request=PullRequest(
+                number=json["pull_request"]["number"],
+                title=json["pull_request"]["title"],
+                link=json["pull_request"]["html_url"],
+            ),
         )
 
 
@@ -294,10 +357,16 @@ class PullOpenEventParser(EventParser):
     def cast_payload_to_event(event_type: str, json: JSON) -> GitHubEvent:
         return GitHubEvent(
             event_type=EventType.PULL_OPENED,
-            repo=Repository(name=json["repository"]["name"]),
+            repo=Repository(
+                name=json["repository"]["name"],
+                link=json["repository"]["html_url"],
+            ),
             user=User(name=json["pull_request"]["user"]["login"]),
-            number=json["number"],
-            title=json["pull_request"]["title"],
+            pull_request=PullRequest(
+                number=json["pull_request"]["number"],
+                title=json["pull_request"]["title"],
+                link=json["pull_request"]["html_url"],
+            ),
         )
 
 
@@ -314,9 +383,15 @@ class PullReadyEventParser(EventParser):
     def cast_payload_to_event(event_type: str, json: JSON) -> GitHubEvent:
         return GitHubEvent(
             event_type=EventType.PULL_READY,
-            repo=Repository(name=json["repository"]["name"]),
-            number=json["number"],
-            title=json["pull_request"]["title"],
+            repo=Repository(
+                name=json["repository"]["name"],
+                link=json["repository"]["html_url"],
+            ),
+            pull_request=PullRequest(
+                number=json["pull_request"]["number"],
+                title=json["pull_request"]["title"],
+                link=json["pull_request"]["html_url"],
+            ),
             reviewers=[
                 User(name=user["login"])
                 for user in json["pull_request"]["requested_reviewers"]
@@ -342,7 +417,7 @@ class PushEventParser(EventParser):
         commits: list[Commit] = [
             Commit(
                 message=commit["message"],
-                sha=commit["id"],
+                sha=commit["id"][:8],
                 link=base_url + f"/commit/{commit['id']}",
             )
             for commit in json["commits"]
@@ -351,7 +426,7 @@ class PushEventParser(EventParser):
         return GitHubEvent(
             event_type=EventType.PUSH,
             repo=Repository(name=json["repository"]["name"], link=base_url),
-            ref=Ref(name=branch_name, link=f"{base_url}/tree/{branch_name}"),
+            ref=Ref(name=branch_name),
             user=User(name=json[("pusher", "sender")][("name", "login")]),
             commits=commits,
         )
@@ -370,9 +445,16 @@ class ReleaseEventParser(EventParser):
     def cast_payload_to_event(event_type: str, json: JSON) -> GitHubEvent:
         return GitHubEvent(
             event_type=EventType.RELEASE,
-            repo=Repository(name=json["repository"]["name"]),
-            status=json["action"],
-            title=json["tag_name"],
+            repo=Repository(
+                name=json["repository"]["name"],
+                link=json["repository"]["html_url"],
+            ),
+            status="created" if json["action"] == "released" else "",
+            ref=Ref(
+                name=json["release"]["tag_name"],
+                ref_type="tag",
+            ),
+            user=User(name=json["sender"]["login"]),
         )
 
 
@@ -393,10 +475,17 @@ class ReviewEventParser(EventParser):
     def cast_payload_to_event(event_type: str, json: JSON) -> GitHubEvent:
         return GitHubEvent(
             event_type=EventType.REVIEW,
-            repo=Repository(name=json["repository"]["name"]),
-            number=json["pull_request"]["number"],
+            repo=Repository(
+                name=json["repository"]["name"],
+                link=json["repository"]["html_url"],
+            ),
+            pull_request=PullRequest(
+                number=json["pull_request"]["number"],
+                title=json["pull_request"]["title"],
+                link=json["pull_request"]["html_url"],
+            ),
             status=json["review"]["state"].lower(),
-            reviewers=[User(name=json["review"]["user"]["login"])],
+            reviewers=[User(name=json["sender"]["login"])],
         )
 
 
@@ -408,19 +497,25 @@ class ReviewCommentEventParser(EventParser):
     @staticmethod
     def verify_payload(event_type: str, json: JSON) -> bool:
         return (
-            (event_type == "pull_request_review_comment")
-            and (json["action"] == "created")
-            and (json["review"]["state"].lower() in ["approved", "changes_requested"])
+            event_type == "pull_request_review_comment" and json["action"] == "created"
         )
 
     @staticmethod
     def cast_payload_to_event(event_type: str, json: JSON) -> GitHubEvent:
         return GitHubEvent(
             event_type=EventType.REVIEW_COMMENT,
-            repo=Repository(name=json["repository"]["name"]),
-            number=json["pull_request"]["number"],
+            repo=Repository(
+                name=json["repository"]["name"],
+                link=json["repository"]["html_url"],
+            ),
+            user=User(name=json["sender"]["login"]),
+            pull_request=PullRequest(
+                number=json["pull_request"]["number"],
+                title=json["pull_request"]["title"],
+                link=json["pull_request"]["html_url"],
+            ),
+            comments=[json["comment"]["body"]],
             links=[Link(url=json["comment"]["url"])],
-            reviewers=[User(name=json["review"]["user"]["login"])],
         )
 
 
@@ -437,7 +532,10 @@ class StarAddEventParser(EventParser):
     def cast_payload_to_event(event_type: str, json: JSON) -> GitHubEvent:
         return GitHubEvent(
             event_type=EventType.STAR_ADDED,
-            repo=Repository(name=json["repository"]["name"]),
+            repo=Repository(
+                name=json["repository"]["name"],
+                link=json["repository"]["html_url"],
+            ),
         )
 
 
@@ -454,7 +552,10 @@ class StarRemoveEventParser(EventParser):
     def cast_payload_to_event(event_type: str, json: JSON) -> GitHubEvent:
         return GitHubEvent(
             event_type=EventType.STAR_REMOVED,
-            repo=Repository(name=json["repository"]["name"]),
+            repo=Repository(
+                name=json["repository"]["name"],
+                link=json["repository"]["html_url"],
+            ),
         )
 
 
@@ -475,7 +576,10 @@ class TagCreateEventParser(EventParser):
     def cast_payload_to_event(event_type: str, json: JSON) -> GitHubEvent:
         return GitHubEvent(
             event_type=EventType.TAG_CREATED,
-            repo=Repository(name=json["repository"]["name"]),
+            repo=Repository(
+                name=json["repository"]["name"],
+                link=json["repository"]["html_url"],
+            ),
             user=User(name=json["sender"][("name", "login")]),
             ref=Ref(name=json["ref"].split("/")[-1], ref_type="tag"),
         )
@@ -498,7 +602,13 @@ class TagDeleteEventParser(EventParser):
     def cast_payload_to_event(event_type: str, json: JSON) -> GitHubEvent:
         return GitHubEvent(
             event_type=EventType.TAG_DELETED,
-            repo=Repository(name=json["repository"]["name"]),
+            repo=Repository(
+                name=json["repository"]["name"],
+                link=json["repository"]["html_url"],
+            ),
             user=User(name=json["sender"][("name", "login")]),
-            ref=Ref(name=json["ref"].split("/")[-1], ref_type="tag"),
+            ref=Ref(
+                name=json["ref"].split("/")[-1],
+                ref_type="tag",
+            ),
         )
