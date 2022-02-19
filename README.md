@@ -54,16 +54,10 @@ $ pip install -r requirements.txt
 ```
 Or, if your system contains both Python 2 and Python 3, use `pip3`.
 
-#### 5. Enable Git hooks
-
-```
-$ git config --local --add core.hooksPath .githooks 
-```
-
-#### 6. Get the environment variables from another contributor
-#### 7. [Download and configure ngrok](https://betterprogramming.pub/ngrok-make-your-localhost-accessible-to-anyone-333b99e44b07)
-#### 8. Send your generated URL to MDG org admins
-#### 9. Run the bot
+#### 5. Get the environment variables from another contributor
+#### 6. [Download and configure ngrok](https://betterprogramming.pub/ngrok-make-your-localhost-accessible-to-anyone-333b99e44b07)
+#### 7. Send your generated URL to MDG org admins
+#### 8. Run the bot
 
 ```
 $ python main.py

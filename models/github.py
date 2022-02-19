@@ -1,5 +1,5 @@
 import enum
-from typing import Optional, Literal
+from typing import Literal
 
 from models.link import Link
 
@@ -7,9 +7,9 @@ from models.link import Link
 class Commit:
     def __init__(
         self,
-        message: Optional[str] = None,
-        sha: Optional[str] = None,
-        link: Optional[str] = None,
+        message: str | None = None,
+        sha: str | None = None,
+        link: str | None = None,
     ):
         self.message = message
         self.sha = sha
@@ -55,14 +55,14 @@ class Ref:
         **kwargs,
     ):
         self.name = name
-        self.link: Optional[str] = kwargs.get("link", None)
+        self.link: str | None = kwargs.get("link", None)
         self.type = ref_type
 
 
 class Repository:
     def __init__(self, name: str, **kwargs):
         self.name = name
-        self.link: Optional[str] = kwargs.get("link", None)
+        self.link: str | None = kwargs.get("link", None)
 
 
 class User:
@@ -71,21 +71,22 @@ class User:
         self.link = kwargs.get("link", f"https://github.com/{name}")
 
 
+# pylint: disable-next=too-many-instance-attributes
 class GitHubEvent:
     def __init__(self, event_type: EventType, repo: Repository, **kwargs):
         self.type = event_type
         self.repo = repo
 
-        self.number: Optional[int] = kwargs.get("number", None)
+        self.number: int | None = kwargs.get("number", None)
 
-        self.status: Optional[str] = kwargs.get("status", None)
-        self.title: Optional[str] = kwargs.get("title", None)
+        self.status: str | None = kwargs.get("status", None)
+        self.title: str | None = kwargs.get("title", None)
 
-        self.branch: Optional[Ref] = kwargs.get("branch", None)
-        self.user: Optional[User] = kwargs.get("user", None)
+        self.branch: Ref | None = kwargs.get("branch", None)
+        self.user: User | None = kwargs.get("user", None)
 
-        self.comments: Optional[list[str]] = kwargs.get("comments", None)
+        self.comments: list[str] | None = kwargs.get("comments", None)
 
-        self.commits: Optional[list[Commit]] = kwargs.get("commits", None)
-        self.links: Optional[list[Link]] = kwargs.get("links", None)
-        self.reviewers: Optional[list[User]] = kwargs.get("reviewers", None)
+        self.commits: list[Commit] | None = kwargs.get("commits", None)
+        self.links: list[Link] | None = kwargs.get("links", None)
+        self.reviewers: list[User] | None = kwargs.get("reviewers", None)
