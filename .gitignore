@@ -1,4 +1,4 @@
-# Singeltons
+# Singletons
 .data
 .env
 __init__.py
