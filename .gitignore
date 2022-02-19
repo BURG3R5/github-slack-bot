@@ -1,11 +1,13 @@
 # Singletons
 .data
 .env
-__init__.py
+/__init__.py
 
 # Folders
 .idea
+.venv
 venv
+.vscode
 
 # Patterns
 *.pyc

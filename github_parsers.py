@@ -10,15 +10,15 @@ from typing import Type
 from models.github import (
     Commit,
     EventType,
-    GitHubEvent,
     Issue,
     PullRequest,
     Ref,
     Repository,
     User,
 )
+from models.github.event import GitHubEvent
 from models.link import Link
-from utils import JSON
+from utils.json import JSON
 
 
 # pylint: disable-next=too-few-public-methods
