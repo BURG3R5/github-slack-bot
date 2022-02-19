@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-from typing import Optional, Any
+from typing import Any
 
 from bottle import MultiDict
 from dotenv import load_dotenv
@@ -64,9 +64,9 @@ class SlackBot:
         return correct_channels
 
     @staticmethod
-    def compose_message(event: GitHubEvent) -> tuple[str, Optional[str]]:
+    def compose_message(event: GitHubEvent) -> tuple[str, str | None]:
         message: str = ""
-        details: Optional[str] = None
+        details: str | None = None
 
         # TODO: Beautify messages.
         if event.type == EventType.branch_created:
@@ -116,7 +116,7 @@ class SlackBot:
 
         return message, details
 
-    def send_message(self, channel: str, message: str, details: Optional[str]) -> None:
+    def send_message(self, channel: str, message: str, details: str | None) -> None:
         if details is None:
             print(f"Sending {message} to {channel}")
             self.client.chat_postMessage(channel=channel, text=message)
@@ -130,7 +130,7 @@ class SlackBot:
             )
 
     # Slash commands related methods
-    def run(self, raw_json: MultiDict) -> Optional[dict]:
+    def run(self, raw_json: MultiDict) -> str | None:
         json: JSON = JSON.from_multi_dict(raw_json)
         current_channel: str = "#" + json["channel_name"]
         command: str = json["command"]
@@ -154,7 +154,7 @@ class SlackBot:
         new_events -= [None]
         if repo in self.subscriptions:
             channels: set[Channel] = self.subscriptions[repo]
-            channel: Optional[Channel] = next(
+            channel: Channel | None = next(
                 (
                     subscribed_channel
                     for subscribed_channel in channels
@@ -195,7 +195,7 @@ class SlackBot:
     def run_unsubscribe_command(self, current_channel: str, args: list[str]):
         repo: [str] = args[0]
         channels: set[Channel] = self.subscriptions[repo]
-        channel: Optional[Channel] = next(
+        channel: Channel | None = next(
             (
                 subscribed_channel
                 for subscribed_channel in channels
@@ -208,7 +208,7 @@ class SlackBot:
             # from this repo, update the list of events.
             events = channel.events
             for arg in args[1:]:
-                event: Optional[EventType] = SlackBot.convert_str_to_event_type(arg)
+                event: EventType | None = SlackBot.convert_str_to_event_type(arg)
                 try:
                     events.remove(event)
                 except KeyError:
@@ -227,7 +227,7 @@ class SlackBot:
     def run_list_command(self, current_channel: str) -> dict[str, Any]:
         blocks: list[dict] = []
         for repo, channels in self.subscriptions.items():
-            channel: Optional[Channel] = next(
+            channel: Channel | None = next(
                 (
                     subscribed_channel
                     for subscribed_channel in channels
@@ -307,7 +307,7 @@ class SlackBot:
         }
 
     @staticmethod
-    def convert_str_to_event_type(event_name: str) -> Optional[EventType]:
+    def convert_str_to_event_type(event_name: str) -> EventType | None:
         for event_type in EventType:
             if event_type.value == event_name:
                 return event_type

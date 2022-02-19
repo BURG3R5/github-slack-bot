@@ -1,8 +1,5 @@
-from typing import Optional
-
-
 class Link:
-    def __init__(self, url: Optional[str] = None, text: Optional[str] = None):
+    def __init__(self, url: str | None = None, text: str | None = None):
         self.url = url
         self.text = text
 
