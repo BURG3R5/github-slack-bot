@@ -32,10 +32,11 @@ class SlackBot:
     def calculate_channels(self, repo: str, event_type: EventType) -> list[str]:
         if repo not in self.subscriptions:
             return []
-        correct_channels: list[str] = []
-        for channel in self.subscriptions[repo]:
-            if channel.is_subscribed_to(event=event_type):
-                correct_channels += [channel.name]
+        correct_channels: list[str] = [
+            channel.name
+            for channel in self.subscriptions[repo]
+            if channel.is_subscribed_to(event=event_type)
+        ]
         return correct_channels
 
     @staticmethod
@@ -281,11 +282,3 @@ class SlackBot:
                 },
             ],
         }
-
-    @staticmethod
-    def convert_str_to_event_type(event_name: str) -> EventType | None:
-        for event_type in EventType:
-            if event_type.value == event_name:
-                return event_type
-        print("Event not in enum")
-        return None

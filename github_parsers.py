@@ -261,15 +261,14 @@ class PushEventParser(EventParser):
         branch_name = json["ref"].split("/")[-1]
 
         # Commits
-        commits: list[Commit] = []
-        for commit in json["commits"]:
-            commits.append(
-                Commit(
-                    message=commit["message"],
-                    sha=commit["id"],
-                    link=base_url + f"/commit/{commit['id']}",
-                )
+        commits: list[Commit] = [
+            Commit(
+                message=commit["message"],
+                sha=commit["id"],
+                link=base_url + f"/commit/{commit['id']}",
             )
+            for commit in json["commits"]
+        ]
 
         return GitHubEvent(
             event_type=EventType.push,
