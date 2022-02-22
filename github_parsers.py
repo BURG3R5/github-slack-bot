@@ -1,3 +1,9 @@
+"""
+Contains the `GitHubPayloadParser` and `*EventParser` classes, to handle parsing of webhook data.
+
+Exposed API is only the `GitHubPayloadParser.parse` function, to serialize the raw event data.
+"""
+
 from abc import ABC, abstractmethod
 from typing import Type
 
@@ -7,8 +13,18 @@ from utils import JSON
 
 
 class GitHubPayloadParser:
+    """
+    Wrapper for a single method (`parse`), for consistency's sake only.
+    """
+
     @staticmethod
     def parse(event_type, raw_json) -> GitHubEvent | None:
+        """
+        Checks the data against all parsers, then returns a `GitHubEvent` using the matching parser.
+        :param event_type: Event type header received from GitHub.
+        :param raw_json: Event data body received from GitHub.
+        :return: `GitHubEvent` object containing all the relevant data about the event.
+        """
         json: JSON = JSON(raw_json)
         event_parsers: list[Type[EventParser]] = [
             BranchCreateEventParser,
@@ -45,18 +61,36 @@ class GitHubPayloadParser:
 
 
 class EventParser(ABC):
+    """
+    Abstract base class for all parsers, to enforce them to implement check and cast methods.
+    """
+
     @staticmethod
     @abstractmethod
     def verify_payload(event_type: str, json: JSON) -> bool:
-        pass
+        """
+        Verifies whether the passed event data is of the parser's type.
+        :param event_type: Event type header received from GitHub.
+        :param json: Event data body received from GitHub.
+        :return: Whether the event is of the parser's type.
+        """
 
     @staticmethod
     @abstractmethod
     def cast_payload_to_event(event_type: str, json: JSON) -> GitHubEvent:
-        pass
+        """
+        Extracts all the important data from the passed raw data, and returns it in a `GitHubEvent`.
+        :param event_type: Event type header received from GitHub.
+        :param json: Event data body received from GitHub.
+        :return: `GitHubEvent` object containing all the relevant data about the event.
+        """
 
 
 class BranchCreateEventParser(EventParser):
+    """
+    Parser for branch creation events.
+    """
+
     @staticmethod
     def verify_payload(event_type: str, json: JSON) -> bool:
         return (
@@ -71,11 +105,15 @@ class BranchCreateEventParser(EventParser):
             event_type=EventType.branch_created,
             repo=Repository(name=json["repository"]["name"]),
             user=User(name=json["sender"][("name", "login")]),
-            branch=Ref(name=json["ref"].split("/")[-1]),
+            ref=Ref(name=json["ref"].split("/")[-1]),
         )
 
 
 class BranchDeleteEventParser(EventParser):
+    """
+    Parser for branch deletion events.
+    """
+
     @staticmethod
     def verify_payload(event_type: str, json: JSON) -> bool:
         return (
@@ -90,11 +128,15 @@ class BranchDeleteEventParser(EventParser):
             event_type=EventType.branch_deleted,
             repo=Repository(name=json["repository"]["name"]),
             user=User(name=json["sender"][("name", "login")]),
-            branch=Ref(name=json["ref"].split("/")[-1]),
+            ref=Ref(name=json["ref"].split("/")[-1]),
         )
 
 
 class CommitCommentEventParser(EventParser):
+    """
+    Parser for comments on commits.
+    """
+
     @staticmethod
     def verify_payload(event_type: str, json: JSON) -> bool:
         return (event_type == "commit_comment") and (json["action"] == "created")
@@ -112,6 +154,10 @@ class CommitCommentEventParser(EventParser):
 
 
 class ForkEventParser(EventParser):
+    """
+    Parser for repository fork events.
+    """
+
     @staticmethod
     def verify_payload(event_type: str, json: JSON) -> bool:
         return event_type == "fork"
@@ -127,6 +173,10 @@ class ForkEventParser(EventParser):
 
 
 class IssueOpenEventParser(EventParser):
+    """
+    Parser for issue creation events.
+    """
+
     @staticmethod
     def verify_payload(event_type: str, json: JSON) -> bool:
         return (event_type == "issues") and (json["action"] == "opened")
@@ -143,6 +193,10 @@ class IssueOpenEventParser(EventParser):
 
 
 class IssueCloseEventParser(EventParser):
+    """
+    Parser for issue closing events.
+    """
+
     @staticmethod
     def verify_payload(event_type: str, json: JSON) -> bool:
         return (event_type == "issues") and (json["action"] == "closed")
@@ -159,6 +213,10 @@ class IssueCloseEventParser(EventParser):
 
 
 class IssueCommentEventParser(EventParser):
+    """
+    Parser for comments on issues.
+    """
+
     @staticmethod
     def verify_payload(event_type: str, json: JSON) -> bool:
         return (event_type == "issue_comment") and (json["action"] == "created")
@@ -176,6 +234,10 @@ class IssueCommentEventParser(EventParser):
 
 
 class PullCloseEventParser(EventParser):
+    """
+    Parser for PR closing events.
+    """
+
     @staticmethod
     def verify_payload(event_type: str, json: JSON) -> bool:
         return (
@@ -196,6 +258,10 @@ class PullCloseEventParser(EventParser):
 
 
 class PullMergeEventParser(EventParser):
+    """
+    Parser for PR merging events.
+    """
+
     @staticmethod
     def verify_payload(event_type: str, json: JSON) -> bool:
         return (
@@ -216,6 +282,10 @@ class PullMergeEventParser(EventParser):
 
 
 class PullOpenEventParser(EventParser):
+    """
+    Parser for PR creation events.
+    """
+
     @staticmethod
     def verify_payload(event_type: str, json: JSON) -> bool:
         return (event_type == "pull_request") and (json["action"] == "opened")
@@ -232,6 +302,10 @@ class PullOpenEventParser(EventParser):
 
 
 class PullReadyEventParser(EventParser):
+    """
+    Parser for PR review request events.
+    """
+
     @staticmethod
     def verify_payload(event_type: str, json: JSON) -> bool:
         return (event_type == "pull_request") and (json["action"] == "review_requested")
@@ -251,6 +325,10 @@ class PullReadyEventParser(EventParser):
 
 
 class PushEventParser(EventParser):
+    """
+    Parser for code push events.
+    """
+
     @staticmethod
     def verify_payload(event_type: str, json: JSON) -> bool:
         return (event_type == "push") and (len(json["commits"]) > 0)
@@ -261,26 +339,29 @@ class PushEventParser(EventParser):
         branch_name = json["ref"].split("/")[-1]
 
         # Commits
-        commits: list[Commit] = []
-        for commit in json["commits"]:
-            commits.append(
-                Commit(
-                    message=commit["message"],
-                    sha=commit["id"],
-                    link=base_url + f"/commit/{commit['id']}",
-                )
+        commits: list[Commit] = [
+            Commit(
+                message=commit["message"],
+                sha=commit["id"],
+                link=base_url + f"/commit/{commit['id']}",
             )
+            for commit in json["commits"]
+        ]
 
         return GitHubEvent(
             event_type=EventType.push,
             repo=Repository(name=json["repository"]["name"], link=base_url),
-            branch=Ref(name=branch_name, link=f"{base_url}/tree/{branch_name}"),
+            ref=Ref(name=branch_name, link=f"{base_url}/tree/{branch_name}"),
             user=User(name=json[("pusher", "sender")][("name", "login")]),
             commits=commits,
         )
 
 
 class ReleaseEventParser(EventParser):
+    """
+    Parser for release creation events.
+    """
+
     @staticmethod
     def verify_payload(event_type: str, json: JSON) -> bool:
         return (event_type == "release") and (json["action"] == "released")
@@ -296,6 +377,10 @@ class ReleaseEventParser(EventParser):
 
 
 class ReviewEventParser(EventParser):
+    """
+    Parser for PR review events.
+    """
+
     @staticmethod
     def verify_payload(event_type: str, json: JSON) -> bool:
         return (
@@ -316,6 +401,10 @@ class ReviewEventParser(EventParser):
 
 
 class ReviewCommentEventParser(EventParser):
+    """
+    Parser for comments added to PR review.
+    """
+
     @staticmethod
     def verify_payload(event_type: str, json: JSON) -> bool:
         return (
@@ -336,6 +425,10 @@ class ReviewCommentEventParser(EventParser):
 
 
 class StarAddEventParser(EventParser):
+    """
+    Parser for repository starring events.
+    """
+
     @staticmethod
     def verify_payload(event_type: str, json: JSON) -> bool:
         return (event_type == "star") and (json["action"] == "created")
@@ -349,6 +442,10 @@ class StarAddEventParser(EventParser):
 
 
 class StarRemoveEventParser(EventParser):
+    """
+    Parser for repository unstarring events.
+    """
+
     @staticmethod
     def verify_payload(event_type: str, json: JSON) -> bool:
         return (event_type == "star") and (json["action"] == "deleted")
@@ -362,6 +459,10 @@ class StarRemoveEventParser(EventParser):
 
 
 class TagCreateEventParser(EventParser):
+    """
+    Parser for tag creation events.
+    """
+
     @staticmethod
     def verify_payload(event_type: str, json: JSON) -> bool:
         return (
@@ -376,11 +477,15 @@ class TagCreateEventParser(EventParser):
             event_type=EventType.tag_created,
             repo=Repository(name=json["repository"]["name"]),
             user=User(name=json["sender"][("name", "login")]),
-            branch=Ref(name=json["ref"].split("/")[-1], ref_type="tag"),
+            ref=Ref(name=json["ref"].split("/")[-1], ref_type="tag"),
         )
 
 
 class TagDeleteEventParser(EventParser):
+    """
+    Parser for tag deletion events.
+    """
+
     @staticmethod
     def verify_payload(event_type: str, json: JSON) -> bool:
         return (
@@ -395,5 +500,5 @@ class TagDeleteEventParser(EventParser):
             event_type=EventType.tag_deleted,
             repo=Repository(name=json["repository"]["name"]),
             user=User(name=json["sender"][("name", "login")]),
-            branch=Ref(name=json["ref"].split("/")[-1], ref_type="tag"),
+            ref=Ref(name=json["ref"].split("/")[-1], ref_type="tag"),
         )
