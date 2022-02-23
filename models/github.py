@@ -40,19 +40,19 @@ class EventType(enum.Enum):
     TAG_DELETED = ("td", "Tag was deleted")
 
     # PR/Issue
-    PULL_CLOSED = ("prc", "Pull Request was closed")
-    PULL_MERGED = ("prm", "Pull Request was merged")
-    PULL_OPENED = ("pro", "Pull Request was opened")
-    PULL_READY = ("prr", "Pull Request is ready")
-    ISSUE_OPENED = ("io", "Issue was opened")
-    ISSUE_CLOSED = ("ic", "Issue was closed")
+    PULL_CLOSED = ("prc", "A Pull Request was closed")
+    PULL_MERGED = ("prm", "A Pull Request was merged")
+    PULL_OPENED = ("pro", "A Pull Request was opened")
+    PULL_READY = ("prr", "A Pull Request is ready")
+    ISSUE_OPENED = ("io", "An Issue was opened")
+    ISSUE_CLOSED = ("ic", "An Issue was closed")
 
     # Review
-    REVIEW = ("rv", "Review was submitted on a Pull Request")
+    REVIEW = ("rv", "Review was given on a Pull Request")
     REVIEW_COMMENT = ("rc", "Comment was added to a Review")
 
     # Discussion
-    COMMIT_COMMENT = ("cc", "Comment was made on a commit")
+    COMMIT_COMMENT = ("cc", "Comment was made on a Commit")
     ISSUE_COMMENT = ("ic", "Comment was made on an Issue")
 
     # Misc.
