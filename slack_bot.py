@@ -72,30 +72,30 @@ class SlackBot:
         details: str | None = None
 
         # TODO: Beautify messages.
-        if event.type == EventType.branch_created:
+        if event.type == EventType.BRANCH_CREATED:
             message = (
                 f"{event.repo.name}::\t"
                 f"Branch created by {event.user.name}: `{event.ref.name}`."
             )
-        elif event.type == EventType.issue_opened:
+        elif event.type == EventType.ISSUE_OPENED:
             message = (
                 f"{event.repo.name}::\t"
                 f"Issue opened by {event.user.name}: "
                 f"#{event.number} {event.title}"
             )
-        elif event.type == EventType.pull_opened:
+        elif event.type == EventType.PULL_OPENED:
             message = (
                 f"{event.repo.name}::\t"
                 f"Pull request opened by {event.user.name}: "
                 f"#{event.number} {event.title}"
             )
-        elif event.type == EventType.pull_ready:
+        elif event.type == EventType.PULL_READY:
             message = (
                 f"{event.repo.name}::\t"
                 f"Review requested on #{event.number} {event.title}: "
                 f"{', '.join(reviewer.name for reviewer in event.reviewers)}"
             )
-        elif event.type == EventType.push:
+        elif event.type == EventType.PUSH:
             if len(event.commits) == 1:
                 message = (
                     f"{event.user.name} pushed to "
@@ -110,7 +110,7 @@ class SlackBot:
                 )
                 for i, commit in enumerate(event.commits):
                     message += f"\n>{i}. {commit.message}"
-        elif event.type == EventType.review:
+        elif event.type == EventType.REVIEW:
             message = (
                 f"{event.repo.name}::\t"
                 f"Review on #{event.number} by {event.reviewers[0].name}: "
@@ -268,7 +268,7 @@ class SlackBot:
             )
             if channel is None:
                 continue
-            events_string = ", ".join(event.name for event in channel.events)
+            events_string = ", ".join(event.keyword for event in channel.events)
             blocks += [
                 {
                     "type": "section",
@@ -317,24 +317,12 @@ class SlackBot:
                         "text": (
                             "*Events*\n"
                             "GitHub events are abbreviated as follows:\n"
-                            "1. `bc`: branch_created\n"
-                            "2. `bd`: branch_deleted\n"
-                            "3. `tc`: tag_created\n"
-                            "4. `td`: tag_deleted\n"
-                            "5. `prc`: pull_closed\n"
-                            "6. `prm`: pull_merged\n"
-                            "7. `pro`: pull_opened\n"
-                            "8. `prr`: pull_ready\n"
-                            "9. `io`: issue_opened\n"
-                            "10. `ic`: issue_closed\n"
-                            "11. `rv`: review\n"
-                            "12. `rc`: review_comment\n"
-                            "13. `cc`: commit_comment\n"
-                            "14. `fk`: fork\n"
-                            "15. `p`: push\n"
-                            "16. `rl`: release\n"
-                            "17. `sa`: star_added\n"
-                            "18. `sr`: star_removed\n"
+                            + " ".join(
+                                [
+                                    f"{i + 1}. `{event.keyword}`: {event.docs}\n"
+                                    for i, event in enumerate(EventType)
+                                ]
+                            )
                         ),
                     },
                 },

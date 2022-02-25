@@ -34,33 +34,37 @@ class EventType(enum.Enum):
     """
 
     # Ref
-    branch_created = "bc"
-    branch_deleted = "bd"
-    tag_created = "tc"
-    tag_deleted = "td"
+    BRANCH_CREATED = ("bc", "Branch was created")
+    BRANCH_DELETED = ("bd", "Branch was deleted")
+    TAG_CREATED = ("tc", "Tag was created")
+    TAG_DELETED = ("td", "Tag was deleted")
 
     # PR/Issue
-    pull_closed = "prc"
-    pull_merged = "prm"
-    pull_opened = "pro"
-    pull_ready = "prr"
-    issue_opened = "io"
-    issue_closed = "ic"
+    PULL_CLOSED = ("prc", "A Pull Request was closed")
+    PULL_MERGED = ("prm", "A Pull Request was merged")
+    PULL_OPENED = ("pro", "A Pull Request was opened")
+    PULL_READY = ("prr", "A Pull Request is ready")
+    ISSUE_OPENED = ("io", "An Issue was opened")
+    ISSUE_CLOSED = ("ic", "An Issue was closed")
 
     # Review
-    review = "rv"
-    review_comment = "rc"
+    REVIEW = ("rv", "Review was given on a Pull Request")
+    REVIEW_COMMENT = ("rc", "Comment was added to a Review")
 
     # Discussion
-    commit_comment = "cc"
-    issue_comment = "ic"
+    COMMIT_COMMENT = ("cc", "Comment was made on a Commit")
+    ISSUE_COMMENT = ("ic", "Comment was made on an Issue")
 
     # Misc.
-    fork = "fk"
-    push = "p"
-    release = "rl"
-    star_added = "sa"
-    star_removed = "sr"
+    FORK = ("fk", "Repository was forked by user")
+    PUSH = ("p", "Commit was pushed")
+    RELEASE = ("rl", "New release was published")
+    STAR_ADDED = ("sa", "Star was added to repository")
+    STAR_REMOVED = ("sr", "Star was removed from repository")
+
+    def __init__(self, keyword, docs):
+        self.keyword = keyword
+        self.docs = docs
 
 
 class Ref:
