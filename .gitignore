@@ -1,6 +1,7 @@
 # Singletons
 .env
 /__init__.py
+.table.png
 
 # IDE config folders
 .idea

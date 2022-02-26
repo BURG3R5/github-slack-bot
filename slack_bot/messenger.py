@@ -59,7 +59,6 @@ class Messenger:
         message: str = ""
         details: str | None = None
 
-        # TODO: Beautify messages.
         if event.type == EventType.BRANCH_CREATED:
             message = f"Branch created by {event.user}: `{event.ref}`"
         elif event.type == EventType.BRANCH_DELETED:
