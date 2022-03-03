@@ -1,13 +1,15 @@
 # Singletons
-.data
 .env
 /__init__.py
 
-# Folders
+# IDE config folders
 .idea
-.venv
-venv
 .vscode
 
-# Patterns
-*.pyc
+# Virtual environment folders
+.venv
+venv
+
+# Temporary files
+.data
+__pycache__/
