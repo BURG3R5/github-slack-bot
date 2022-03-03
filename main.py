@@ -17,9 +17,9 @@ import os
 from pathlib import Path
 from typing import Any
 
-from bottle import post, run, request, get
-from dotenv import load_dotenv
 import sentry_sdk
+from bottle import get, post, request, run
+from dotenv import load_dotenv
 from sentry_sdk.integrations.bottle import BottleIntegration
 
 from github_parsers import GitHubPayloadParser

@@ -27,6 +27,11 @@ jobs:
         pip install black
         black --check .
 
+    - name: Lint with isort
+      run: |
+        pip install isort
+        isort --check .
+
     - name: Lint with Pylint
       run: |
         pip install pylint
