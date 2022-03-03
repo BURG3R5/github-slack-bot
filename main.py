@@ -11,12 +11,19 @@ Triggers `manage_github_events` which uses `GitHubPayloadParser.parse` and `Slac
 "/slack/commands" is provided to Slack to POST slash command info at.
 Triggers `manage_slack_commands` which uses `SlackBot.run`.
 """
+
+
+import os
+from pathlib import Path
 from typing import Any
 
 from bottle import post, run, request, get
+from dotenv import load_dotenv
+import sentry_sdk
+from sentry_sdk.integrations.bottle import BottleIntegration
 
 from github_parsers import GitHubPayloadParser
-from models.github import GitHubEvent
+from models.github.event import GitHubEvent
 from slack_bot import SlackBot
 
 
@@ -64,7 +71,7 @@ def manage_slack_commands() -> dict | None:
     """
     Uses a `SlackBot` instance to run the slash command triggered by the user.
     Optionally returns a Slack message dict as a reply.
-    :return: Appropriate response for sent slash command in the form of a dict.
+    :return: Appropriate response for received slash command in Slack block format.
     """
     # Unlike GitHub webhooks, Slack does not send the data in `requests.json`.
     # Instead, the data is passed in `request.forms`.
@@ -72,5 +79,16 @@ def manage_slack_commands() -> dict | None:
     return response
 
 
-bot: SlackBot = SlackBot()
-run(host="", port=5556, debug=True)
+if __name__ == "__main__":
+    load_dotenv(Path(".") / ".env")
+    debug: bool = os.environ["DEBUG"] == "1"
+
+    if not debug:
+        # pylint: disable-next=abstract-class-instantiated
+        sentry_sdk.init(
+            dsn=os.environ["SENTRY_DSN"],
+            integrations=[BottleIntegration()],
+        )
+
+    bot: SlackBot = SlackBot(token=os.environ["SLACK_OAUTH_TOKEN"])
+    run(host="", port=5556, debug=True)

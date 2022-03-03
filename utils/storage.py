@@ -1,59 +1,15 @@
 """
-Collection of miscellaneous utility methods and classes for the project.
+Contains the `Storage` class, to save and load subscriptions from a JSON file.
 """
 
 import json
-from os.path import exists
-from typing import Any
+import os
 
-from bottle import MultiDict
-
-from models.github import EventType
+from models.github import EventType, convert_str_to_event_type
 from models.slack import Channel
 
 
-class JSON:
-    """
-    Wrapper for a `dict`. Safely extracts values using multiple keys.
-
-    :param dictionary: A normal `dict` object.
-    """
-
-    def __contains__(self, key) -> bool:
-        return key in self.data
-
-    def __init__(self, dictionary) -> None:
-        self.data = dictionary
-
-    def __getitem__(self, keys) -> Any:
-        def get(k):
-            if isinstance(self.data[k], dict):
-                return JSON(self.data[k])
-            return self.data[k]
-
-        # Single key
-        if isinstance(keys, str):
-            key = keys
-            if key in self.data:
-                return get(key)
-            return key.upper()
-        # Multiple keys
-        for key in keys:
-            if key in self.data:
-                return get(key)
-        return keys[0].upper()
-
-    @staticmethod
-    def from_multi_dict(multi_dict: MultiDict):
-        """
-        Converts `bottle.MultiDict` to `JSON`.
-        :param multi_dict: Incoming `MultiDict`.
-        :return: `JSON` object containing the data from the `MultiDict`.
-        """
-        return JSON({key: multi_dict[key] for key in multi_dict.keys()})
-
-
-class StorageUtils:
+class Storage:
     """
     A wrapper around two methods dealing with saving and loading subscriptions.
     """
@@ -72,7 +28,7 @@ class StorageUtils:
                 }
                 for repo, channels in subscriptions.items()
             }
-            print(f"EXPORTING: {exportable_dict}")
+            print(f"EXPORTING:\n{exportable_dict}")
             json.dump(exportable_dict, file)
 
     @staticmethod
@@ -82,7 +38,7 @@ class StorageUtils:
         If there is no ".data" file, returns default subscriptions for testing and dev.
         :return: Map containing the saved subscriptions.
         """
-        if exists(".data"):
+        if os.path.exists(".data"):
             with open(".data", encoding="utf-8") as file:
                 imported_dict: dict[str, dict[str, list[str]]] = json.load(file)
                 subscriptions: dict[str, set[Channel]] = {
@@ -106,17 +62,3 @@ class StorageUtils:
                     Channel("#github-slack-bot", set(EventType)),
                 }
             }
-
-
-def convert_str_to_event_type(event_keyword: str) -> EventType | None:
-    """
-    Returns the `EventType` member corresponding to the passed keyword.
-    If no `EventType` is matched, returns `None`.
-    :param event_keyword: Short string representing the event.
-    :return: `EventType` member corresponding to the keyword.
-    """
-    for event_type in EventType:
-        if event_type.value == event_keyword:
-            return event_type
-    print("Event not in enum")
-    return None

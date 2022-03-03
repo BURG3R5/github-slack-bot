@@ -1,145 +1,26 @@
 """
-Contains the `SlackBot` class, to handle all Slack-related features.
-
-Important methods—
-* `SlackBot.inform` to notify channels about events,
-* `SlackBot.run` to execute slash commands.
+Contains the `Runner` class, which reacts to slash commands.
 """
 
-import os
-from pathlib import Path
 from typing import Any
 
 from bottle import MultiDict
-from dotenv import load_dotenv
-from slack.web.client import WebClient  # pylint: disable=no-name-in-module
 
+from models.github import EventType, convert_str_to_event_type
 from models.slack import Channel
-from models.github import GitHubEvent, EventType
-from utils import JSON, convert_str_to_event_type, StorageUtils
+from utils.json import JSON
+from utils.storage import Storage
 
 
-class SlackBot:
+class Runner:
     """
-    Class providing access to all functions required by the Slack portion of the project.
+    Reacts to received slash commands.
     """
 
     def __init__(self):
-        load_dotenv(Path(".") / ".env")
-        self.client: WebClient = WebClient(os.environ["SLACK_OAUTH_TOKEN"])
-        self.subscriptions: dict[
-            str, set[Channel]
-        ] = StorageUtils.import_subscriptions()
+        # Dummy initialization. Overridden in `SlackBot.__init__()`.
+        self.subscriptions: dict[str, set[Channel]] = {}
 
-    # Messaging related methods
-    def inform(self, event: GitHubEvent) -> None:
-        """
-        Notify the subscribed channels about the passed event.
-        :param event: `GitHubEvent` containing all relevant data about the event.
-        """
-        message, details = SlackBot.compose_message(event)
-        correct_channels: list[str] = self.calculate_channels(
-            repo=event.repo.name,
-            event_type=event.type,
-        )
-        for channel in correct_channels:
-            self.send_message(channel=channel, message=message, details=details)
-
-    def calculate_channels(self, repo: str, event_type: EventType) -> list[str]:
-        """
-        Determines the Slack channels that need to be notified about the passed event.
-        :param repo: Name of the repository that the event was triggered in.
-        :param event_type: Enum-ized type of event.
-        :return: `list` of names of channels that are subscribed to the repo+event_type.
-        """
-        if repo not in self.subscriptions:
-            return []
-        correct_channels: list[str] = [
-            channel.name
-            for channel in self.subscriptions[repo]
-            if channel.is_subscribed_to(event=event_type)
-        ]
-        return correct_channels
-
-    @staticmethod
-    def compose_message(event: GitHubEvent) -> tuple[str, str | None]:
-        """
-        Create message and details strings according to the type of event triggered.
-        :param event: `GitHubEvent` containing all relevant data about the event.
-        :return: `tuple` containing the main message and optionally, extra details.
-        """
-        message: str = ""
-        details: str | None = None
-
-        # TODO: Beautify messages.
-        if event.type == EventType.BRANCH_CREATED:
-            message = (
-                f"{event.repo.name}::\t"
-                f"Branch created by {event.user.name}: `{event.ref.name}`."
-            )
-        elif event.type == EventType.ISSUE_OPENED:
-            message = (
-                f"{event.repo.name}::\t"
-                f"Issue opened by {event.user.name}: "
-                f"#{event.number} {event.title}"
-            )
-        elif event.type == EventType.PULL_OPENED:
-            message = (
-                f"{event.repo.name}::\t"
-                f"Pull request opened by {event.user.name}: "
-                f"#{event.number} {event.title}"
-            )
-        elif event.type == EventType.PULL_READY:
-            message = (
-                f"{event.repo.name}::\t"
-                f"Review requested on #{event.number} {event.title}: "
-                f"{', '.join(reviewer.name for reviewer in event.reviewers)}"
-            )
-        elif event.type == EventType.PUSH:
-            if len(event.commits) == 1:
-                message = (
-                    f"{event.user.name} pushed to "
-                    f"{event.ref.name},"
-                    f" one new commit:\n>{event.commits[0]}"
-                )
-            else:
-                message = (
-                    f"{event.user.name} pushed to "
-                    f"{event.ref.name}, "
-                    f"{len(event.commits)} new commits:"
-                )
-                for i, commit in enumerate(event.commits):
-                    message += f"\n>{i}. {commit.message}"
-        elif event.type == EventType.REVIEW:
-            message = (
-                f"{event.repo.name}::\t"
-                f"Review on #{event.number} by {event.reviewers[0].name}: "
-                f"STATUS: {event.status}"
-            )
-
-        return message, details
-
-    def send_message(self, channel: str, message: str, details: str | None) -> None:
-        """
-        Sends the passed message to the passed channel.
-        Also, optionally posts `details` in a thread under the main message.
-        :param channel: Channel to send the message to.
-        :param message: Main message, briefly summarizing the event.
-        :param details: Text to be sent as a reply to the main message. Verbose stuff goes here.
-        """
-        print(f"SENDING: {message}\n\nWITH DETAILS: {details}\n\nTO: {channel}")
-        if details is None:
-            self.client.chat_postMessage(channel=channel, text=message)
-        else:
-            response = self.client.chat_postMessage(channel=channel, text=message)
-            message_id = response.data["ts"]
-            self.client.chat_postMessage(
-                channel=channel,
-                text=details,
-                thread_ts=message_id,
-            )
-
-    # Slash commands related methods
     def run(self, raw_json: MultiDict) -> dict[str, Any] | None:
         """
         Runs Slack slash commands sent to the bot.
@@ -158,7 +39,7 @@ class SlackBot:
             return self.run_list_command(current_channel=current_channel)
         elif command == "/help":
             return self.run_help_command()
-        StorageUtils.export_subscriptions(self.subscriptions)
+        Storage.export_subscriptions(self.subscriptions)
         return None
 
     def run_subscribe_command(self, current_channel: str, args: list[str]) -> None:
