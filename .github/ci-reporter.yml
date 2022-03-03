@@ -1,0 +1,5 @@
+updateComment: false
+
+before: "CI failed with output:"
+
+after: false
