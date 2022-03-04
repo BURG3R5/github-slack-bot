@@ -22,6 +22,15 @@
         "review",
         "projectManagement"
       ]
+    },
+    {
+      "login": "srinjoyghosh-bot",
+      "name": "srinjoyghosh-bot",
+      "avatar_url": "https://avatars.githubusercontent.com/u/76196327?v=4",
+      "profile": "https://github.com/srinjoyghosh-bot",
+      "contributions": [
+        "code"
+      ]
     }
   ]
 }
