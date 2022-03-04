@@ -21,7 +21,7 @@ than the official GitHub-Slack integration.
  - Git
 
 #### 1. Clone this repo
-   
+
 ```
 $ git clone https://github.com/mdg-iitr/github-slack-bot.git
 $ cd github-slack-bot
