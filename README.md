@@ -75,7 +75,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 <!-- markdownlint-disable -->
 <table>
   <tr>
-    <td align="center"><a href="https://github.com/Sickaada"><img src="https://avatars.githubusercontent.com/u/61564567?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Madhur Rao</b></sub></a><br /><a href="#mentoring-Sickaada" title="Mentoring">🧑‍🏫</a> <a href="https://github.com/mdgspace/github-slack-bot/pulls?q=is%3Apr+reviewed-by%3ASickaada" title="Reviewed Pull Requests">👀</a></td>
+    <td align="center"><a href="https://github.com/Sickaada"><img src="https://avatars.githubusercontent.com/u/61564567?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Madhur Rao</b></sub></a><br /><a href="#mentoring-Sickaada" title="Mentoring">🧑‍🏫</a> <a href="https://github.com/mdgspace/github-slack-bot/pulls?q=is%3Apr+reviewed-by%3ASickaada" title="Reviewed Pull Requests">👀</a> <a href="#projectManagement-Sickaada" title="Project Management">📆</a></td>
   </tr>
 </table>
 
