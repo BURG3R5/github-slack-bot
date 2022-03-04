@@ -20,7 +20,7 @@ than the official GitHub-Slack integration.
 
 #### 0. Requirements:
 
- - Python 3.9 or above.
+ - Python **3.10.2** or above: [Windows](https://www.python.org/downloads/windows/), [MacOS](https://www.python.org/downloads/macos/), [Linux](https://www.linuxcapable.com/how-to-install-python-3-10-on-ubuntu-20-04/)
  - Git
 
 #### 1. Clone this repo
@@ -57,10 +57,16 @@ $ pip install -r requirements.txt
 ```
 Or, if your system contains both Python 2 and Python 3, use `pip3`.
 
-#### 5. Get the environment variables from another contributor
-#### 6. [Download and configure ngrok](https://betterprogramming.pub/ngrok-make-your-localhost-accessible-to-anyone-333b99e44b07)
-#### 7. Send your generated URL to MDG org admins
-#### 8. Run the bot
+#### 5. Enable git hooks
+```
+$ pip install pre-commit
+$ pre-commit install
+```
+
+#### 6. Get the environment variables from another contributor
+#### 7. [Download and configure ngrok](https://betterprogramming.pub/ngrok-make-your-localhost-accessible-to-anyone-333b99e44b07)
+#### 8. Send your generated URL to MDG org admins
+#### 9. Run the bot
 
 ```
 $ python main.py
@@ -79,10 +85,8 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
     <td align="center"><a href="https://github.com/srinjoyghosh-bot"><img src="https://avatars.githubusercontent.com/u/76196327?v=4?s=100" width="100px;" alt=""/><br /><sub><b>srinjoyghosh-bot</b></sub></a><br /><a href="https://github.com/mdgspace/github-slack-bot/commits?author=srinjoyghosh-bot" title="Code">💻</a></td>
   </tr>
 </table>
-
 <!-- markdownlint-restore -->
 <!-- prettier-ignore-end -->
-
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
 This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
