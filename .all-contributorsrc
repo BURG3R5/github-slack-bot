@@ -10,6 +10,18 @@
   "projectOwner": "mdgspace",
   "repoHost": "https://github.com",
   "repoType": "github",
-  "skipCi": "true",
-  "contributors": []
+  "skipCi": true,
+  "contributors": [
+    {
+      "login": "Sickaada",
+      "name": "Madhur Rao",
+      "avatar_url": "https://avatars.githubusercontent.com/u/61564567?v=4",
+      "profile": "https://github.com/Sickaada",
+      "contributions": [
+        "mentoring",
+        "projectManagement",
+        "review"
+      ]
+    }
+  ]
 }
