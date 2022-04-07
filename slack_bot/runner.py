@@ -48,7 +48,7 @@ class Runner:
         :param current_channel: Name of the current channel.
         :param args: `list` of events to subscribe to.
         """
-        repo: [str] = args[0]
+        repo: str = args[0]
         new_events: set[EventType] = {
             convert_str_to_event_type(arg) for arg in args[1:]
         }
@@ -100,7 +100,7 @@ class Runner:
         :param current_channel: Name of the current channel.
         :param args: `list` of events to unsubscribe from.
         """
-        repo: [str] = args[0]
+        repo: str = args[0]
         channels: set[Channel] = self.subscriptions[repo]
         channel: Channel | None = next(
             (

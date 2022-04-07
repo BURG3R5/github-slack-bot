@@ -39,9 +39,7 @@ class GitHubPayloadParser:
             PullCloseEventParser,
             PullMergeEventParser,
             PullOpenEventParser,
-            # TODO: vvv Some fine-tuning required vvv
             PullReadyEventParser,
-            # TODO: ^^^ Some fine-tuning required ^^^
             PushEventParser,
             ReleaseEventParser,
             ReviewEventParser,
