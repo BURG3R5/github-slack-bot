@@ -53,7 +53,7 @@ class Runner:
             convert_str_to_event_type(arg) for arg in args[1:]
         }
         # Remove all the entries which do not correspond to a correct [EventType].
-        new_events -= [None]
+        new_events -= {None}
         if repo in self.subscriptions:
             channels: set[Channel] = self.subscriptions[repo]
             channel: Channel | None = next(
