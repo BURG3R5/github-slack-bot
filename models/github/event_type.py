@@ -52,7 +52,7 @@ def convert_str_to_event_type(event_keyword: str) -> EventType | None:
     :return: `EventType` member corresponding to the keyword.
     """
     for event_type in EventType:
-        if event_type.value == event_keyword:
+        if event_type.keyword == event_keyword:
             return event_type
     print("Event not in enum")
     return None

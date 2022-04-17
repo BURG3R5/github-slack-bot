@@ -23,7 +23,7 @@ class Storage:
         with open(".data", mode="w", encoding="utf-8") as file:
             exportable_dict: dict[str, dict[str, list[str]]] = {
                 repo: {
-                    channel.name: [event.value for event in channel.events]
+                    channel.name: [event.keyword for event in channel.events]
                     for channel in channels
                 }
                 for repo, channels in subscriptions.items()
