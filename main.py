@@ -45,7 +45,9 @@ def test_post() -> str:
     try:
         name: str = request.json["name"]
     except KeyError:
-        name: str = "unknown"
+        name: str = "(empty JSON)"
+    except TypeError:
+        name: str = "(invalid JSON)"
     return (
         f"This server is working, and to prove it to you, "
         f"I'll guess your name!\nYour name is... {name}!"
