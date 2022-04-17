@@ -149,7 +149,9 @@ class Runner:
             )
             if channel is None:
                 continue
-            events_string = ", ".join(event.keyword for event in channel.events)
+            events_string = ", ".join(
+                f"`{event.name.lower()}`" for event in channel.events
+            )
             blocks += [
                 {
                     "type": "section",
