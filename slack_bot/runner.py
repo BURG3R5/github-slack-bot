@@ -31,18 +31,29 @@ class Runner:
         current_channel: str = "#" + json["channel_name"]
         command: str = json["command"]
         args: list[str] = str(json["text"]).split()
+        result: dict[str, Any] | None = None
         if command == "/subscribe" and len(args) > 0:
-            self.run_subscribe_command(current_channel=current_channel, args=args)
+            result = self.run_subscribe_command(
+                current_channel=current_channel,
+                args=args,
+            )
         elif command == "/unsubscribe" and len(args) > 0:
-            self.run_unsubscribe_command(current_channel=current_channel, args=args)
+            result = self.run_unsubscribe_command(
+                current_channel=current_channel,
+                args=args,
+            )
         elif command == "/list":
-            return self.run_list_command(current_channel=current_channel)
+            result = self.run_list_command(current_channel=current_channel)
         elif command == "/help":
-            return self.run_help_command()
+            result = self.run_help_command()
         Storage.export_subscriptions(self.subscriptions)
-        return None
+        return result
 
-    def run_subscribe_command(self, current_channel: str, args: list[str]) -> None:
+    def run_subscribe_command(
+        self,
+        current_channel: str,
+        args: list[str],
+    ) -> dict[str, Any]:
         """
         Triggered by "/subscribe". Adds the passed events to the channel's subscriptions.
         :param current_channel: Name of the current channel.
@@ -93,8 +104,13 @@ class Runner:
                     events=new_events,
                 )
             }
+        return self.run_list_command(current_channel=current_channel, ephemeral=True)
 
-    def run_unsubscribe_command(self, current_channel: str, args: list[str]) -> None:
+    def run_unsubscribe_command(
+        self,
+        current_channel: str,
+        args: list[str],
+    ) -> dict[str, Any]:
         """
         Triggered by "/unsubscribe". Removes the passed events from the channel's subscriptions.
         :param current_channel: Name of the current channel.
@@ -130,11 +146,17 @@ class Runner:
                         events=events,
                     )
                 )
+        return self.run_list_command(current_channel=current_channel, ephemeral=True)
 
-    def run_list_command(self, current_channel: str) -> dict[str, Any]:
+    def run_list_command(
+        self,
+        current_channel: str,
+        ephemeral: bool = False,
+    ) -> dict[str, Any]:
         """
         Triggered by "/list". Sends a message listing the current channel's subscriptions.
         :param current_channel: Name of the current channel.
+        :param ephemeral: Whether message should be ephemeral or not.
         :return: Message containing subscriptions for the passed channel.
         """
         blocks: list[dict] = []
@@ -165,7 +187,7 @@ class Runner:
                 },
             ]
         return {
-            "response_type": "in_channel",
+            "response_type": "ephemeral" if ephemeral else "in_channel",
             "blocks": blocks,
         }
 
