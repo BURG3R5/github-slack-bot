@@ -5,7 +5,7 @@ Contains the `Storage` class, to save and load subscriptions from a JSON file.
 import json
 import os
 
-from models.github import EventType, convert_str_to_event_type
+from models.github import EventType, convert_keywords_to_events
 from models.slack import Channel
 
 
@@ -45,10 +45,7 @@ class Storage:
                     repo: {
                         Channel(
                             name=channel,
-                            events={
-                                convert_str_to_event_type(event_keyword)
-                                for event_keyword in events
-                            },
+                            events=convert_keywords_to_events(events),
                         )
                         for channel, events in channels.items()
                     }
@@ -58,7 +55,7 @@ class Storage:
         else:
             # Default subscriptions, for dev and testing
             return {
-                "fake-rdrive-flutter": {
+                "github-slack-bot": {
                     Channel("#github-slack-bot", set(EventType)),
                 }
             }
