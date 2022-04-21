@@ -44,15 +44,30 @@ class EventType(Enum):
         self.docs = docs
 
 
-def convert_str_to_event_type(event_keyword: str) -> EventType | None:
+def convert_keywords_to_events(keywords: list[str]) -> set[EventType]:
     """
-    Returns the `EventType` member corresponding to the passed keyword.
-    If no `EventType` is matched, returns `None`.
-    :param event_keyword: Short string representing the event.
-    :return: `EventType` member corresponding to the keyword.
+    Returns a  set of `EventType` members corresponding to the passed keywords.
+    If no `EventType` is matched, returns an empty set.
+    :param keywords: List of short strings representing the events.
+    :return: Set of `EventType` members corresponding to the keywords.
     """
-    for event_type in EventType:
-        if event_type.keyword == event_keyword:
-            return event_type
-    print("Event not in enum")
-    return None
+    if len(keywords) == 0 or "default" in keywords:
+        return {
+            EventType.BRANCH_CREATED,
+            EventType.TAG_CREATED,
+            EventType.PULL_OPENED,
+            EventType.ISSUE_OPENED,
+            EventType.REVIEW,
+            EventType.COMMIT_COMMENT,
+            EventType.ISSUE_COMMENT,
+            EventType.PUSH,
+            EventType.STAR_ADDED,
+        }
+    if "all" in keywords or "*" in keywords:
+        return set(EventType)
+    return {
+        event_type
+        for event_type in EventType
+        for keyword in keywords
+        if event_type.keyword == keyword
+    }

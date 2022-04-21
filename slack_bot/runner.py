@@ -6,7 +6,7 @@ from typing import Any
 
 from bottle import MultiDict
 
-from models.github import EventType, convert_str_to_event_type
+from models.github import EventType, convert_keywords_to_events
 from models.slack import Channel
 from utils.json import JSON
 from utils.storage import Storage
@@ -60,11 +60,7 @@ class Runner:
         :param args: `list` of events to subscribe to.
         """
         repo: str = args[0]
-        new_events: set[EventType] = {
-            convert_str_to_event_type(arg) for arg in args[1:]
-        }
-        # Remove all the entries which do not correspond to a correct [EventType].
-        new_events -= {None}
+        new_events = convert_keywords_to_events(args[1:])
         if repo in self.subscriptions:
             channels: set[Channel] = self.subscriptions[repo]
             channel: Channel | None = next(
@@ -129,21 +125,21 @@ class Runner:
         if channel is not None:
             # If this channel has subscribed to some events
             # from this repo, update the list of events.
-            events = channel.events
-            for arg in args[1:]:
-                event: EventType | None = convert_str_to_event_type(arg)
+            current_events = channel.events
+            chosen_events = convert_keywords_to_events(args[1:])
+            for event in chosen_events:
                 try:
-                    events.remove(event)
+                    current_events.remove(event)
                 except KeyError:
                     # This means that the user tried to unsubscribe from
                     # an event that wasn't subscribed to in the first place.
                     pass
             self.subscriptions[repo].remove(channel)
-            if len(events) != 0:
+            if len(current_events) != 0:
                 self.subscriptions[repo].add(
                     Channel(
                         name=current_channel,
-                        events=events,
+                        events=current_events,
                     )
                 )
         return self.run_list_command(current_channel=current_channel, ephemeral=True)
@@ -222,9 +218,12 @@ class Runner:
                         "text": (
                             "*Events*\n"
                             "GitHub events are abbreviated as follows:\n"
+                            "0. `default` or no arguments: Subscribe "
+                            "to the most common and important events.\n"
+                            "1. `all` or `*`: Subscribe to every supported event.\n"
                             + " ".join(
                                 [
-                                    f"{i + 1}. `{event.keyword}`: {event.docs}\n"
+                                    f"{i + 2}. `{event.keyword}`: {event.docs}\n"
                                     for i, event in enumerate(EventType)
                                 ]
                             )
