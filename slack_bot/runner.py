@@ -182,6 +182,17 @@ class Runner:
                     "type": "divider",
                 },
             ]
+        if len(blocks) == 0:
+            prompt = "This channel has not yet subscribed to anything."
+            prompt += "You can subscribe to your favorite repositories "
+            prompt += "using the `/subscribe` command. For more info, use the `/help` command."
+
+            blocks = [
+                {
+                    "type": "mrkdwn",
+                    "text": prompt,
+                },
+            ]
         return {
             "response_type": "ephemeral" if ephemeral else "in_channel",
             "blocks": blocks,
