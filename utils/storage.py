@@ -58,7 +58,7 @@ class Storage:
         else:
             # Default subscriptions, for dev and testing
             return {
-                "fake-rdrive-flutter": {
+                "github-slack-bot": {
                     Channel("#github-slack-bot", set(EventType)),
                 }
             }

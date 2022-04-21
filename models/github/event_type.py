@@ -21,8 +21,8 @@ class EventType(Enum):
     PULL_MERGED = ("prm", "A Pull Request was merged")
     PULL_OPENED = ("pro", "A Pull Request was opened")
     PULL_READY = ("prr", "A Pull Request is ready")
-    ISSUE_OPENED = ("io", "An Issue was opened")
-    ISSUE_CLOSED = ("ic", "An Issue was closed")
+    ISSUE_OPENED = ("iso", "An Issue was opened")
+    ISSUE_CLOSED = ("isc", "An Issue was closed")
 
     # Review
     REVIEW = ("rv", "A Review was given on a Pull Request")
