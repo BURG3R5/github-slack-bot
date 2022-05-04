@@ -1,0 +1,39 @@
+display_information:
+  name: GitHubBot
+  description: Concisely and precisely informs users of events on GitHub.
+  background_color: "#000000"
+  long_description: Concisely and precisely informs users of events on GitHub. Subscribe to any number of events using the `/subscribe` command. Get more usage instructions using the `/help` command. Source code at https://github.com/BURG3R5/github-slack-bot
+features:
+  bot_user:
+    display_name: GitHubBot
+    always_online: true
+  slash_commands:
+    - command: /subscribe
+      url: <your-url>/slack/commands
+      description: Subscribe to events in a GitHub repository
+      usage_hint: repository event1 [event2, event3, ...]
+      should_escape: false
+    - command: /unsubscribe
+      url: <your-url>/slack/commands
+      description: Unsubscribe from events in a GitHub repository
+      usage_hint: repository event1 [event2, event3, ...]
+      should_escape: false
+    - command: /help
+      url: <your-url>/slack/commands
+      description: Prints instructions and keywords.
+      should_escape: false
+    - command: /list
+      url: <your-url>/slack/commands
+      description: Lists subscriptions for the current channel.
+      should_escape: false
+oauth_config:
+  scopes:
+    bot:
+      - chat:write
+      - chat:write.customize
+      - commands
+      - files:write
+settings:
+  org_deploy_enabled: false
+  socket_mode_enabled: false
+  token_rotation_enabled: false
