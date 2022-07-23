@@ -1,4 +1,6 @@
 bottle==0.12.19
+Pillow~=9.0.1
 python-dotenv==0.19.2
 slackclient==2.9.3
 sentry-sdk[bottle]==0.16.2
+tabulate~=0.8.9
