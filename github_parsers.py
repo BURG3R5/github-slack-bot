@@ -95,11 +95,8 @@ class BranchCreateEventParser(EventParser):
 
     @staticmethod
     def verify_payload(event_type: str, json: JSON) -> bool:
-        return (
-            event_type == "create"
-            and json["ref_type"] == "branch"
-            and json["pusher_type"] == "user"
-        )
+        return (event_type == "create" and json["ref_type"] == "branch"
+                and json["pusher_type"] == "user")
 
     @staticmethod
     def cast_payload_to_event(event_type: str, json: JSON) -> GitHubEvent:
@@ -121,11 +118,8 @@ class BranchDeleteEventParser(EventParser):
 
     @staticmethod
     def verify_payload(event_type: str, json: JSON) -> bool:
-        return (
-            event_type == "delete"
-            and json["ref_type"] == "branch"
-            and json["pusher_type"] == "user"
-        )
+        return (event_type == "delete" and json["ref_type"] == "branch"
+                and json["pusher_type"] == "user")
 
     @staticmethod
     def cast_payload_to_event(event_type: str, json: JSON) -> GitHubEvent:
@@ -147,7 +141,7 @@ class CommitCommentEventParser(EventParser):
 
     @staticmethod
     def verify_payload(event_type: str, json: JSON) -> bool:
-        return (event_type == "commit_comment") and (json["action"] == "created")
+        return event_type == "commit_comment" and json["action"] == "created"
 
     @staticmethod
     def cast_payload_to_event(event_type: str, json: JSON) -> GitHubEvent:
@@ -162,9 +156,8 @@ class CommitCommentEventParser(EventParser):
             commits=[
                 Commit(
                     sha=json["comment"]["commit_id"][:8],
-                    link=json["repository"]["html_url"]
-                    + "/commit/"
-                    + json["comment"]["commit_id"][:8],
+                    link=json["repository"]["html_url"] + "/commit/" +
+                    json["comment"]["commit_id"][:8],
                     message="",
                 )
             ],
@@ -253,7 +246,7 @@ class IssueCommentEventParser(EventParser):
 
     @staticmethod
     def verify_payload(event_type: str, json: JSON) -> bool:
-        return (event_type == "issue_comment") and (json["action"] == "created")
+        return event_type == "issue_comment" and json["action"] == "created"
 
     @staticmethod
     def cast_payload_to_event(event_type: str, json: JSON) -> GitHubEvent:
@@ -281,11 +274,8 @@ class PullCloseEventParser(EventParser):
 
     @staticmethod
     def verify_payload(event_type: str, json: JSON) -> bool:
-        return (
-            (event_type == "pull_request")
-            and (json["action"] == "closed")
-            and (not json["pull_request"]["merged"])
-        )
+        return ((event_type == "pull_request") and (json["action"] == "closed")
+                and (not json["pull_request"]["merged"]))
 
     @staticmethod
     def cast_payload_to_event(event_type: str, json: JSON) -> GitHubEvent:
@@ -311,11 +301,8 @@ class PullMergeEventParser(EventParser):
 
     @staticmethod
     def verify_payload(event_type: str, json: JSON) -> bool:
-        return (
-            (event_type == "pull_request")
-            and (json["action"] == "closed")
-            and (json["pull_request"]["merged"])
-        )
+        return ((event_type == "pull_request") and (json["action"] == "closed")
+                and (json["pull_request"]["merged"]))
 
     @staticmethod
     def cast_payload_to_event(event_type: str, json: JSON) -> GitHubEvent:
@@ -367,7 +354,8 @@ class PullReadyEventParser(EventParser):
 
     @staticmethod
     def verify_payload(event_type: str, json: JSON) -> bool:
-        return (event_type == "pull_request") and (json["action"] == "review_requested")
+        return (event_type == "pull_request"
+                and json["action"] == "review_requested")
 
     @staticmethod
     def cast_payload_to_event(event_type: str, json: JSON) -> GitHubEvent:
@@ -409,8 +397,7 @@ class PushEventParser(EventParser):
                 message=commit["message"],
                 sha=commit["id"][:8],
                 link=base_url + f"/commit/{commit['id']}",
-            )
-            for commit in json["commits"]
+            ) for commit in json["commits"]
         ]
 
         return GitHubEvent(
@@ -455,11 +442,10 @@ class ReviewEventParser(EventParser):
 
     @staticmethod
     def verify_payload(event_type: str, json: JSON) -> bool:
-        return (
-            (event_type == "pull_request_review")
-            and (json["action"] == "submitted")
-            and (json["review"]["state"].lower() in ["approved", "changes_requested"])
-        )
+        return (event_type == "pull_request_review"
+                and json["action"] == "submitted"
+                and json["review"]["state"].lower()
+                in ["approved", "changes_requested"])
 
     @staticmethod
     def cast_payload_to_event(event_type: str, json: JSON) -> GitHubEvent:
@@ -486,9 +472,8 @@ class ReviewCommentEventParser(EventParser):
 
     @staticmethod
     def verify_payload(event_type: str, json: JSON) -> bool:
-        return (
-            event_type == "pull_request_review_comment" and json["action"] == "created"
-        )
+        return (event_type == "pull_request_review_comment"
+                and json["action"] == "created")
 
     @staticmethod
     def cast_payload_to_event(event_type: str, json: JSON) -> GitHubEvent:
@@ -556,11 +541,8 @@ class TagCreateEventParser(EventParser):
 
     @staticmethod
     def verify_payload(event_type: str, json: JSON) -> bool:
-        return (
-            event_type == "create"
-            and json["ref_type"] == "tag"
-            and json["pusher_type"] == "user"
-        )
+        return (event_type == "create" and json["ref_type"] == "tag"
+                and json["pusher_type"] == "user")
 
     @staticmethod
     def cast_payload_to_event(event_type: str, json: JSON) -> GitHubEvent:
@@ -582,11 +564,8 @@ class TagDeleteEventParser(EventParser):
 
     @staticmethod
     def verify_payload(event_type: str, json: JSON) -> bool:
-        return (
-            event_type == "delete"
-            and json["ref_type"] == "tag"
-            and json["pusher_type"] == "user"
-        )
+        return (event_type == "delete" and json["ref_type"] == "tag"
+                and json["pusher_type"] == "user")
 
     @staticmethod
     def cast_payload_to_event(event_type: str, json: JSON) -> GitHubEvent:

@@ -19,7 +19,7 @@ class Messenger:
         # Dummy initialization. Overridden in `SlackBot.__init__()`.
         self.subscriptions: dict[str, set[Channel]] = {}
 
-    def inform(self, event: GitHubEvent) -> None:
+    def inform(self, event: GitHubEvent):
         """
         Notify the subscribed channels about the passed event.
         :param event: `GitHubEvent` containing all relevant data about the event.
@@ -30,9 +30,10 @@ class Messenger:
             event_type=event.type,
         )
         for channel in correct_channels:
-            self.send_message(channel=channel, message=message, details=details)
+            self.send_message(channel, message, details)
 
-    def calculate_channels(self, repo: str, event_type: EventType) -> list[str]:
+    def calculate_channels(self, repo: str,
+                           event_type: EventType) -> list[str]:
         """
         Determines the Slack channels that need to be notified about the passed event.
         :param repo: Name of the repository that the event was triggered in.
@@ -42,8 +43,7 @@ class Messenger:
         if repo not in self.subscriptions:
             return []
         correct_channels: list[str] = [
-            channel.name
-            for channel in self.subscriptions[repo]
+            channel.name for channel in self.subscriptions[repo]
             if channel.is_subscribed_to(event=event_type)
         ]
         return correct_channels
@@ -64,10 +64,7 @@ class Messenger:
         elif event.type == EventType.BRANCH_DELETED:
             message = f"Branch deleted by {event.user}: `{event.ref}`"
         elif event.type == EventType.COMMIT_COMMENT:
-            message = (
-                f"<{event.links[0].url}|Comment on `{event.commits[0].sha}`> "
-                f"by {event.user}\n>{event.comments[0]}"
-            )
+            message = f"<{event.links[0].url}|Comment on `{event.commits[0].sha}`> by {event.user}\n>{event.comments[0]}"
         elif event.type == EventType.FORK:
             message = f"<{event.links[0].url}|Repository forked> by {event.user}"
         elif event.type == EventType.ISSUE_OPENED:
@@ -76,10 +73,7 @@ class Messenger:
             message = f"Issue closed by {event.user}:\n>{event.issue}"
         elif event.type == EventType.ISSUE_COMMENT:
             type_of_discussion = "Issue" if "issue" in event.issue.link else "PR"
-            message = (
-                f"<{event.links[0].url}|Comment on {type_of_discussion} #{event.issue.number}> "
-                f"by {event.user}\n>{event.comments[0]}"
-            )
+            message = f"<{event.links[0].url}|Comment on {type_of_discussion} #{event.issue.number}> by {event.user}\n>{event.comments[0]}"
         elif event.type == EventType.PULL_CLOSED:
             message = f"PR closed by {event.user}:\n>{event.pull_request}"
         elif event.type == EventType.PULL_MERGED:
@@ -97,7 +91,8 @@ class Messenger:
                 message += "1 new commit."
             else:
                 message += f"{len(event.commits)} new commits."
-            details = "\n".join(f"• {commit.message}" for commit in event.commits)
+            details = "\n".join(f"• {commit.message}"
+                                for commit in event.commits)
         elif event.type == EventType.RELEASE:
             message = f"Release {event.status} by {event.user}: `{event.ref}`"
         elif event.type == EventType.REVIEW:
@@ -107,10 +102,7 @@ class Messenger:
                 f"{'Approved' if event.status == 'approved' else 'Changed requested'}"
             )
         elif event.type == EventType.REVIEW_COMMENT:
-            message = (
-                f"<{event.links[0].url}|Comment on PR #{event.pull_request.number}> "
-                f"by {event.user}\n>{event.comments[0]}"
-            )
+            message = f"<{event.links[0].url}|Comment on PR #{event.pull_request.number}> by {event.user}\n>{event.comments[0]}"
         elif event.type == EventType.STAR_ADDED:
             message = f"`{event.repo.name}` received a star."
         elif event.type == EventType.STAR_REMOVED:
@@ -122,7 +114,7 @@ class Messenger:
 
         return message, details
 
-    def send_message(self, channel: str, message: str, details: str | None) -> None:
+    def send_message(self, channel: str, message: str, details: str | None):
         """
         Sends the passed message to the passed channel.
         Also, optionally posts `details` in a thread under the main message.
@@ -130,47 +122,43 @@ class Messenger:
         :param message: Main message, briefly summarizing the event.
         :param details: Text to be sent as a reply to the main message. Verbose stuff goes here.
         """
-        print(f"\n\nSENDING:\n{message}\n\nWITH DETAILS:\n{details}\n\nTO: {channel}")
+        print(
+            f"\n\nSENDING:\n{message}\n\nWITH DETAILS:\n{details}\n\nTO: {channel}"
+        )
         if details is None:
             self.client.chat_postMessage(
                 channel=channel,
-                blocks=[
-                    {
-                        "type": "section",
-                        "text": {
-                            "type": "mrkdwn",
-                            "text": message,
-                        },
-                    }
-                ],
+                blocks=[{
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": message,
+                    },
+                }],
                 unfurl_links=False,
             )
         else:
             response = self.client.chat_postMessage(
                 channel=channel,
-                blocks=[
-                    {
-                        "type": "section",
-                        "text": {
-                            "type": "mrkdwn",
-                            "text": message,
-                        },
-                    }
-                ],
+                blocks=[{
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": message,
+                    },
+                }],
                 unfurl_links=False,
             )
             message_id = response.data["ts"]
             self.client.chat_postMessage(
                 channel=channel,
-                blocks=[
-                    {
-                        "type": "section",
-                        "text": {
-                            "type": "mrkdwn",
-                            "text": details,
-                        },
-                    }
-                ],
+                blocks=[{
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": details,
+                    },
+                }],
                 thread_ts=message_id,
                 unfurl_links=False,
             )

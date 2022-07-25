@@ -15,7 +15,7 @@ class Storage:
     """
 
     @staticmethod
-    def export_subscriptions(subscriptions: dict[str, set[Channel]]) -> None:
+    def export_subscriptions(subscriptions: dict[str, set[Channel]]):
         """
         Saves the passed subscriptions map to the file ".data".
         :param subscriptions: Map containing the current subscriptions.
@@ -40,7 +40,8 @@ class Storage:
         """
         if os.path.exists(".data"):
             with open(".data", encoding="utf-8") as file:
-                imported_dict: dict[str, dict[str, list[str]]] = json.load(file)
+                imported_dict: dict[str, dict[str,
+                                              list[str]]] = json.load(file)
                 subscriptions: dict[str, set[Channel]] = {
                     repo: {
                         Channel(

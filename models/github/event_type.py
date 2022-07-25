@@ -67,7 +67,6 @@ def convert_keywords_to_events(keywords: list[str]) -> set[EventType]:
         return set(EventType)
     return {
         event_type
-        for event_type in EventType
-        for keyword in keywords
+        for event_type in EventType for keyword in keywords
         if event_type.keyword == keyword
     }
