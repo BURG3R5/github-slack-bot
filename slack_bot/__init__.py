@@ -20,7 +20,9 @@ class SlackBot(Messenger, Runner):
     Specifics are delegated to superclasses `Messenger` and `Runner`.
     """
 
+    subscriptions: dict[str, set[Channel]]
+
     def __init__(self, token: str):
         Messenger.__init__(self, token)
         Runner.__init__(self)
-        self.subscriptions: dict[str, set[Channel]] = Storage.import_subscriptions()
+        self.subscriptions = Storage.import_subscriptions()

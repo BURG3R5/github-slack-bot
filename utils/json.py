@@ -17,10 +17,11 @@ class JSON:
     def __contains__(self, key) -> bool:
         return key in self.data
 
-    def __init__(self, dictionary: dict) -> None:
+    def __init__(self, dictionary: dict):
         self.data = dictionary
 
     def __getitem__(self, keys) -> Any:
+
         def get(k):
             if isinstance(self.data[k], dict):
                 return JSON(self.data[k])

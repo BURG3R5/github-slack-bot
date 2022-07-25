@@ -33,7 +33,10 @@ class GitHubEvent:
         self.status: str | None = kwargs.get("status", None)
 
         self.issue: Issue | None = kwargs.get("issue", None)
-        self.pull_request: PullRequest | None = kwargs.get("pull_request", None)
+        self.pull_request: PullRequest | None = kwargs.get(
+            "pull_request",
+            None,
+        )
         self.ref: Ref | None = kwargs.get("ref", None)
         self.user: User | None = kwargs.get("user", None)
 

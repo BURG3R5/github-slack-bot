@@ -12,7 +12,6 @@ Triggers `manage_github_events` which uses `GitHubPayloadParser.parse` and `Slac
 Triggers `manage_slack_commands` which uses `SlackBot.run`.
 """
 
-
 import os
 from pathlib import Path
 from typing import Any
@@ -48,14 +47,12 @@ def test_post() -> str:
         name: str = "(empty JSON)"
     except TypeError:
         name: str = "(invalid JSON)"
-    return (
-        f"This server is working, and to prove it to you, "
-        f"I'll guess your name!\nYour name is... {name}!"
-    )
+    return (f"This server is working, and to prove it to you, "
+            f"I'll guess your name!\nYour name is... {name}!")
 
 
 @post("/github/events")
-def manage_github_events() -> None:
+def manage_github_events():
     """
     Uses `GitHubPayloadParser` to parse and cast the payload into a `GitHubEvent`.
     Then uses an instance of `SlackBot` to send appropriate messages to appropriate channels.

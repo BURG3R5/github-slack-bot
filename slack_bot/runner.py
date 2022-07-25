@@ -64,22 +64,17 @@ class Runner:
         if repo in self.subscriptions:
             channels: set[Channel] = self.subscriptions[repo]
             channel: Channel | None = next(
-                (
-                    subscribed_channel
-                    for subscribed_channel in channels
-                    if subscribed_channel.name == current_channel
-                ),
+                (subscribed_channel for subscribed_channel in channels
+                 if subscribed_channel.name == current_channel),
                 None,
             )
             if channel is None:
                 # If this channel has not subscribed to any events
                 # from this repo, add a subscription.
-                channels.add(
-                    Channel(
-                        name=current_channel,
-                        events=new_events,
-                    )
-                )
+                channels.add(Channel(
+                    name=current_channel,
+                    events=new_events,
+                ))
                 self.subscriptions[repo] = channels
             else:
                 # If this channel has subscribed to some events
@@ -90,8 +85,7 @@ class Runner:
                     Channel(
                         name=current_channel,
                         events=(old_events.union(new_events)),
-                    )
-                )
+                    ))
         else:
             # If no one has subscribed to this repo, add a repo entry.
             self.subscriptions[repo] = {
@@ -100,7 +94,7 @@ class Runner:
                     events=new_events,
                 )
             }
-        return self.run_list_command(current_channel=current_channel, ephemeral=True)
+        return self.run_list_command(current_channel, True)
 
     def run_unsubscribe_command(
         self,
@@ -115,11 +109,8 @@ class Runner:
         repo: str = args[0]
         channels: set[Channel] = self.subscriptions[repo]
         channel: Channel | None = next(
-            (
-                subscribed_channel
-                for subscribed_channel in channels
-                if subscribed_channel.name == current_channel
-            ),
+            (subscribed_channel for subscribed_channel in channels
+             if subscribed_channel.name == current_channel),
             None,
         )
         if channel is not None:
@@ -140,9 +131,8 @@ class Runner:
                     Channel(
                         name=current_channel,
                         events=current_events,
-                    )
-                )
-        return self.run_list_command(current_channel=current_channel, ephemeral=True)
+                    ))
+        return self.run_list_command(current_channel, True)
 
     def run_list_command(
         self,
@@ -158,18 +148,14 @@ class Runner:
         blocks: list[dict] = []
         for repo, channels in self.subscriptions.items():
             channel: Channel | None = next(
-                (
-                    subscribed_channel
-                    for subscribed_channel in channels
-                    if subscribed_channel.name == current_channel
-                ),
+                (subscribed_channel for subscribed_channel in channels
+                 if subscribed_channel.name == current_channel),
                 None,
             )
             if channel is None:
                 continue
-            events_string = ", ".join(
-                f"`{event.name.lower()}`" for event in channel.events
-            )
+            events_string = ", ".join(f"`{event.name.lower()}`"
+                                      for event in channel.events)
             blocks += [
                 {
                     "type": "section",
@@ -206,39 +192,40 @@ class Runner:
         """
         # TODO: Prettify events section.
         return {
-            "response_type": "ephemeral",
+            "response_type":
+            "ephemeral",
             "blocks": [
                 {
                     "type": "section",
                     "text": {
-                        "type": "mrkdwn",
-                        "text": (
-                            "*Commands*\n"
-                            "1. `/subscribe <repo> <event1> [<event2> ...]`\n"
-                            "2. `/unsubsribe <repo> <event1> [<event2> ...]`\n"
-                            "3. `/list`\n"
-                            "4. `/help`"
-                        ),
+                        "type":
+                        "mrkdwn",
+                        "text":
+                        ("*Commands*\n"
+                         "1. `/subscribe <repo> <event1> [<event2> ...]`\n"
+                         "2. `/unsubsribe <repo> <event1> [<event2> ...]`\n"
+                         "3. `/list`\n"
+                         "4. `/help`"),
                     },
                 },
-                {"type": "divider"},
+                {
+                    "type": "divider"
+                },
                 {
                     "type": "section",
                     "text": {
-                        "type": "mrkdwn",
-                        "text": (
-                            "*Events*\n"
-                            "GitHub events are abbreviated as follows:\n"
-                            "0. `default` or no arguments: Subscribe "
-                            "to the most common and important events.\n"
-                            "1. `all` or `*`: Subscribe to every supported event.\n"
-                            + " ".join(
-                                [
-                                    f"{i + 2}. `{event.keyword}`: {event.docs}\n"
-                                    for i, event in enumerate(EventType)
-                                ]
-                            )
-                        ),
+                        "type":
+                        "mrkdwn",
+                        "text":
+                        ("*Events*\n"
+                         "GitHub events are abbreviated as follows:\n"
+                         "0. `default` or no arguments: Subscribe "
+                         "to the most common and important events.\n"
+                         "1. `all` or `*`: Subscribe to every supported event.\n"
+                         + " ".join([
+                             f"{i + 2}. `{event.keyword}`: {event.docs}\n"
+                             for i, event in enumerate(EventType)
+                         ])),
                     },
                 },
             ],
