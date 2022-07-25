@@ -1,39 +1,42 @@
 name: CI
-
 on: [push]
-
 jobs:
-  build:
+  check-formatting:
     runs-on: ubuntu-latest
-
     steps:
-    # Setup
-    - name: Checkout code
-      uses: actions/checkout@v2
-
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: "3.10"
-
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-
-    # Lint
-    - name: Lint with Black
-      run: |
-        pip install black
-        black --check .
-
-    - name: Lint with isort
-      run: |
-        pip install isort
-        isort --check .
-
-    - name: Lint with Pylint
-      run: |
-        pip install pylint
-        touch __init__.py
-        pylint `pwd` --fail-under=5 --disable=too-few-public-methods,fixme
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.10'
+      - name: Install and run pre-commit hooks
+        run: |
+          pip install pre-commit
+          pre-commit run --all-files
+  run-bot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.10'
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Run bot
+        run: python main.py
+  run-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.10'
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Run tests
+        run: python -m unittest
