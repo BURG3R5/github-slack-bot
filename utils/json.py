@@ -17,7 +17,7 @@ class JSON:
     def __contains__(self, key) -> bool:
         return key in self.data
 
-    def __init__(self, dictionary:dict) -> None:
+    def __init__(self, dictionary: dict) -> None:
         self.data = dictionary
 
     def __getitem__(self, keys) -> Any:
