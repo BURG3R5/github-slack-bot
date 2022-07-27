@@ -1,4 +1,4 @@
-bottle==0.12.19
+bottle==0.12.20
 python-dotenv==0.19.2
 sentry-sdk[bottle]==0.16.2
 slackclient==2.9.3
