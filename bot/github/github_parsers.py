@@ -7,10 +7,10 @@ Exposed API is only the `GitHubPayloadParser.parse` function, to serialize the r
 from abc import ABC, abstractmethod
 from typing import Type
 
-from models.github import Commit, EventType, Issue, PullRequest, Ref, Repository, User
-from models.github.event import GitHubEvent
-from models.link import Link
-from utils.json import JSON
+from ..models.github import Commit, EventType, Issue, PullRequest, Ref, Repository, User
+from ..models.github.event import GitHubEvent
+from ..models.link import Link
+from ..utils.json import JSON
 
 
 # pylint: disable-next=too-few-public-methods

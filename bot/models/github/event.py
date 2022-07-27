@@ -2,8 +2,8 @@
 Model class that can store all relevant info about all events that the project handles.
 """
 
-from models.github import Commit, EventType, Issue, PullRequest, Ref, Repository, User
-from models.link import Link
+from ..link import Link
+from . import Commit, EventType, Issue, PullRequest, Ref, Repository, User
 
 
 # pylint: disable-next=too-many-instance-attributes

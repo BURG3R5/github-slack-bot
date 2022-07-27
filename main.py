@@ -21,9 +21,9 @@ from bottle import get, post, request, run
 from dotenv import load_dotenv
 from sentry_sdk.integrations.bottle import BottleIntegration
 
-from github_parsers import GitHubPayloadParser
-from models.github.event import GitHubEvent
-from slack_bot import SlackBot
+from bot.github.github_parsers import GitHubPayloadParser
+from bot.models.github.event import GitHubEvent
+from bot.slack import SlackBot
 
 
 @get("/")

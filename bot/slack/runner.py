@@ -6,10 +6,10 @@ from typing import Any
 
 from bottle import MultiDict
 
-from models.github import EventType, convert_keywords_to_events
-from models.slack import Channel
-from utils.json import JSON
-from utils.storage import Storage
+from ..models.github import EventType, convert_keywords_to_events
+from ..models.slack import Channel
+from ..utils.json import JSON
+from ..utils.storage import Storage
 
 
 class Runner:
