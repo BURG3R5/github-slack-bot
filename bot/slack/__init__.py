@@ -6,9 +6,8 @@ Important methods—
 * `SlackBot.run` to execute slash commands.
 """
 
-from models.slack import Channel
-from utils.storage import Storage
-
+from ..models.slack import Channel
+from ..utils.storage import Storage
 from .messenger import Messenger
 from .runner import Runner
 

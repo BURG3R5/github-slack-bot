@@ -5,8 +5,8 @@ Contains the `Storage` class, to save and load subscriptions from a JSON file.
 import json
 import os
 
-from models.github import EventType, convert_keywords_to_events
-from models.slack import Channel
+from ..models.github import EventType, convert_keywords_to_events
+from ..models.slack import Channel
 
 
 class Storage:

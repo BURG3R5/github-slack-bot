@@ -4,9 +4,9 @@ Contains the `Messenger` class, which sends Slack messages according to GitHub e
 
 from slack.web.client import WebClient  # pylint: disable=no-name-in-module
 
-from models.github import EventType
-from models.github.event import GitHubEvent
-from models.slack import Channel
+from ..models.github import EventType
+from ..models.github.event import GitHubEvent
+from ..models.slack import Channel
 
 
 class Messenger:

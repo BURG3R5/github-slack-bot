@@ -1,6 +1,5 @@
 # Singletons
-.env
-/__init__.py
+/.env
 
 # IDE config folders
 .idea
