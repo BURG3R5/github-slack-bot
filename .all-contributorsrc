@@ -7,7 +7,7 @@
   ],
   "imageSize": 100,
   "projectName": "github-slack-bot",
-  "projectOwner": "mdgspace",
+  "projectOwner": "BURG3R5",
   "repoHost": "https://github.com",
   "repoType": "github",
   "skipCi": false,
@@ -37,6 +37,15 @@
       "name": "BURG3R5",
       "avatar_url": "https://avatars.githubusercontent.com/u/77491630?v=4",
       "profile": "https://github.com/BURG3R5",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "Magnesium12",
+      "name": "Magnesium12",
+      "avatar_url": "https://avatars.githubusercontent.com/u/99383854?v=4",
+      "profile": "https://github.com/Magnesium12",
       "contributions": [
         "code"
       ]
