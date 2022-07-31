@@ -103,7 +103,7 @@ class BranchCreateEventParser(EventParser):
         return GitHubEvent(
             event_type=EventType.BRANCH_CREATED,
             repo=Repository(
-                name=json["repository"]["name"],
+                name=json["repository"]["full_name"],
                 link=json["repository"]["html_url"],
             ),
             user=User(name=json["sender"][("name", "login")]),
@@ -126,7 +126,7 @@ class BranchDeleteEventParser(EventParser):
         return GitHubEvent(
             event_type=EventType.BRANCH_DELETED,
             repo=Repository(
-                name=json["repository"]["name"],
+                name=json["repository"]["full_name"],
                 link=json["repository"]["html_url"],
             ),
             user=User(name=json["sender"][("name", "login")]),
@@ -148,7 +148,7 @@ class CommitCommentEventParser(EventParser):
         return GitHubEvent(
             event_type=EventType.COMMIT_COMMENT,
             repo=Repository(
-                name=json["repository"]["name"],
+                name=json["repository"]["full_name"],
                 link=json["repository"]["html_url"],
             ),
             user=User(name=json["comment"]["user"]["login"]),
@@ -179,7 +179,7 @@ class ForkEventParser(EventParser):
         return GitHubEvent(
             event_type=EventType.FORK,
             repo=Repository(
-                name=json["repository"]["name"],
+                name=json["repository"]["full_name"],
                 link=json["repository"]["html_url"],
             ),
             user=User(name=json["forkee"]["owner"]["login"]),
@@ -201,7 +201,7 @@ class IssueOpenEventParser(EventParser):
         return GitHubEvent(
             event_type=EventType.ISSUE_OPENED,
             repo=Repository(
-                name=json["repository"]["name"],
+                name=json["repository"]["full_name"],
                 link=json["repository"]["html_url"],
             ),
             user=User(name=json["issue"]["user"]["login"]),
@@ -227,7 +227,7 @@ class IssueCloseEventParser(EventParser):
         return GitHubEvent(
             event_type=EventType.ISSUE_CLOSED,
             repo=Repository(
-                name=json["repository"]["name"],
+                name=json["repository"]["full_name"],
                 link=json["repository"]["html_url"],
             ),
             user=User(name=json["issue"]["user"]["login"]),
@@ -253,7 +253,7 @@ class IssueCommentEventParser(EventParser):
         return GitHubEvent(
             event_type=EventType.ISSUE_COMMENT,
             repo=Repository(
-                name=json["repository"]["name"],
+                name=json["repository"]["full_name"],
                 link=json["repository"]["html_url"],
             ),
             user=User(name=json["sender"]["login"]),
@@ -282,7 +282,7 @@ class PullCloseEventParser(EventParser):
         return GitHubEvent(
             event_type=EventType.PULL_CLOSED,
             repo=Repository(
-                name=json["repository"]["name"],
+                name=json["repository"]["full_name"],
                 link=json["repository"]["html_url"],
             ),
             user=User(name=json["pull_request"]["user"]["login"]),
@@ -309,7 +309,7 @@ class PullMergeEventParser(EventParser):
         return GitHubEvent(
             event_type=EventType.PULL_MERGED,
             repo=Repository(
-                name=json["repository"]["name"],
+                name=json["repository"]["full_name"],
                 link=json["repository"]["html_url"],
             ),
             user=User(name=json["pull_request"]["user"]["login"]),
@@ -335,7 +335,7 @@ class PullOpenEventParser(EventParser):
         return GitHubEvent(
             event_type=EventType.PULL_OPENED,
             repo=Repository(
-                name=json["repository"]["name"],
+                name=json["repository"]["full_name"],
                 link=json["repository"]["html_url"],
             ),
             user=User(name=json["pull_request"]["user"]["login"]),
@@ -362,7 +362,7 @@ class PullReadyEventParser(EventParser):
         return GitHubEvent(
             event_type=EventType.PULL_READY,
             repo=Repository(
-                name=json["repository"]["name"],
+                name=json["repository"]["full_name"],
                 link=json["repository"]["html_url"],
             ),
             pull_request=PullRequest(
@@ -402,7 +402,7 @@ class PushEventParser(EventParser):
 
         return GitHubEvent(
             event_type=EventType.PUSH,
-            repo=Repository(name=json["repository"]["name"], link=base_url),
+            repo=Repository(name=json["repository"]["full_name"], link=base_url),
             ref=Ref(name=branch_name),
             user=User(name=json[("pusher", "sender")][("name", "login")]),
             commits=commits,
@@ -423,7 +423,7 @@ class ReleaseEventParser(EventParser):
         return GitHubEvent(
             event_type=EventType.RELEASE,
             repo=Repository(
-                name=json["repository"]["name"],
+                name=json["repository"]["full_name"],
                 link=json["repository"]["html_url"],
             ),
             status="created" if json["action"] == "released" else "",
@@ -452,7 +452,7 @@ class ReviewEventParser(EventParser):
         return GitHubEvent(
             event_type=EventType.REVIEW,
             repo=Repository(
-                name=json["repository"]["name"],
+                name=json["repository"]["full_name"],
                 link=json["repository"]["html_url"],
             ),
             pull_request=PullRequest(
@@ -480,7 +480,7 @@ class ReviewCommentEventParser(EventParser):
         return GitHubEvent(
             event_type=EventType.REVIEW_COMMENT,
             repo=Repository(
-                name=json["repository"]["name"],
+                name=json["repository"]["full_name"],
                 link=json["repository"]["html_url"],
             ),
             user=User(name=json["sender"]["login"]),
@@ -508,7 +508,7 @@ class StarAddEventParser(EventParser):
         return GitHubEvent(
             event_type=EventType.STAR_ADDED,
             repo=Repository(
-                name=json["repository"]["name"],
+                name=json["repository"]["full_name"],
                 link=json["repository"]["html_url"],
             ),
         )
@@ -528,7 +528,7 @@ class StarRemoveEventParser(EventParser):
         return GitHubEvent(
             event_type=EventType.STAR_REMOVED,
             repo=Repository(
-                name=json["repository"]["name"],
+                name=json["repository"]["full_name"],
                 link=json["repository"]["html_url"],
             ),
         )
@@ -549,7 +549,7 @@ class TagCreateEventParser(EventParser):
         return GitHubEvent(
             event_type=EventType.TAG_CREATED,
             repo=Repository(
-                name=json["repository"]["name"],
+                name=json["repository"]["full_name"],
                 link=json["repository"]["html_url"],
             ),
             user=User(name=json["sender"][("name", "login")]),
@@ -572,7 +572,7 @@ class TagDeleteEventParser(EventParser):
         return GitHubEvent(
             event_type=EventType.TAG_DELETED,
             repo=Repository(
-                name=json["repository"]["name"],
+                name=json["repository"]["full_name"],
                 link=json["repository"]["html_url"],
             ),
             user=User(name=json["sender"][("name", "login")]),
