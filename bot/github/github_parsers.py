@@ -511,6 +511,7 @@ class StarAddEventParser(EventParser):
                 name=json["repository"]["name"],
                 link=json["repository"]["html_url"],
             ),
+            user=User(name=json["sender"]["login"]),
         )
 
 
@@ -531,6 +532,7 @@ class StarRemoveEventParser(EventParser):
                 name=json["repository"]["name"],
                 link=json["repository"]["html_url"],
             ),
+            user=User(name=json["sender"]["login"]),
         )
 
 

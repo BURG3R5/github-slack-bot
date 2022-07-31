@@ -104,9 +104,9 @@ class Messenger:
         elif event.type == EventType.REVIEW_COMMENT:
             message = f"<{event.links[0].url}|Comment on PR #{event.pull_request.number}> by {event.user}\n>{event.comments[0]}"
         elif event.type == EventType.STAR_ADDED:
-            message = f"`{event.repo.name}` received a star."
+            message = f"`{event.repo.name}` received a star from `{event.user}`."
         elif event.type == EventType.STAR_REMOVED:
-            message = f"`{event.repo.name}` lost a star."
+            message = f"`{event.repo.name}` lost a star from `{event.user}`."
         elif event.type == EventType.TAG_CREATED:
             message = f"Tag created by {event.user}: `{event.ref}`"
         elif event.type == EventType.TAG_DELETED:
