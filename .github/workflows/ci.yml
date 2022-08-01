@@ -12,6 +12,9 @@ jobs:
       - name: Detect if workflow is running on the same code twice.
         id: detect-duplicate
         uses: fkirc/skip-duplicate-actions@v4.0.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          concurrent_skipping: 'same_content_newer'
   check-formatting:
     runs-on: ubuntu-latest
     needs: prevent-duplicate
