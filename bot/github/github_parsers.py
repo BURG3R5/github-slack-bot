@@ -402,7 +402,8 @@ class PushEventParser(EventParser):
 
         return GitHubEvent(
             event_type=EventType.PUSH,
-            repo=Repository(name=json["repository"]["full_name"], link=base_url),
+            repo=Repository(name=json["repository"]["full_name"],
+                            link=base_url),
             ref=Ref(name=branch_name),
             user=User(name=json[("pusher", "sender")][("name", "login")]),
             commits=commits,

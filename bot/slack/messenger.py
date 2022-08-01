@@ -40,11 +40,11 @@ class Messenger:
         :param event_type: Enum-ized type of event.
         :return: `list` of names of channels that are subscribed to the repo+event_type.
         """
-        repoName: str = repo.split("/")[-1]
+        repo_name: str = repo.split("/")[-1]
         if repo not in self.subscriptions:
-            if repoName not in self.subscriptions:
+            if repo_name not in self.subscriptions:
                 return []
-            repo = repoName
+            repo = repo_name
         correct_channels: list[str] = [
             channel.name for channel in self.subscriptions[repo]
             if channel.is_subscribed_to(event=event_type)
