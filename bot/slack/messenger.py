@@ -136,6 +136,7 @@ class Messenger:
                     },
                 }],
                 unfurl_links=False,
+                unfurl_media=False,
             )
         else:
             response = self.client.chat_postMessage(
@@ -148,6 +149,7 @@ class Messenger:
                     },
                 }],
                 unfurl_links=False,
+                unfurl_media=False,
             )
             message_id = response.data["ts"]
             self.client.chat_postMessage(
@@ -161,4 +163,5 @@ class Messenger:
                 }],
                 thread_ts=message_id,
                 unfurl_links=False,
+                unfurl_media=False,
             )
