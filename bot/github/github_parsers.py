@@ -88,6 +88,11 @@ class EventParser(ABC):
         """
 
 
+# Helper function to extract branch name:
+def find_ref(x: str) -> str:
+    return x[x.find("/", x.find("/") + 1) + 1:]
+
+
 class BranchCreateEventParser(EventParser):
     """
     Parser for branch creation events.
@@ -107,7 +112,7 @@ class BranchCreateEventParser(EventParser):
                 link=json["repository"]["html_url"],
             ),
             user=User(name=json["sender"][("name", "login")]),
-            ref=Ref(name=json["ref"].split("/")[-1]),
+            ref=Ref(name=find_ref(json["ref"])),
         )
 
 
@@ -130,7 +135,7 @@ class BranchDeleteEventParser(EventParser):
                 link=json["repository"]["html_url"],
             ),
             user=User(name=json["sender"][("name", "login")]),
-            ref=Ref(name=json["ref"].split("/")[-1]),
+            ref=Ref(name=find_ref(json["ref"])),
         )
 
 
@@ -389,7 +394,7 @@ class PushEventParser(EventParser):
     @staticmethod
     def cast_payload_to_event(event_type: str, json: JSON) -> GitHubEvent:
         base_url = json["repository"]["html_url"]
-        branch_name = json["ref"].split("/")[-1]
+        branch_name = find_ref(json["ref"])
 
         # Commits
         commits: list[Commit] = [
@@ -556,7 +561,7 @@ class TagCreateEventParser(EventParser):
                 link=json["repository"]["html_url"],
             ),
             user=User(name=json["sender"][("name", "login")]),
-            ref=Ref(name=json["ref"].split("/")[-1], ref_type="tag"),
+            ref=Ref(name=find_ref(json["ref"]), ref_type="tag"),
         )
 
 
@@ -580,7 +585,7 @@ class TagDeleteEventParser(EventParser):
             ),
             user=User(name=json["sender"][("name", "login")]),
             ref=Ref(
-                name=json["ref"].split("/")[-1],
+                name=find_ref(json["ref"]),
                 ref_type="tag",
             ),
         )
