@@ -90,7 +90,7 @@ class EventParser(ABC):
 
 # Helper function to extract branch name:
 def find_ref(x: str) -> str:
-    return x[x.find("/",x.find("/")+1)+1:]
+    return x[x.find("/", x.find("/") + 1) + 1:]
 
 
 class BranchCreateEventParser(EventParser):
