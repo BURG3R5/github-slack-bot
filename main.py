@@ -83,7 +83,6 @@ if __name__ == "__main__":
     debug: bool = os.environ["DEBUG"] == "1"
 
     if not debug:
-        # pylint: disable-next=abstract-class-instantiated
         sentry_sdk.init(
             dsn=os.environ["SENTRY_DSN"],
             integrations=[BottleIntegration()],

@@ -1,0 +1,32 @@
+{
+  "branch_create": [
+    {
+      "event_type": "create",
+      "raw_json": {
+        "ref": "refs/heads/branch-name",
+        "ref_type": "branch",
+        "pusher_type": "user",
+        "repository": {
+          "full_name": "example-org/example-repo",
+          "html_url": "https://github.com/example-org/example-repo"
+        },
+        "sender": {
+          "login": "example-user"
+        }
+      }
+    },
+    {
+      "comments": "None",
+      "commits": "None",
+      "issue": "None",
+      "links": "None",
+      "pull_request": "None",
+      "ref": "branch-name",
+      "repo": "<https://github.com/example-org/example-repo|example-org/example-repo>",
+      "reviewers": "None",
+      "status": "None",
+      "type": "EventType.BRANCH_CREATED",
+      "user": "<https://github.com/example-user|example-user>"
+    }
+  ]
+}
