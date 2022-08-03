@@ -59,8 +59,6 @@ class GitHubPayloadParser:
 
 
 # Helper classes:
-
-
 class EventParser(ABC):
     """
     Abstract base class for all parsers, to enforce them to implement check and cast methods.
@@ -85,11 +83,6 @@ class EventParser(ABC):
         :param json: Event data body received from GitHub.
         :return: `GitHubEvent` object containing all the relevant data about the event.
         """
-
-
-# Helper function to extract branch name:
-def find_ref(x: str) -> str:
-    return x[x.find("/", x.find("/") + 1) + 1:]
 
 
 class BranchCreateEventParser(EventParser):
@@ -588,3 +581,13 @@ class TagDeleteEventParser(EventParser):
                 ref_type="tag",
             ),
         )
+
+
+# Helper functions:
+def find_ref(x: str) -> str:
+    """
+    Helper function to extract branch name
+    :param x: Full version of ref id.
+    :return: Extracted ref name.
+    """
+    return x[x.find("/", x.find("/") + 1) + 1:]
