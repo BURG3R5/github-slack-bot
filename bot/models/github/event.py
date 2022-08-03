@@ -6,7 +6,6 @@ from ..link import Link
 from . import Commit, EventType, Issue, PullRequest, Ref, Repository, User
 
 
-# pylint: disable-next=too-many-instance-attributes
 class GitHubEvent:
     """
     Model class that can store all relevant info about all events that the project handles.

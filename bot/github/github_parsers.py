@@ -13,7 +13,6 @@ from ..models.link import Link
 from ..utils.json import JSON
 
 
-# pylint: disable-next=too-few-public-methods
 class GitHubPayloadParser:
     """
     Wrapper for a single method (`parse`), for consistency's sake only.

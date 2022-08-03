@@ -2,7 +2,7 @@
 Contains the `Messenger` class, which sends Slack messages according to GitHub events.
 """
 
-from slack.web.client import WebClient  # pylint: disable=no-name-in-module
+from slack.web.client import WebClient
 
 from ..models.github import EventType
 from ..models.github.event import GitHubEvent
@@ -51,7 +51,6 @@ class Messenger:
         ]
         return correct_channels
 
-    # pylint: disable=too-many-branches
     @staticmethod
     def compose_message(event: GitHubEvent) -> tuple[str, str | None]:
         """
