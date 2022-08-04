@@ -19,7 +19,7 @@ class GitHubPayloadParser:
     """
 
     @staticmethod
-    def parse(event_type, raw_json) -> GitHubEvent | None:
+    def parse(event_type, raw_json) -> GitHubEvent:
         """
         Checks the data against all parsers, then returns a `GitHubEvent` using the matching parser.
         :param event_type: Event type header received from GitHub.

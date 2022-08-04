@@ -52,7 +52,7 @@ class Messenger:
         return correct_channels
 
     @staticmethod
-    def compose_message(event: GitHubEvent) -> tuple[str, str | None]:
+    def compose_message(event: GitHubEvent) -> tuple[str, str]:
         """
         Create message and details strings according to the type of event triggered.
         :param event: `GitHubEvent` containing all relevant data about the event.
@@ -116,7 +116,7 @@ class Messenger:
 
         return message, details
 
-    def send_message(self, channel: str, message: str, details: str | None):
+    def send_message(self, channel: str, message: str, details: str):
         """
         Sends the passed message to the passed channel.
         Also, optionally posts `details` in a thread under the main message.

@@ -14,7 +14,7 @@ class Link:
     :param text: Text that should be displayed instead of the link.
     """
 
-    def __init__(self, url: str | None = None, text: str | None = None):
+    def __init__(self, url: str, text: str):
         self.url = url
         self.text = text
 

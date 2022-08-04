@@ -21,7 +21,7 @@ class Runner:
         # Dummy initialization. Overridden in `SlackBot.__init__()`.
         self.subscriptions: dict[str, set[Channel]] = {}
 
-    def run(self, raw_json: MultiDict) -> dict[str, Any] | None:
+    def run(self, raw_json: MultiDict) -> dict[str, Any]:
         """
         Runs Slack slash commands sent to the bot.
         :param raw_json: Slash command data sent by Slack.
