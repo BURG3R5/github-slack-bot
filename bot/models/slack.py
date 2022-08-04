@@ -24,3 +24,10 @@ class Channel:
         :return: Whether the channel is subscribed to the passed event or not.
         """
         return event in self.events
+
+    def __str__(self) -> str:
+        """
+        Overridden object method for pretty-printing Channels.
+        :return: channel name.
+        """
+        return f"<{self.name}>"
