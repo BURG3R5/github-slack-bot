@@ -21,3 +21,6 @@ class Commit:
         self.message = message
         self.sha = sha
         self.link = link
+
+    def __str__(self) -> str:
+        return f"<{self.message}|{self.link}>"
