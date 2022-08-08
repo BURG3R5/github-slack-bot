@@ -44,3 +44,6 @@ class GitHubEvent:
         self.commits: list[Commit] | None = kwargs.get("commits", None)
         self.links: list[Link] | None = kwargs.get("links", None)
         self.reviewers: list[User] | None = kwargs.get("reviewers", None)
+
+    def __str__(self):
+        return f"<{self.type}|{self.repo}>"
