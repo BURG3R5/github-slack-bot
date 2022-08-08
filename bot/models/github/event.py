@@ -46,4 +46,16 @@ class GitHubEvent:
         self.reviewers: list[User] | None = kwargs.get("reviewers", None)
 
     def __str__(self):
-        return f"<{self.type}|{self.repo}>"
+        return f"""(
+            type={self.type},
+            repo={self.repo.name},
+            status={self.status},
+            issue={self.issue.title},
+            pull_request={self.pull_request.title},
+            ref={self.ref.name},
+            user={self.user.name},
+            comments={[comment for comment in self.comments]},
+            commits={[commit.message for commit in self.commits]},
+            links={[link.url for link in self.links]},
+            users={[reviewer.name for reviewer in self.reviewers]},
+        )"""
