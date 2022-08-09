@@ -16,15 +16,8 @@
       }
     },
     {
-      "comments": "None",
-      "commits": "None",
-      "issue": "None",
-      "links": "None",
-      "pull_request": "None",
       "ref": "branch-name",
       "repo": "<https://github.com/example-org/example-repo|example-org/example-repo>",
-      "reviewers": "None",
-      "status": "None",
       "type": "EventType.BRANCH_CREATED",
       "user": "<https://github.com/example-user|example-user>"
     }
