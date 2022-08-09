@@ -33,6 +33,7 @@ class Runner:
         args: list[str] = str(json["text"]).split()
         result: dict[str, Any] | None = None
         if command == "/subscribe" and len(args) > 0:
+            log_subscription(current_channel + "is subscribed to repo " + args[0] + " for event " + convert_keywords_to_events(args[1:]))
             result = self.run_subscribe_command(
                 current_channel=current_channel,
                 args=args,
