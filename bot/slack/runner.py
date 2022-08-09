@@ -9,7 +9,6 @@ from bottle import MultiDict
 from ..models.github import EventType, convert_keywords_to_events
 from ..models.slack import Channel
 from ..utils.json import JSON
-from ..utils.log import log_subscription
 from ..utils.storage import Storage
 
 
@@ -34,17 +33,12 @@ class Runner:
         args: list[str] = str(json["text"]).split()
         result: dict[str, Any] | None = None
         if command == "/subscribe" and len(args) > 0:
-            log_subscription(current_channel + " is subscribed to repo " +
-                             args[0] + " for event " +
-                             convert_keywords_to_events(args[1:]))
+            log_subscription(current_channel + "is subscribed to repo " + args[0] + " for event " + convert_keywords_to_events(args[1:]))
             result = self.run_subscribe_command(
                 current_channel=current_channel,
                 args=args,
             )
         elif command == "/unsubscribe" and len(args) > 0:
-            log_subscription(current_channel + ' is unsubscribed to repo' +
-                             args[0] + ' for event ' +
-                             convert_keywords_to_events(args[1:]))
             result = self.run_unsubscribe_command(
                 current_channel=current_channel,
                 args=args,
