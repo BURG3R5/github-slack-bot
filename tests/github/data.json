@@ -39,15 +39,8 @@
       }
     },
     {
-      "comments": "None",
-      "commits": "None",
-      "issue": "None",
-      "links": "None",
-      "pull_request": "None",
       "ref": "branch-name",
       "repo": "<https://github.com/example-org/example-repo|example-org/example-repo>",
-      "reviewers": "None",
-      "status": "None",
       "type": "EventType.BRANCH_DELETED",
       "user": "<https://github.com/example-user|example-user>"
     }
@@ -77,13 +70,8 @@
     {
       "comments": "['comment content']",
       "commits": "[<|https://github.com/example-org/example-repo/commit/4d93b529>]",
-      "issue": "None",
       "links": "[<https://github.com/example-org/example-repo/commit/4d93b5294b201237#commitcomment-12345678|>]",
-      "pull_request": "None",
-      "ref": "None",
       "repo": "<https://github.com/example-org/example-repo|example-org/example-repo>",
-      "reviewers": "None",
-      "status": "None",
       "type": "EventType.COMMIT_COMMENT",
       "user": "<https://github.com/user-who-commented|user-who-commented>"
     }
@@ -105,15 +93,8 @@
       }
     },
     {
-      "comments": "None",
-      "commits": "None",
-      "issue": "None",
       "links": "[<https://github.com/user-who-forked/example-repo|>]",
-      "pull_request": "None",
-      "ref": "None",
       "repo": "<https://github.com/example-org/example-repo|example-org/example-repo>",
-      "reviewers": "None",
-      "status": "None",
       "type": "EventType.FORK",
       "user": "<https://github.com/user-who-forked|user-who-forked>"
     }
@@ -147,15 +128,9 @@
       }
     },
     {
-      "comments": "None",
       "commits": "[<commit-message1|https://github.com/example-org/example-repo/commit/f30421319e41a3a>, <commit-message2|https://github.com/example-org/example-repo/commit/5g0521417e40i37d9>]",
-      "issue": "None",
-      "links": "None",
-      "pull_request": "None",
       "ref": "branch-name",
       "repo": "<https://github.com/example-org/example-repo|example-org/example-repo>",
-      "reviewers": "None",
-      "status": "None",
       "type": "EventType.PUSH",
       "user": "<https://github.com/user-who-pushed|user-who-pushed>"
     }
@@ -175,15 +150,7 @@
       }
     },
     {
-      "comments": "None",
-      "commits": "None",
-      "issue": "None",
-      "links": "None",
-      "pull_request": "None",
-      "ref": "None",
       "repo": "<https://github.com/example-org/example-repo|example-org/example-repo>",
-      "reviewers": "None",
-      "status": "None",
       "type": "EventType.STAR_ADDED",
       "user": "<https://github.com/user-who-starred|user-who-starred>"
     }
@@ -203,15 +170,7 @@
       }
     },
     {
-      "comments": "None",
-      "commits": "None",
-      "issue": "None",
-      "links": "None",
-      "pull_request": "None",
-      "ref": "None",
       "repo": "<https://github.com/example-org/example-repo|example-org/example-repo>",
-      "reviewers": "None",
-      "status": "None",
       "type": "EventType.STAR_REMOVED",
       "user": "<https://github.com/user-who-unstarred|user-who-unstarred>"
     }
