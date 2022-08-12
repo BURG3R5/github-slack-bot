@@ -53,7 +53,7 @@
         "comment": {
           "html_url": "https://github.com/example-org/example-repo/commit/4d93b5294b201237#commitcomment-12345678",
           "user": {
-            "login": "user-who-commented"
+            "login": "example-user"
           },
           "commit_id": "4d93b5294b201237",
           "body": "comment content"
@@ -70,7 +70,7 @@
     {
       "comments": ["comment content"],
       "commits": ["<|https://github.com/example-org/example-repo/commit/4d93b529>"],
-      "links": ["<https://github.com/example-org/example-repo/commit/4d93b5294b201237#commitcomment-12345678|>"],
+      "links": ["<https://github.com/example-org/example-repo/commit/4d93b5294b201237#commitcomment-12345678|None>"],
       "repo": "<https://github.com/example-org/example-repo|example-org/example-repo>",
       "type": "EventType.COMMIT_COMMENT",
       "user": "<https://github.com/example-user|example-user>"
@@ -93,7 +93,7 @@
       }
     },
     {
-      "links": ["<https://github.com/user-who-forked/example-repo|>"],
+      "links": ["<https://github.com/user-who-forked/example-repo|None>"],
       "repo": "<https://github.com/example-org/example-repo|example-org/example-repo>",
       "type": "EventType.FORK",
       "user": "<https://github.com/user-who-forked|user-who-forked>"
@@ -262,7 +262,7 @@
       "user": "<https://github.com/user-who-commented|user-who-commented>",
       "issue": "<https://github.com/example-org/example-repo/issues/3|#3 ExampleIssue>",
       "comments": ["comment content"],
-      "links": ["<https://github.com/example-org/example-repo/issues/3#issuecomment-1234567890|>"]
+      "links": ["<https://github.com/example-org/example-repo/issues/3#issuecomment-1234567890|None>"]
     }
   ],
   "pull-close": [
@@ -464,7 +464,7 @@
       "user": "<https://github.com/user-who-commented|user-who-commented>",
       "pull_request": "<https://github.com/example-org/example-repo/pull/3|#3 ExamplePR>",
       "comments": ["comment content"],
-      "links": ["<https://github.com/example-org/example-repo/pull/3#discussion_r123456789|>"]
+      "links": ["<https://github.com/example-org/example-repo/pull/3#discussion_r123456789|None>"]
     }
   ],
   "tag-create": [
