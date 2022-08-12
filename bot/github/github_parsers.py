@@ -488,7 +488,7 @@ class ReviewCommentEventParser(EventParser):
                 link=json["pull_request"]["html_url"],
             ),
             comments=[json["comment"]["body"]],
-            links=[Link(url=json["comment"]["url"])],
+            links=[Link(url=json["comment"]["html_url"])],
         )
 
 
