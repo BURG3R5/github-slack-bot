@@ -59,7 +59,7 @@ class GitHubEvent:
         if "links" in kwargs:
             self.links = kwargs["links"]
         if "reviewers" in kwargs:
-            self.comments = kwargs["reviewers"]
+            self.reviewers = kwargs["reviewers"]
 
     def __str__(self):
         string = ""
