@@ -135,7 +135,7 @@
       "user": "<https://github.com/user-who-pushed|user-who-pushed>"
     }
   ],
-  "star-add": [
+  "star_add": [
     {
       "event_type": "star",
       "raw_json": {
@@ -155,7 +155,7 @@
       "user": "<https://github.com/user-who-starred|user-who-starred>"
     }
   ],
-  "star-remove": [
+  "star_remove": [
     {
       "event_type": "star",
       "raw_json": {
@@ -175,7 +175,7 @@
       "user": "<https://github.com/user-who-unstarred|user-who-unstarred>"
     }
   ],
-  "issue-open": [
+  "issue_open": [
     {
       "event_type": "issues",
       "raw_json": {
@@ -204,7 +204,7 @@
       "issue": "<https://github.com/example-org/example-repo/issues/3|#3 ExampleIssue>"
     }
   ],
-  "issue-close": [
+  "issue_close": [
     {
       "event_type": "issues",
       "raw_json": {
@@ -233,7 +233,7 @@
       "issue": "<https://github.com/example-org/example-repo/issues/3|#3 ExampleIssue>"
     }
   ],
-  "issue-comment": [
+  "issue_comment": [
     {
       "event_type": "issue_comment",
       "raw_json": {
@@ -265,7 +265,7 @@
       "links": ["<https://github.com/example-org/example-repo/issues/3#issuecomment-1234567890|None>"]
     }
   ],
-  "pull-close": [
+  "pull_close": [
     {
       "event_type": "pull_request",
       "raw_json": {
@@ -293,7 +293,7 @@
       "pull_request": "<https://github.com/example-org/example-repo/pull/3|#3 ExamplePR>"
     }
   ],
-  "pull-merge": [
+  "pull_merge": [
     {
       "event_type": "pull_request",
       "raw_json": {
@@ -321,7 +321,7 @@
       "pull_request": "<https://github.com/example-org/example-repo/pull/3|#3 ExamplePR>"
     }
   ],
-  "pull-open": [
+  "pull_open": [
     {
       "event_type": "pull_request",
       "raw_json": {
@@ -348,7 +348,7 @@
       "pull_request": "<https://github.com/example-org/example-repo/pull/3|#3 ExamplePR>"
     }
   ],
-  "pull-ready": [
+  "pull_ready": [
     {
       "event_type": "pull_request",
       "raw_json": {
@@ -434,7 +434,7 @@
       "reviewers": ["<https://github.com/reviewer|reviewer>"]
     }
   ],
-  "review-comment": [
+  "review_comment": [
     {
       "event_type": "pull_request_review_comment",
       "raw_json": {
@@ -467,7 +467,7 @@
       "links": ["<https://github.com/example-org/example-repo/pull/3#discussion_r123456789|None>"]
     }
   ],
-  "tag-create": [
+  "tag_create": [
     {
       "event_type": "create",
       "raw_json": {
@@ -490,7 +490,7 @@
       "user": "<https://github.com/user-who-created-tag|user-who-created-tag>"
     }
   ],
-  "tag-delete": [
+  "tag_delete": [
     {
       "event_type": "delete",
       "raw_json": {
