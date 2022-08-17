@@ -2,6 +2,7 @@
 Contains the `Runner` class, which reacts to slash commands.
 """
 
+import time
 from typing import Any
 
 from bottle import MultiDict
@@ -30,21 +31,24 @@ class Runner:
         """
         json: JSON = JSON.from_multi_dict(raw_json)
         current_channel: str = "#" + json["channel_name"]
+        username: str = json["username"]
         command: str = json["command"]
         args: list[str] = str(json["text"]).split()
         result: dict[str, Any] | None = None
         if command == "/subscribe" and len(args) > 0:
-            log_subscription(current_channel + " is subscribed to repo " +
-                             args[0] + " for event " +
-                             convert_keywords_to_events(args[1:]))
+            current_unix_time = int(time.time())
+            log_subscription(current_unix_time + ", " + username + ", " +
+                             current_channel + " subscribe, " + args[0] +
+                             ", " + args[1:])
             result = self.run_subscribe_command(
                 current_channel=current_channel,
                 args=args,
             )
         elif command == "/unsubscribe" and len(args) > 0:
-            log_subscription(current_channel + ' is unsubscribed to repo' +
-                             args[0] + ' for event ' +
-                             convert_keywords_to_events(args[1:]))
+            current_unix_time = int(time.time())
+            log_subscription(current_unix_time + ", " + username + ", " +
+                             current_channel + " unsubscribe, " + args[0] +
+                             ", " + args[1:])
             result = self.run_unsubscribe_command(
                 current_channel=current_channel,
                 args=args,
