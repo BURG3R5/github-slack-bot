@@ -36,7 +36,7 @@ class Runner:
         args: list[str] = str(json["text"]).split()
         result: dict[str, Any] | None = None
         if command == "/subscribe" and len(args) > 0:
-            current_unix_time = int(time.time())
+            current_unix_time = int(time.time() * 1000)
             log_subscription(current_unix_time + ", " + username + ", " +
                              current_channel + " subscribe, " + args[0] +
                              ", " + args[1:])
@@ -45,7 +45,7 @@ class Runner:
                 args=args,
             )
         elif command == "/unsubscribe" and len(args) > 0:
-            current_unix_time = int(time.time())
+            current_unix_time = int(time.time() * 1000)
             log_subscription(current_unix_time + ", " + username + ", " +
                              current_channel + " unsubscribe, " + args[0] +
                              ", " + args[1:])
