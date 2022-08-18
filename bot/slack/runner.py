@@ -31,24 +31,24 @@ class Runner:
         """
         json: JSON = JSON.from_multi_dict(raw_json)
         current_channel: str = "#" + json["channel_name"]
-        username: str = json["username"]
+        username: str = json["user_name"]
         command: str = json["command"]
         args: list[str] = str(json["text"]).split()
         result: dict[str, Any] | None = None
         if command == "/subscribe" and len(args) > 0:
             current_unix_time = int(time.time() * 1000)
-            log_subscription(current_unix_time + ", " + username + ", " +
-                             current_channel + " subscribe, " + args[0] +
-                             ", " + args[1:])
+            log_subscription(
+                f"{current_unix_time}, {username}, {current_channel}, subscribe, {', '.join(args)}"
+            )
             result = self.run_subscribe_command(
                 current_channel=current_channel,
                 args=args,
             )
         elif command == "/unsubscribe" and len(args) > 0:
             current_unix_time = int(time.time() * 1000)
-            log_subscription(current_unix_time + ", " + username + ", " +
-                             current_channel + " unsubscribe, " + args[0] +
-                             ", " + args[1:])
+            log_subscription(
+                f"{current_unix_time}, {username}, {current_channel}, unsubscribe, {', '.join(args)}"
+            )
             result = self.run_unsubscribe_command(
                 current_channel=current_channel,
                 args=args,
