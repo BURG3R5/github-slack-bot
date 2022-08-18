@@ -1,16 +1,20 @@
 import os
 
 
-def log_subscription(sub_command):
-
+def log_command(log_text: str):
+    """
+    Logs the latest command to `.log` file.
+    :param log_text: Information about the latest command to be saved.
+    """
     lines = []
     with open('.log', 'r') as file:
         lines = file.readlines()
-    if len(lines) >= 3:
+    lines.append(log_text + '\n')
+
+    if len(lines) > 5:
         lines.pop(0)
-        lines.append(sub_command + '\n')
-        with open('.log', 'w') as file:
-            file.writelines(lines)
-    else:
-        with open('.log', 'a') as file:
-            file.write(sub_command + '\n')
+
+    with open('.log', 'w') as file:
+        print(lines)
+        print('here')
+        file.writelines(lines)
