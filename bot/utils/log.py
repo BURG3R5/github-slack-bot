@@ -6,7 +6,7 @@ def log_subscription(sub_command):
     lines = []
     with open('.log', 'r') as file:
         lines = file.readlines()
-    if len(lines) >= 3:
+    if len(lines) >= os.environ['log_limit']:
         lines.pop(0)
         lines.append(sub_command + '\n')
         with open('.log', 'w') as file:
