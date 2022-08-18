@@ -24,6 +24,7 @@ from sentry_sdk.integrations.bottle import BottleIntegration
 from bot.github.github_parsers import GitHubPayloadParser
 from bot.models.github.event import GitHubEvent
 from bot.slack import SlackBot
+from bot.utils.log import Logger
 
 
 @get("/")
@@ -88,5 +89,8 @@ if __name__ == "__main__":
             integrations=[BottleIntegration()],
         )
 
-    bot: SlackBot = SlackBot(token=os.environ["SLACK_OAUTH_TOKEN"])
+    bot: SlackBot = SlackBot(
+        token=os.environ["SLACK_OAUTH_TOKEN"],
+        logger=Logger(int(os.environ["LOG_LAST_N_COMMANDS"] or 100)),
+    )
     run(host="", port=5556, debug=debug)

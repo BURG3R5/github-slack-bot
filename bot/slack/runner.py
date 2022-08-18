@@ -2,6 +2,7 @@
 Contains the `Runner` class, which reacts to slash commands.
 """
 
+import time
 from typing import Any
 
 from bottle import MultiDict
@@ -9,6 +10,7 @@ from bottle import MultiDict
 from ..models.github import EventType, convert_keywords_to_events
 from ..models.slack import Channel
 from ..utils.json import JSON
+from ..utils.log import Logger
 from ..utils.storage import Storage
 
 
@@ -17,7 +19,10 @@ class Runner:
     Reacts to received slash commands.
     """
 
-    def __init__(self):
+    logger: Logger
+
+    def __init__(self, logger: Logger):
+        self.logger = logger
         # Dummy initialization. Overridden in `SlackBot.__init__()`.
         self.subscriptions: dict[str, set[Channel]] = {}
 
@@ -29,15 +34,24 @@ class Runner:
         """
         json: JSON = JSON.from_multi_dict(raw_json)
         current_channel: str = "#" + json["channel_name"]
+        username: str = json["user_name"]
         command: str = json["command"]
         args: list[str] = str(json["text"]).split()
         result: dict[str, Any] | None = None
         if command == "/subscribe" and len(args) > 0:
+            current_unix_time = int(time.time() * 1000)
+            self.logger.log_command(
+                f"{current_unix_time}, {username}, "
+                f"{current_channel}, subscribe, {', '.join(args)}")
             result = self.run_subscribe_command(
                 current_channel=current_channel,
                 args=args,
             )
         elif command == "/unsubscribe" and len(args) > 0:
+            current_unix_time = int(time.time() * 1000)
+            self.logger.log_command(
+                f"{current_unix_time}, {username}, "
+                f"{current_channel}, unsubscribe, {', '.join(args)}")
             result = self.run_unsubscribe_command(
                 current_channel=current_channel,
                 args=args,
