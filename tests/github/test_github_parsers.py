@@ -3,9 +3,9 @@ from typing import Any
 
 from bot.github.github_parsers import GitHubPayloadParser, find_ref
 
-from ..utils.deserializers import github_payload_deserializer
-from ..utils.load import load_test_data
-from ..utils.serializers import github_event_serializer
+from ..test_utils.deserializers import github_payload_deserializer
+from ..test_utils.load import load_test_data
+from ..test_utils.serializers import github_event_serializer
 
 
 class TestMetaClass(type):

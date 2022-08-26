@@ -6,8 +6,8 @@ from bot.slack import Runner
 from bot.utils.log import Logger
 from bot.utils.storage import Storage
 
-from ..utils.comparators import Comparators
-from ..utils.load import load_test_data
+from ..test_utils.comparators import Comparators
+from ..test_utils.load import load_test_data
 
 
 class RunnerTest(unittest.TestCase):
