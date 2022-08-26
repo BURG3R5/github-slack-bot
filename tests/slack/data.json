@@ -1,4 +1,59 @@
 {
+  "run|calls_subscribe": [
+    {
+      "channel_name": "example-channel",
+      "user_name": "example.user.123",
+      "command": "/subscribe",
+      "text": "github-slack-bot *"
+    },
+    {}
+  ],
+  "run|calls_unsubscribe": [
+    {
+      "channel_name": "example-channel",
+      "user_name": "example.user.123",
+      "command": "/unsubscribe",
+      "text": "github-slack-bot *"
+    },
+    {}
+  ],
+  "run|calls_list": [
+    {
+      "channel_name": "example-channel",
+      "user_name": "example.user.123",
+      "command": "/list"
+    },
+    {}
+  ],
+  "run|calls_help": [
+    {
+      "channel_name": "example-channel",
+      "user_name": "example.user.123",
+      "command": "/help"
+    },
+    {}
+  ],
+  "run|doesnt_call": [
+    {
+      "channel_name": "example-channel",
+      "user_name": "example.user.123",
+      "command": "/fake-command",
+      "text": "github-slack-bot"
+    },
+    {
+      "channel_name": "example-channel",
+      "user_name": "example.user.123",
+      "command": "/subscribe",
+      "text": ""
+    },
+    {
+      "channel_name": "example-channel",
+      "user_name": "example.user.123",
+      "command": "/unsubscribe",
+      "text": ""
+    },
+    {}
+  ],
   "run_help_command": [
     {},
     {

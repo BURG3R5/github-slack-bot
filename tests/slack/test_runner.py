@@ -1,8 +1,11 @@
 import unittest
+from unittest.mock import patch
+
+from bottle import MultiDict
 
 from bot.models.github import convert_keywords_to_events
 from bot.models.slack import Channel
-from bot.slack import Runner
+from bot.slack.runner import Runner
 from bot.utils.log import Logger
 from bot.utils.storage import Storage
 
@@ -23,6 +26,57 @@ class RunnerTest(unittest.TestCase):
 
     def setUp(self):
         self.runner.subscriptions = Storage.import_subscriptions()
+
+    @patch("bot.slack.runner.Storage")
+    def test_run_calls_subscribe(self, MockStorage):
+        raw_json = MultiDict(self.data["run|calls_subscribe"][0])
+        with patch.object(self.runner,
+                          "run_subscribe_command") as mock_function:
+            self.runner.run(raw_json)
+        mock_function.assert_called_once_with(
+            current_channel="#example-channel",
+            args=["github-slack-bot", "*"],
+        )
+        MockStorage.export_subscriptions.assert_called_once()
+
+    @patch("bot.slack.runner.Storage")
+    def test_run_calls_unsubscribe(self, MockStorage):
+        raw_json = MultiDict(self.data["run|calls_unsubscribe"][0])
+        with patch.object(self.runner,
+                          "run_unsubscribe_command") as mock_function:
+            self.runner.run(raw_json)
+        mock_function.assert_called_once_with(
+            current_channel="#example-channel",
+            args=["github-slack-bot", "*"],
+        )
+        MockStorage.export_subscriptions.assert_called_once()
+
+    @patch("bot.slack.runner.Storage")
+    def test_run_calls_list(self, _):
+        raw_json = MultiDict(self.data["run|calls_list"][0])
+        with patch.object(self.runner, "run_list_command") as mock_function:
+            self.runner.run(raw_json)
+        mock_function.assert_called_once_with(
+            current_channel="#example-channel")
+
+    @patch("bot.slack.runner.Storage")
+    def test_run_calls_help(self, _):
+        raw_json = MultiDict(self.data["run|calls_help"][0])
+        with patch.object(self.runner, "run_help_command") as mock_function:
+            self.runner.run(raw_json)
+        mock_function.assert_called_once()
+
+    @patch("bot.slack.runner.Storage")
+    def test_run_doesnt_call(self, _):
+        # Wrong command
+        raw_json = MultiDict(self.data["run|doesnt_call"][0])
+        self.assertIsNone(self.runner.run(raw_json))
+
+        # No args for subscribe or unsubscribe
+        raw_json = MultiDict(self.data["run|doesnt_call"][1])
+        self.assertIsNone(self.runner.run(raw_json))
+        raw_json = MultiDict(self.data["run|doesnt_call"][2])
+        self.assertIsNone(self.runner.run(raw_json))
 
     def test_list_empty(self):
         self.runner.subscriptions = {}
