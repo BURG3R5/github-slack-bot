@@ -601,9 +601,9 @@ def convert_links(x: str) -> str:
     :return: Formatted text.
     """
     reg: str = r'\[([a-zA-Z0-9!@#$%^&*,./?\'";:_=~` ]+)\]\(([(http(s)?):\/\/(www\.)?a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b[-a-zA-Z0-9@:%_\+.~#?&//=]*)\)'
-    gh_links: list[tuple(str)] = re.findall(reg, x)
+    gh_links: list[tuple(str, str)] = re.findall(reg, x)
     for (txt, link) in gh_links:
-        old: str = "[" + str(txt) + "]" + "(" + str(link) + ")"
+        old: str = f"[{txt}]({link})"
         txt = str(txt).strip()
         link = str(link).strip()
         new: str = f"<{link}|{txt}>"
