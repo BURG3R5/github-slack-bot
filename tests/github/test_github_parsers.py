@@ -1,7 +1,7 @@
 import unittest
 from typing import Any
 
-from bot.github.github_parsers import GitHubPayloadParser, find_ref
+from bot.github.github_parsers import GitHubPayloadParser, convert_links, find_ref
 
 from ..test_utils.deserializers import github_payload_deserializer
 from ..test_utils.load import load_test_data
@@ -44,6 +44,29 @@ class GitHubPayloadParserTest(unittest.TestCase, metaclass=TestMetaClass):
         self.assertEqual("username/branch-name",
                          find_ref("refs/heads/username/branch-name"))
         self.assertEqual("branch-name", find_ref("branch-name"))
+
+    def test_convert_links(self):
+        self.assertEqual(
+            "Some comment text <www.xyz.com|Link text> text",
+            convert_links("Some comment text [Link text](www.xyz.com) text"))
+        self.assertEqual(
+            "Some comment text <www.xyz.com/abcd|Link text> text",
+            convert_links(
+                "Some comment text [Link text](www.xyz.com/abcd) text"))
+        self.assertEqual(
+            "Some comment text <www.xyz.com?q=1234|Link text> text",
+            convert_links(
+                "Some comment text [Link text](www.xyz.com?q=1234) text"))
+        self.assertEqual(
+            "Some comment text <www.xyz.com|Link text> text <https://www.qwerty.com/|Link text 2nd>",
+            convert_links(
+                "Some comment text [Link text](www.xyz.com) text [Link text 2nd](https://www.qwerty.com/)"
+            ))
+        self.assertEqual(
+            "Some comment text [Link text <www.example.link.com|Link inside link text>](www.xyz.com) text",
+            convert_links(
+                "Some comment text [Link text [Link inside link text](www.example.link.com)](www.xyz.com) text"
+            ))
 
 
 if __name__ == '__main__':
