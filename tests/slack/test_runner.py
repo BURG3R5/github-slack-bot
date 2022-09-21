@@ -21,7 +21,7 @@ class RunnerTest(unittest.TestCase):
         cls.data = load_test_data('slack')
 
         # Construct common Runner instance.
-        logger = Logger(0)
+        cls.logger = logger = Logger(0)
         cls.runner = Runner(logger)
 
     def setUp(self):
@@ -30,53 +30,65 @@ class RunnerTest(unittest.TestCase):
     @patch("bot.slack.runner.Storage")
     def test_run_calls_subscribe(self, MockStorage):
         raw_json = MultiDict(self.data["run|calls_subscribe"][0])
-        with patch.object(self.runner,
-                          "run_subscribe_command") as mock_function:
-            self.runner.run(raw_json)
+        with patch.object(self.logger, "log_command") as mock_logger:
+            with patch.object(self.runner,
+                              "run_subscribe_command") as mock_function:
+                self.runner.run(raw_json)
         mock_function.assert_called_once_with(
             current_channel="#example-channel",
             args=["github-slack-bot", "*"],
         )
+        mock_logger.assert_called_once()
         MockStorage.export_subscriptions.assert_called_once()
 
     @patch("bot.slack.runner.Storage")
     def test_run_calls_unsubscribe(self, MockStorage):
         raw_json = MultiDict(self.data["run|calls_unsubscribe"][0])
-        with patch.object(self.runner,
-                          "run_unsubscribe_command") as mock_function:
-            self.runner.run(raw_json)
+        with patch.object(self.logger, "log_command") as mock_logger:
+            with patch.object(self.runner,
+                              "run_unsubscribe_command") as mock_function:
+                self.runner.run(raw_json)
         mock_function.assert_called_once_with(
             current_channel="#example-channel",
             args=["github-slack-bot", "*"],
         )
+        mock_logger.assert_called_once()
         MockStorage.export_subscriptions.assert_called_once()
 
     @patch("bot.slack.runner.Storage")
     def test_run_calls_list(self, _):
         raw_json = MultiDict(self.data["run|calls_list"][0])
-        with patch.object(self.runner, "run_list_command") as mock_function:
-            self.runner.run(raw_json)
+        with patch.object(self.logger, "log_command") as mock_logger:
+            with patch.object(self.runner,
+                              "run_list_command") as mock_function:
+                self.runner.run(raw_json)
         mock_function.assert_called_once_with(
             current_channel="#example-channel")
+        mock_logger.assert_not_called()
 
     @patch("bot.slack.runner.Storage")
     def test_run_calls_help(self, _):
         raw_json = MultiDict(self.data["run|calls_help"][0])
-        with patch.object(self.runner, "run_help_command") as mock_function:
-            self.runner.run(raw_json)
+        with patch.object(self.logger, "log_command") as mock_logger:
+            with patch.object(self.runner,
+                              "run_help_command") as mock_function:
+                self.runner.run(raw_json)
         mock_function.assert_called_once()
+        mock_logger.assert_not_called()
 
     @patch("bot.slack.runner.Storage")
     def test_run_doesnt_call(self, _):
-        # Wrong command
-        raw_json = MultiDict(self.data["run|doesnt_call"][0])
-        self.assertIsNone(self.runner.run(raw_json))
+        with patch.object(self.logger, "log_command") as mock_logger:
+            # Wrong command
+            raw_json = MultiDict(self.data["run|doesnt_call"][0])
+            self.assertIsNone(self.runner.run(raw_json))
 
-        # No args for subscribe or unsubscribe
-        raw_json = MultiDict(self.data["run|doesnt_call"][1])
-        self.assertIsNone(self.runner.run(raw_json))
-        raw_json = MultiDict(self.data["run|doesnt_call"][2])
-        self.assertIsNone(self.runner.run(raw_json))
+            # No args for subscribe or unsubscribe
+            raw_json = MultiDict(self.data["run|doesnt_call"][1])
+            self.assertIsNone(self.runner.run(raw_json))
+            raw_json = MultiDict(self.data["run|doesnt_call"][2])
+            self.assertIsNone(self.runner.run(raw_json))
+        mock_logger.assert_not_called()
 
     def test_list_empty(self):
         self.runner.subscriptions = {}
