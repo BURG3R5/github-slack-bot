@@ -1,0 +1,3 @@
+when runnning the script first time
+run command
+    chmod +x set_env.sh

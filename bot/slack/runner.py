@@ -3,6 +3,7 @@ Contains the `Runner` class, which reacts to slash commands.
 """
 
 import time
+from asyncio.windows_events import NULL
 from typing import Any
 
 from bottle import MultiDict
@@ -60,6 +61,9 @@ class Runner:
             result = self.run_list_command(current_channel=current_channel)
         elif command == "/help":
             result = self.run_help_command()
+        elif command == "/gh-cls":
+            result = self.run_cls_command(number_of_message=args)
+
         Storage.export_subscriptions(self.subscriptions)
         return result
 
@@ -244,3 +248,10 @@ class Runner:
                 },
             ],
         }
+
+    # def run_cls_command(self, args: list[int]):
+    # if args[1] is NULL:
+    # if(args[0] < 1000):
+    #TODO : run the loop
+    # else:
+    # give_ephemral_reply("Only 1 argument is allowed at a time!")
