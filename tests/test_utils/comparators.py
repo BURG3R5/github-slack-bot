@@ -16,7 +16,7 @@ class Comparators:
             if message_1["response_type"] != message_2["response_type"]:
                 return False, "response type differs"
             if len(message_1["blocks"]) != len(message_2["blocks"]):
-                return False, "different number of blocks"
+                return False, f"different number of blocks {len(message_1['blocks'])} vs {len(message_2['blocks'])}"
 
             for block_1, block_2 in zip(message_1["blocks"],
                                         message_2["blocks"]):
