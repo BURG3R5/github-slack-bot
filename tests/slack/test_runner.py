@@ -10,6 +10,7 @@ from bot.utils.log import Logger
 from bot.utils.storage import Storage
 
 from ..test_utils.comparators import Comparators
+from ..test_utils.deserializers import subscriptions_deserializer
 from ..test_utils.load import load_test_data
 
 
@@ -89,6 +90,109 @@ class RunnerTest(unittest.TestCase):
             raw_json = MultiDict(self.data["run|doesnt_call"][2])
             self.assertIsNone(self.runner.run(raw_json))
         mock_logger.assert_not_called()
+
+    def test_unsubscribe_single_event(self):
+        response = self.runner.run_unsubscribe_command(
+            "#github-slack-bot",
+            ["github-slack-bot", "isc"],
+        )
+
+        self.assertTrue(*Comparators.list_messages(
+            self.data["run_unsubscribe_command|single_event"][1],
+            response,
+        ))
+
+    def test_unsubscribe_single_events(self):
+        response = self.runner.run_unsubscribe_command(
+            "#github-slack-bot",
+            ["github-slack-bot", "isc", "p"],
+        )
+
+        self.assertTrue(*Comparators.list_messages(
+            self.data["run_unsubscribe_command|single_events"][1],
+            response,
+        ))
+
+    def test_unsubscribe_single_noargs(self):
+        response = self.runner.run_unsubscribe_command(
+            "#github-slack-bot",
+            ["github-slack-bot"],
+        )
+
+        self.assertTrue(*Comparators.list_messages(
+            self.data["run_unsubscribe_command|single_noargs"][1],
+            response,
+        ))
+
+    def test_unsubscribe_single_all(self):
+        response = self.runner.run_unsubscribe_command(
+            "#github-slack-bot",
+            ["github-slack-bot", "*"],
+        )
+
+        self.assertTrue(*Comparators.list_messages(
+            self.data["run_unsubscribe_command|single_all"][1],
+            response,
+        ))
+
+    def test_unsubscribe_multiple_event(self):
+        self.runner.subscriptions = subscriptions_deserializer(
+            self.data["run_unsubscribe_command|multiple_event"][0])
+
+        response = self.runner.run_unsubscribe_command(
+            "#github-slack-bot",
+            ["github-slack-bot", "isc"],
+        )
+
+        self.assertTrue(*Comparators.list_messages(
+            self.data["run_unsubscribe_command|multiple_event"][1],
+            response,
+        ))
+
+    def test_unsubscribe_multiple_events(self):
+        self.runner.subscriptions = subscriptions_deserializer(
+            self.data["run_unsubscribe_command|multiple_event"][0])
+        # Reuse subscriptions data
+
+        response = self.runner.run_unsubscribe_command(
+            "#github-slack-bot",
+            ["github-slack-bot", "isc", "p"],
+        )
+
+        self.assertTrue(*Comparators.list_messages(
+            self.data["run_unsubscribe_command|multiple_events"][1],
+            response,
+        ))
+
+    def test_unsubscribe_multiple_noargs(self):
+        self.runner.subscriptions = subscriptions_deserializer(
+            self.data["run_unsubscribe_command|multiple_event"][0])
+        # Reuse subscriptions data
+
+        response = self.runner.run_unsubscribe_command(
+            "#github-slack-bot",
+            ["github-slack-bot"],
+        )
+
+        self.assertTrue(*Comparators.list_messages(
+            self.data["run_unsubscribe_command|multiple_noargs"][1],
+            response,
+        ))
+
+    def test_unsubscribe_multiple_all(self):
+        self.runner.subscriptions = subscriptions_deserializer(
+            self.data["run_unsubscribe_command|multiple_event"][0])
+        # Reuse subscriptions data
+
+        response = self.runner.run_unsubscribe_command(
+            "#github-slack-bot",
+            ["github-slack-bot", "*"],
+        )
+
+        self.assertTrue(*Comparators.list_messages(
+            self.data["run_unsubscribe_command|multiple_all"][1],
+            response,
+        ))
 
     def test_list_empty(self):
         self.runner.subscriptions = {}

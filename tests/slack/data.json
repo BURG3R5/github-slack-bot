@@ -54,6 +54,238 @@
     },
     {}
   ],
+  "run_unsubscribe_command|single_event": [
+    {},
+    {
+      "response_type": "ephemeral",
+      "blocks": [
+        {
+          "type": "section",
+          "text": {
+            "text": "*github-slack-bot*\n`branch_created`, `push`, `fork`, `star_added`, `release`, `star_removed`, `tag_created`, `pull_opened`, `issue_comment`, `pull_closed`, `branch_deleted`, `commit_comment`, `review_comment`, `pull_merged`, `tag_deleted`, `issue_opened`, `pull_ready`, `review`",
+            "type": "mrkdwn"
+          }
+        },
+        {
+          "type": "divider"
+        }
+      ]
+    }
+  ],
+  "run_unsubscribe_command|single_events": [
+    {},
+    {
+      "response_type": "ephemeral",
+      "blocks": [
+        {
+          "type": "section",
+          "text": {
+            "text": "*github-slack-bot*\n`branch_created`, `fork`, `star_added`, `release`, `star_removed`, `tag_created`, `pull_opened`, `issue_comment`, `pull_closed`, `branch_deleted`, `commit_comment`, `review_comment`, `pull_merged`, `tag_deleted`, `issue_opened`, `pull_ready`, `review`",
+            "type": "mrkdwn"
+          }
+        },
+        {
+          "type": "divider"
+        }
+      ]
+    }
+  ],
+  "run_unsubscribe_command|single_noargs": [
+    {},
+    {
+      "response_type": "ephemeral",
+      "blocks": [
+        {
+          "type": "section",
+          "text": {
+            "text": "*github-slack-bot*\n`fork`, `release`, `star_removed`, `pull_closed`, `branch_deleted`, `pull_merged`, `tag_deleted`, `review_comment`, `issue_closed`, `pull_ready`",
+            "type": "mrkdwn"
+          }
+        },
+        {
+          "type": "divider"
+        }
+      ]
+    }
+  ],
+  "run_unsubscribe_command|single_all": [
+    {},
+    {
+      "response_type": "ephemeral",
+      "blocks": [
+        {
+          "type": "section",
+          "text": {
+            "text": "This channel has not yet subscribed to anything. You can subscribe to your favorite repositories using the `/subscribe` command. For more info, use the `/help` command.",
+            "type": "mrkdwn"
+          }
+        }
+      ]
+    }
+  ],
+  "run_unsubscribe_command|multiple_event": [
+    {
+      "github-slack-bot": {
+        "#github-slack-bot": [
+          "ic",
+          "p",
+          "isc",
+          "tc",
+          "rv",
+          "rc",
+          "sr",
+          "prm",
+          "sa",
+          "fk",
+          "bd",
+          "bc",
+          "td",
+          "prc",
+          "rl",
+          "iso",
+          "prr",
+          "cc",
+          "pro"
+        ],
+        "#example-channel": [
+          "ic",
+          "p",
+          "isc",
+          "prm",
+          "sa",
+          "fk",
+          "bd",
+          "bc",
+          "td",
+          "cc",
+          "pro"
+        ]
+      },
+      "example-repo": {
+        "#github-slack-bot": [
+          "ic",
+          "isc",
+          "prm",
+          "prc",
+          "iso",
+          "prr",
+          "pro"
+        ],
+        "#example-channel": [
+          "ic",
+          "p",
+          "isc",
+          "prm",
+          "sa",
+          "fk",
+          "bd",
+          "bc",
+          "td",
+          "cc",
+          "pro"
+        ]
+      }
+    },
+    {
+      "response_type": "ephemeral",
+      "blocks": [
+        {
+          "type": "section",
+          "text": {
+            "text": "*github-slack-bot*\n`branch_created`, `push`, `fork`, `star_added`, `release`, `star_removed`, `tag_created`, `pull_opened`, `issue_comment`, `pull_closed`, `branch_deleted`, `commit_comment`, `review_comment`, `pull_merged`, `tag_deleted`, `issue_opened`, `pull_ready`, `review`",
+            "type": "mrkdwn"
+          }
+        },
+        {
+          "type": "divider"
+        },
+        {
+          "type": "section",
+          "text": {
+            "text": "*example-repo*\n`pull_opened`, `issue_comment`, `issue_opened`, `pull_closed`, `pull_merged`, `pull_ready`, `issue_closed`",
+            "type": "mrkdwn"
+          }
+        },
+        {
+          "type": "divider"
+        }
+      ]
+    }
+  ],
+  "run_unsubscribe_command|multiple_events": [
+    {},
+    {
+      "response_type": "ephemeral",
+      "blocks": [
+        {
+          "type": "section",
+          "text": {
+            "text": "*github-slack-bot*\n`branch_created`, `fork`, `star_added`, `release`, `star_removed`, `tag_created`, `pull_opened`, `issue_comment`, `pull_closed`, `branch_deleted`, `commit_comment`, `review_comment`, `pull_merged`, `tag_deleted`, `issue_opened`, `pull_ready`, `review`",
+            "type": "mrkdwn"
+          }
+        },
+        {
+          "type": "divider"
+        },
+        {
+          "type": "section",
+          "text": {
+            "text": "*example-repo*\n`pull_opened`, `issue_comment`, `issue_opened`, `pull_closed`, `pull_merged`, `pull_ready`, `issue_closed`",
+            "type": "mrkdwn"
+          }
+        },
+        {
+          "type": "divider"
+        }
+      ]
+    }
+  ],
+  "run_unsubscribe_command|multiple_noargs": [
+    {},
+    {
+      "response_type": "ephemeral",
+      "blocks": [
+        {
+          "type": "section",
+          "text": {
+            "text": "*github-slack-bot*\n`fork`, `release`, `star_removed`, `pull_closed`, `branch_deleted`, `pull_merged`, `tag_deleted`, `review_comment`, `issue_closed`, `pull_ready`",
+            "type": "mrkdwn"
+          }
+        },
+        {
+          "type": "divider"
+        },
+        {
+          "type": "section",
+          "text": {
+            "text": "*example-repo*\n`pull_opened`, `issue_comment`, `issue_opened`, `pull_closed`, `pull_merged`, `pull_ready`, `issue_closed`",
+            "type": "mrkdwn"
+          }
+        },
+        {
+          "type": "divider"
+        }
+      ]
+    }
+  ],
+  "run_unsubscribe_command|multiple_all": [
+    {},
+    {
+      "response_type": "ephemeral",
+      "blocks": [
+        {
+          "type": "section",
+          "text": {
+            "text": "*example-repo*\n`pull_opened`, `issue_comment`, `issue_opened`, `pull_closed`, `pull_merged`, `pull_ready`, `issue_closed`",
+            "type": "mrkdwn"
+          }
+        },
+        {
+          "type": "divider"
+        }
+      ]
+    }
+  ],
   "run_help_command": [
     {},
     {
