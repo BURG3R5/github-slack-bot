@@ -38,7 +38,13 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/77491630?v=4",
       "profile": "https://github.com/BURG3R5",
       "contributions": [
-        "code"
+        "code",
+        "doc",
+        "maintenance",
+        "mentoring",
+        "review",
+        "test",
+        "projectManagement"
       ]
     },
     {
