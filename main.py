@@ -22,6 +22,7 @@ from dotenv import load_dotenv
 from sentry_sdk.integrations.bottle import BottleIntegration
 
 from bot.github.github_parsers import GitHubPayloadParser
+from bot.github.oauth import authorizer, redirector
 from bot.models.github.event import GitHubEvent
 from bot.slack import SlackBot
 from bot.utils.log import Logger
@@ -77,6 +78,17 @@ def manage_slack_commands() -> dict | None:
     # Instead, the data is passed in `request.forms`.
     response: dict[str, Any] | None = bot.run(raw_json=request.forms)
     return response
+
+
+@get("/github/oauth")
+def initiate_oauth() -> None:
+    redirector()
+
+
+@get("/github/oauth/redirect")
+def get_access_token() -> str:
+    token = authorizer()
+    return token
 
 
 if __name__ == "__main__":
