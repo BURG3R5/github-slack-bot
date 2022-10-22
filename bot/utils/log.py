@@ -14,7 +14,8 @@ class Logger:
         """
         # Read
         lines = []
-        with open('.log', 'r') as file:
+        with open('.log', 'a+') as file:
+            file.seek(0)
             lines = file.readlines()
 
         # Update
