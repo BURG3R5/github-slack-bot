@@ -3,8 +3,14 @@ Contains the `Runner` class, which reacts to slash commands.
 """
 
 import time
+from ast import arg
+from asyncio.windows_events import NULL
+from http import client
+from lib2to3.pgen2 import token
+from pydoc import cli
 from typing import Any
 
+import slack
 from bottle import MultiDict
 
 from ..models.github import EventType, convert_keywords_to_events
@@ -60,6 +66,9 @@ class Runner:
             result = self.run_list_command(current_channel=current_channel)
         elif command == "/help":
             result = self.run_help_command()
+        elif command == "/gh-cls":
+            result = self.run_cls_command(number_of_message=args)
+
         Storage.export_subscriptions(self.subscriptions)
         return result
 
@@ -244,3 +253,58 @@ class Runner:
                 },
             ],
         }
+
+    def run_cls_command(self, args: list[int]):
+        num = 0
+        if args[1] is NULL:
+            if args[0] < 1000:
+                if args[0] is not NULL:
+                    num = args[0]
+                conversattion_history = []
+                channel_id = "C03PET0R015"
+                try:
+                    client = slack.Webclient(token="token")
+                    result = client.conversations_history(channel=channel_id,
+                                                          limit=num)
+
+                    conversation_history = result["messages"]
+                    ephemral_history = result
+
+                    for i in range(0, num):
+                        if (conversation_history[i][type] == "ephemeral"):
+                            ts = conversation_history[i][ts]
+                            try:
+                                delete_msg = client.chat_delete(
+                                    channel=channel_id, ts=ts)
+                            except:
+                                print("error")
+                except:
+                    print("Error creating conversation")
+            elif args[1] > 1000:
+                return {
+                    "response_type":
+                    "ephemeral",
+                    "blocks": [
+                        {
+                            "type": "section",
+                            "text": {
+                                "type": "mrkdwn",
+                                "text": ("Can only delete 1000 msg at once!"),
+                            },
+                        },
+                    ]
+                }
+        else:
+            return {
+                "response_type":
+                "ephemeral",
+                "blocks": [
+                    {
+                        "type": "section",
+                        "text": {
+                            "type": "mrkdwn",
+                            "text": ("Only 1 argument is allowed at a time!"),
+                        },
+                    },
+                ]
+            }
