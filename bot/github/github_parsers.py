@@ -55,7 +55,7 @@ class GitHubPayloadParser:
                     event_type=event_type,
                     json=json,
                 )
-        print(f"Undefined event: {raw_json}")
+        print(f"Undefined event: {event_type}\n***\n{raw_json}***")
         return None
 
 
@@ -263,6 +263,20 @@ class IssueCommentEventParser(EventParser):
             comments=[convert_links(json["comment"]["body"])],
             links=[Link(url=json["comment"]["html_url"])],
         )
+
+
+class PingEventParser(EventParser):
+    """
+    Parser for GitHub's testing ping events.
+    """
+
+    @staticmethod
+    def verify_payload(event_type: str, json: JSON) -> bool:
+        return event_type == "ping"
+
+    @staticmethod
+    def cast_payload_to_event(event_type: str, json: JSON):
+        print("Ping event received!")
 
 
 class PullCloseEventParser(EventParser):
@@ -601,7 +615,7 @@ def convert_links(x: str) -> str:
     :return: Formatted text.
     """
     reg: str = r'\[([a-zA-Z0-9!@#$%^&*,./?\'";:_=~` ]+)\]\(([(http(s)?):\/\/(www\.)?a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b[-a-zA-Z0-9@:%_\+.~#?&//=]*)\)'
-    gh_links: list[tuple(str, str)] = re.findall(reg, x)
+    gh_links: list[tuple[str, str]] = re.findall(reg, x)
     for (txt, link) in gh_links:
         old: str = f"[{txt}]({link})"
         txt = str(txt).strip()
