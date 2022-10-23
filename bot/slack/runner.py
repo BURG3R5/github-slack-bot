@@ -3,11 +3,6 @@ Contains the `Runner` class, which reacts to slash commands.
 """
 
 import time
-from ast import arg
-from asyncio.windows_events import NULL
-from http import client
-from lib2to3.pgen2 import token
-from pydoc import cli
 from typing import Any
 
 import slack
@@ -256,9 +251,9 @@ class Runner:
 
     def run_cls_command(self, args: list[int]):
         num = 0
-        if args[1] is NULL:
+        if args[1] is None:
             if args[0] < 1000:
-                if args[0] is not NULL:
+                if args[0] is not None:
                     num = args[0]
                 conversattion_history = []
                 channel_id = "C03PET0R015"
@@ -289,7 +284,7 @@ class Runner:
                             "type": "section",
                             "text": {
                                 "type": "mrkdwn",
-                                "text": ("Can only delete 1000 msg at once!"),
+                                "text": "Can only delete 1000 msg at once!",
                             },
                         },
                     ]
@@ -303,7 +298,7 @@ class Runner:
                         "type": "section",
                         "text": {
                             "type": "mrkdwn",
-                            "text": ("Only 1 argument is allowed at a time!"),
+                            "text": "Only 1 argument is allowed at a time!",
                         },
                     },
                 ]
