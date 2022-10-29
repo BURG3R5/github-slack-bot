@@ -4,6 +4,7 @@ Contains the `GitHubPayloadParser` and `*EventParser` classes, to handle parsing
 Exposed API is only the `GitHubPayloadParser.parse` function, to serialize the raw event data.
 """
 
+import re
 from abc import ABC, abstractmethod
 from typing import Type
 
@@ -54,7 +55,7 @@ class GitHubPayloadParser:
                     event_type=event_type,
                     json=json,
                 )
-        print(f"Undefined event: {raw_json}")
+        print(f"Undefined event: {event_type}\n***\n{raw_json}***")
         return None
 
 
@@ -149,7 +150,7 @@ class CommitCommentEventParser(EventParser):
                 link=json["repository"]["html_url"],
             ),
             user=User(name=json["comment"]["user"]["login"]),
-            comments=[json["comment"]["body"]],
+            comments=[convert_links(json["comment"]["body"])],
             commits=[
                 Commit(
                     sha=json["comment"]["commit_id"][:8],
@@ -259,9 +260,23 @@ class IssueCommentEventParser(EventParser):
                 title=json["issue"]["title"],
                 link=json["issue"]["html_url"],
             ),
-            comments=[json["comment"]["body"]],
+            comments=[convert_links(json["comment"]["body"])],
             links=[Link(url=json["comment"]["html_url"])],
         )
+
+
+class PingEventParser(EventParser):
+    """
+    Parser for GitHub's testing ping events.
+    """
+
+    @staticmethod
+    def verify_payload(event_type: str, json: JSON) -> bool:
+        return event_type == "ping"
+
+    @staticmethod
+    def cast_payload_to_event(event_type: str, json: JSON):
+        print("Ping event received!")
 
 
 class PullCloseEventParser(EventParser):
@@ -487,7 +502,7 @@ class ReviewCommentEventParser(EventParser):
                 title=json["pull_request"]["title"],
                 link=json["pull_request"]["html_url"],
             ),
-            comments=[json["comment"]["body"]],
+            comments=[convert_links(json["comment"]["body"])],
             links=[Link(url=json["comment"]["html_url"])],
         )
 
@@ -591,3 +606,20 @@ def find_ref(x: str) -> str:
     :return: Extracted ref name.
     """
     return x[x.find("/", x.find("/") + 1) + 1:]
+
+
+def convert_links(x: str) -> str:
+    """
+    Helper function to format links from Github format to Slack format
+    :param x: Raw Github text.
+    :return: Formatted text.
+    """
+    reg: str = r'\[([a-zA-Z0-9!@#$%^&*,./?\'";:_=~` ]+)\]\(([(http(s)?):\/\/(www\.)?a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b[-a-zA-Z0-9@:%_\+.~#?&//=]*)\)'
+    gh_links: list[tuple[str, str]] = re.findall(reg, x)
+    for (txt, link) in gh_links:
+        old: str = f"[{txt}]({link})"
+        txt = str(txt).strip()
+        link = str(link).strip()
+        new: str = f"<{link}|{txt}>"
+        x = x.replace(old, new)
+    return x

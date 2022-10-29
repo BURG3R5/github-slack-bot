@@ -38,7 +38,13 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/77491630?v=4",
       "profile": "https://github.com/BURG3R5",
       "contributions": [
-        "code"
+        "code",
+        "doc",
+        "maintenance",
+        "mentoring",
+        "review",
+        "test",
+        "projectManagement"
       ]
     },
     {
@@ -47,7 +53,8 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/99383854?v=4",
       "profile": "https://github.com/Magnesium12",
       "contributions": [
-        "code"
+        "code",
+        "test"
       ]
     },
     {
@@ -65,7 +72,8 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/95746190?v=4",
       "profile": "https://github.com/Ayush0Chaudhary",
       "contributions": [
-        "code"
+        "code",
+        "test"
       ]
     }
   ]

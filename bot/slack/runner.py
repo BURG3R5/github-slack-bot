@@ -191,14 +191,18 @@ class Runner:
                 },
             ]
         if len(blocks) == 0:
-            prompt = "This channel has not yet subscribed to anything."
-            prompt += "You can subscribe to your favorite repositories "
-            prompt += "using the `/subscribe` command. For more info, use the `/help` command."
-
             blocks = [
                 {
-                    "type": "mrkdwn",
-                    "text": prompt,
+                    "text": {
+                        "type":
+                        "mrkdwn",
+                        "text":
+                        ("This channel has not yet subscribed to anything. "
+                         "You can subscribe to your favorite repositories "
+                         "using the `/subscribe` command. For more info, "
+                         "use the `/help` command."),
+                    },
+                    "type": "section",
                 },
             ]
         return {
@@ -244,7 +248,7 @@ class Runner:
                          "0. `default` or no arguments: Subscribe "
                          "to the most common and important events.\n"
                          "1. `all` or `*`: Subscribe to every supported event.\n"
-                         + " ".join([
+                         + "".join([
                              f"{i + 2}. `{event.keyword}`: {event.docs}\n"
                              for i, event in enumerate(EventType)
                          ])),
