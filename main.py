@@ -92,5 +92,6 @@ if __name__ == "__main__":
     bot: SlackBot = SlackBot(
         token=os.environ["SLACK_OAUTH_TOKEN"],
         logger=Logger(int(os.environ["LOG_LAST_N_COMMANDS"] or 100)),
+        bot_id=os.environ["SLACK_BOT_ID"],
     )
     run(host="", port=5556, debug=debug)
