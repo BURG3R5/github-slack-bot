@@ -1,11 +1,13 @@
 """
 Contains the `Runner` class, which reacts to slash commands.
 """
-
 import time
 from typing import Any
 
 from bottle import MultiDict
+from sentry_sdk import capture_message
+from slack.errors import SlackApiError
+from slack.web.client import WebClient
 
 from ..models.github import EventType, convert_keywords_to_events
 from ..models.slack import Channel
@@ -21,8 +23,11 @@ class Runner:
 
     logger: Logger
 
-    def __init__(self, logger: Logger):
+    def __init__(self, token: str, logger: Logger, bot_id: str):
         self.logger = logger
+        self.client = WebClient(token)
+        self.bot_id = bot_id
+
         # Dummy initialization. Overridden in `SlackBot.__init__()`.
         self.subscriptions: dict[str, set[Channel]] = {}
 
@@ -60,6 +65,9 @@ class Runner:
             result = self.run_list_command(current_channel=current_channel)
         elif command == "/help":
             result = self.run_help_command()
+        elif command == "/gh-cls":
+            result = self.run_cls_command(current_channel=json["channel_id"])
+
         Storage.export_subscriptions(self.subscriptions)
         return result
 
@@ -247,4 +255,68 @@ class Runner:
                     },
                 },
             ],
+        }
+
+    def run_cls_command(self, current_channel: str):
+
+        def error_response(error: str):
+            return {
+                "response_type":
+                "ephemeral",
+                "blocks": [
+                    {
+                        "type": "section",
+                        "text": {
+                            "type": "mrkdwn",
+                            "text": error,
+                        },
+                    },
+                ]
+            }
+
+        # Get number_of_messages_to_scan
+        try:
+            history = self.client.conversations_history(
+                channel=current_channel,
+                limit=100,
+            )["messages"]
+
+            for message in history:
+                if (message["type"] == "message" and "subtype" in message
+                        and message["subtype"] == "bot_message"
+                        and message["bot_id"] == self.bot_id):
+                    timestamp = message["ts"]
+                    try:
+                        print(current_channel)
+                        self.client.chat_delete(
+                            channel=current_channel,
+                            ts=timestamp,
+                        )
+                    except SlackApiError as E:
+                        capture_message(
+                            f"SlackApiError {E} Failed to delete message '{message['blocks']}'"
+                        )
+                        return error_response(
+                            f"Failed to delete message with timestamp {timestamp}"
+                        )
+        except SlackApiError as E:
+            capture_message(
+                f"SlackApiError {E} Failed to fetch conversation history for #{current_channel}"
+            )
+            return error_response(
+                "Error fetching conversation history. "
+                "Please provide proper permissions to the bot.")
+
+        return {
+            "response_type":
+            "in_channel",
+            "blocks": [
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": "Cleared bot messages from last 100 messages",
+                    },
+                },
+            ]
         }

@@ -23,7 +23,7 @@ class RunnerTest(unittest.TestCase):
 
         # Construct common Runner instance.
         cls.logger = logger = Logger(0)
-        cls.runner = Runner(logger)
+        cls.runner = Runner('xoxb-fake-slack-token', logger, 'B03UK6UK6UK')
 
     def setUp(self):
         self.runner.subscriptions = Storage.import_subscriptions()
