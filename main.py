@@ -58,17 +58,18 @@ def test_post() -> str:
 @post("/github/events")
 def manage_github_events():
     """
-    Uses `GitHubListener` to parse and cast the payload into a `GitHubEvent`.
+    Uses `GitHubListener` to verify, parse and cast the payload into a `GitHubEvent`.
     Then uses an instance of `SlackBot` to send appropriate messages to appropriate channels.
     """
 
-    is_valid_request, error_message = listener.check_validity(
-        body=request.body,
-        headers=request.headers,
-    )
-    if not is_valid_request:
-        http_response.status = "400 Bad Request"
-        return error_message
+    if listener.secret is not None:
+        is_valid_request, error_message = listener.check_validity(
+            body=request.body,
+            headers=request.headers,
+        )
+        if not is_valid_request:
+            http_response.status = "400 Bad Request"
+            return error_message
 
     event: GitHubEvent | None = listener.parse(
         event_type=request.headers["X-GitHub-Event"],
