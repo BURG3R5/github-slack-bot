@@ -116,7 +116,7 @@ if __name__ == "__main__":
             integrations=[BottleIntegration()],
         )
 
-    listener = GitHubListener(os.environ["GITHUB_WEBHOOK_SECRET"])
+    listener = GitHubListener(os.environ.get("GITHUB_WEBHOOK_SECRET"))
 
     bot: SlackBot = SlackBot(
         token=os.environ["SLACK_OAUTH_TOKEN"],
