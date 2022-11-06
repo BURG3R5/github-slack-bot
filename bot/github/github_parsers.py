@@ -1,12 +1,16 @@
 """
-Contains the `GitHubPayloadParser` and `*EventParser` classes, to handle parsing of webhook data.
+Contains the `GitHubPayloadParser` and `*EventParser` classes, to handle validating and parsing of webhook data.
 
-Exposed API is only the `GitHubPayloadParser.parse` function, to serialize the raw event data.
+Exposed API is only the `GitHubPayloadParser` class, to validate and serialize the raw event data.
 """
-
+import hashlib
+import hmac
 import re
 from abc import ABC, abstractmethod
-from typing import Type
+from io import BytesIO
+from typing import Optional, Type
+
+from bottle import WSGIHeaderDict
 
 from ..models.github import Commit, EventType, Issue, PullRequest, Ref, Repository, User
 from ..models.github.event import GitHubEvent
@@ -16,11 +20,15 @@ from ..utils.json import JSON
 
 class GitHubPayloadParser:
     """
-    Wrapper for a single method (`parse`), for consistency's sake only.
+    Contains methods dealing with validating and parsing incoming GitHub events.
+
+    :param secret: Optional secret that has been set at webhook.
     """
 
-    @staticmethod
-    def parse(event_type, raw_json) -> GitHubEvent | None:
+    def __init__(self, secret: Optional[str] = None):
+        self.secret = secret.encode("utf-8") if secret else None
+
+    def parse(self, event_type, raw_json) -> GitHubEvent | None:
         """
         Checks the data against all parsers, then returns a `GitHubEvent` using the matching parser.
         :param event_type: Event type header received from GitHub.
@@ -57,6 +65,35 @@ class GitHubPayloadParser:
                 )
         print(f"Undefined event: {event_type}\n***\n{raw_json}***")
         return None
+
+    def check_validity(
+        self,
+        body: BytesIO,
+        headers: WSGIHeaderDict,
+    ) -> tuple[bool, Optional[str]]:
+        """
+        Checks validity of incoming GitHub event.
+
+        :param body: Body of the HTTP request
+        :param headers: Headers of the HTTP request
+        :return: A tuple of the form (V, E) — where V is a boolean indicating the validity, and E is an optional string giving a reason for the verdict.
+        """
+
+        if self.secret is None:
+            return True, "Webhook is insecure"
+
+        if "X-Hub-Signature-256" not in headers:
+            return False, "Request headers are imperfect"
+
+        expected_digest = headers["X-Hub-Signature-256"].split('=', 1)[-1]
+        digest = hmac.new(self.secret, body.getvalue(),
+                          hashlib.sha256).hexdigest()
+        is_valid = hmac.compare_digest(expected_digest, digest)
+
+        if not is_valid:
+            return False, "Payload data is imperfect"
+
+        return True, "Request is secure and valid"
 
 
 # Helper classes:

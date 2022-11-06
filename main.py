@@ -17,7 +17,9 @@ from pathlib import Path
 from typing import Any
 
 import sentry_sdk
-from bottle import get, post, request, run
+from bottle import get, post, request
+from bottle import response as http_response
+from bottle import run
 from dotenv import load_dotenv
 from sentry_sdk.integrations.bottle import BottleIntegration
 
@@ -59,10 +61,20 @@ def manage_github_events():
     Uses `GitHubPayloadParser` to parse and cast the payload into a `GitHubEvent`.
     Then uses an instance of `SlackBot` to send appropriate messages to appropriate channels.
     """
-    event: GitHubEvent | None = GitHubPayloadParser.parse(
+
+    is_valid_request, error_message = parser.check_validity(
+        body=request.body,
+        headers=request.headers,
+    )
+    if not is_valid_request:
+        http_response.status = "400 Bad Request"
+        return error_message
+
+    event: GitHubEvent | None = parser.parse(
         event_type=request.headers["X-GitHub-Event"],
         raw_json=request.json,
     )
+
     if event is not None:
         bot.inform(event)
 
@@ -103,9 +115,13 @@ if __name__ == "__main__":
             integrations=[BottleIntegration()],
         )
 
+    parser: GitHubPayloadParser = GitHubPayloadParser(
+        os.environ["GITHUB_WEBHOOK_SECRET"])
+
     bot: SlackBot = SlackBot(
         token=os.environ["SLACK_OAUTH_TOKEN"],
         logger=Logger(int(os.environ["LOG_LAST_N_COMMANDS"] or 100)),
         bot_id=os.environ["SLACK_BOT_ID"],
     )
+
     run(host="", port=5556, debug=debug)
