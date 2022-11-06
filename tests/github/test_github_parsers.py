@@ -18,8 +18,9 @@ class TestMetaClass(type):
 
             def test_parser(self):
                 event_type, raw_json = github_payload_deserializer(raw_input)
+                listener = GitHubListener()
 
-                parsed_event = GitHubListener.parse(event_type, raw_json)
+                parsed_event = listener.parse(event_type, raw_json)
 
                 self.assertEqual(
                     github_event_serializer(parsed_event),
