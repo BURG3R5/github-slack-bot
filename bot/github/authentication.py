@@ -10,7 +10,7 @@ class GitHubOAuth:
 
     @staticmethod
     def redirect_to_oauth_flow(repository: str):
-        endpoint = f"https://github.com/login/oauth/authorize/"
+        endpoint = f"https://github.com/login/oauth/authorize"
         params = {
             "scope":
             "admin:repo_hook",

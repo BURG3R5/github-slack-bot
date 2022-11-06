@@ -2,6 +2,7 @@
 Contains the `Runner` class, which reacts to slash commands.
 """
 import time
+import urllib.parse
 from typing import Any
 
 from bottle import MultiDict
@@ -116,7 +117,48 @@ class Runner:
                     events=new_events,
                 )
             }
+            return self.send_welcome_message(repo, True)
         return self.run_list_command(current_channel, True)
+
+    def send_welcome_message(
+        self,
+        repo: str,
+        ephemeral: bool = False,
+    ) -> dict[str, Any]:
+        """
+        Sends a message to prompt authentication for creation of webhooks.
+        :param repo: Repository for which webhook is to be created.
+        :param ephemeral: Whether message should be ephemeral or not.
+        """
+        params = {"repository": repo}
+        url = "http://127.0.0.1:5556/github/auth" + "?" + urllib.parse.urlencode(
+            params)
+
+        blocks = [{
+            "type": "section",
+            "text": {
+                "type": "plain_text",
+                "text": "Finish connecting your Github Account"
+            }
+        }, {
+            "type":
+            "actions",
+            "elements": [{
+                "type": "button",
+                "text": {
+                    "type": "plain_text",
+                    "text": "Connect Github Account"
+                },
+                "value": "click_me_123",
+                "action_id": "actionId-0",
+                "url": url,
+                "style": "primary"
+            }]
+        }]
+        return {
+            "response_type": "ephemeral" if ephemeral else "in_channel",
+            "blocks": blocks,
+        }
 
     def run_unsubscribe_command(
         self,
