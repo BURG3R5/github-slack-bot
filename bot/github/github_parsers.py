@@ -1,7 +1,7 @@
 """
-Contains the `GitHubPayloadParser` and `*EventParser` classes, to handle validating and parsing of webhook data.
+Contains the `GitHubListener` and `*EventParser` classes, to handle validating and parsing of webhook data.
 
-Exposed API is only the `GitHubPayloadParser` class, to validate and serialize the raw event data.
+Exposed API is only the `GitHubListener` class, to validate and serialize the raw event data.
 """
 import hashlib
 import hmac
@@ -18,7 +18,7 @@ from ..models.link import Link
 from ..utils.json import JSON
 
 
-class GitHubPayloadParser:
+class GitHubListener:
     """
     Contains methods dealing with validating and parsing incoming GitHub events.
 

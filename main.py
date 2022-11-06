@@ -6,7 +6,7 @@ Sets up a `bottle` server with three endpoints: "/", "/github/events" and "/slac
 "/" is used for testing and status checks.
 
 "/github/events" is provided to GitHub Webhooks to POST event info at.
-Triggers `manage_github_events` which uses `GitHubPayloadParser.parse` and `SlackBot.inform`.
+Triggers `manage_github_events` which uses `GitHubListener.parse` and `SlackBot.inform`.
 
 "/slack/commands" is provided to Slack to POST slash command info at.
 Triggers `manage_slack_commands` which uses `SlackBot.run`.
@@ -24,7 +24,7 @@ from dotenv import load_dotenv
 from sentry_sdk.integrations.bottle import BottleIntegration
 
 from bot.github.authentication import GitHubOAuth
-from bot.github.github_parsers import GitHubPayloadParser
+from bot.github.github_parsers import GitHubListener
 from bot.models.github.event import GitHubEvent
 from bot.slack import SlackBot
 from bot.utils.log import Logger
@@ -58,11 +58,11 @@ def test_post() -> str:
 @post("/github/events")
 def manage_github_events():
     """
-    Uses `GitHubPayloadParser` to parse and cast the payload into a `GitHubEvent`.
+    Uses `GitHubListener` to parse and cast the payload into a `GitHubEvent`.
     Then uses an instance of `SlackBot` to send appropriate messages to appropriate channels.
     """
 
-    is_valid_request, error_message = parser.check_validity(
+    is_valid_request, error_message = listener.check_validity(
         body=request.body,
         headers=request.headers,
     )
@@ -70,7 +70,7 @@ def manage_github_events():
         http_response.status = "400 Bad Request"
         return error_message
 
-    event: GitHubEvent | None = parser.parse(
+    event: GitHubEvent | None = listener.parse(
         event_type=request.headers["X-GitHub-Event"],
         raw_json=request.json,
     )
@@ -115,8 +115,7 @@ if __name__ == "__main__":
             integrations=[BottleIntegration()],
         )
 
-    parser: GitHubPayloadParser = GitHubPayloadParser(
-        os.environ["GITHUB_WEBHOOK_SECRET"])
+    listener = GitHubListener(os.environ["GITHUB_WEBHOOK_SECRET"])
 
     bot: SlackBot = SlackBot(
         token=os.environ["SLACK_OAUTH_TOKEN"],
