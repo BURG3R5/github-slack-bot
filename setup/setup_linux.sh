@@ -14,3 +14,4 @@ if ! hash pre-commit &> /dev/null ; then
     pip install pre-commit
     pre-commit install
 fi
+echo "Setup completed successfully"
