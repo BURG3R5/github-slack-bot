@@ -1,8 +1,17 @@
 version: '3'
+
 services:
-    github-slack-bot:
-        build:
-            context: .
-        container_name: github-slack-bot
-        ports:
-            - "${HOST_PORT}:${CONTAINER_PORT}"
+  github-slack-bot:
+    build:
+      context: .
+    container_name: github-slack-bot
+    ports:
+      - "${HOST_PORT}:${CONTAINER_PORT}"
+    volumes:
+      - type: volume
+        source: proton
+        target: /github-slack-bot/data
+
+volumes:
+  proton:
+    name: "proton"
