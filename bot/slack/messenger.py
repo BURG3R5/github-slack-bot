@@ -2,7 +2,7 @@
 Contains the `Messenger` class, which sends Slack messages according to GitHub events.
 """
 
-from slack.web.client import WebClient  # pylint: disable=no-name-in-module
+from slack.web.client import WebClient
 
 from ..models.github import EventType
 from ..models.github.event import GitHubEvent
@@ -40,15 +40,17 @@ class Messenger:
         :param event_type: Enum-ized type of event.
         :return: `list` of names of channels that are subscribed to the repo+event_type.
         """
+        repo_name: str = repo.split("/")[-1]
         if repo not in self.subscriptions:
-            return []
+            if repo_name not in self.subscriptions:
+                return []
+            repo = repo_name
         correct_channels: list[str] = [
             channel.name for channel in self.subscriptions[repo]
             if channel.is_subscribed_to(event=event_type)
         ]
         return correct_channels
 
-    # pylint: disable=too-many-branches
     @staticmethod
     def compose_message(event: GitHubEvent) -> tuple[str, str | None]:
         """

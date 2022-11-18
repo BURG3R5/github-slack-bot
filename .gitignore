@@ -11,5 +11,6 @@ venv
 
 # Temporary files
 .data
+.log
 __pycache__/
 *.pyc

@@ -38,7 +38,10 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/77491630?v=4",
       "profile": "https://github.com/BURG3R5",
       "contributions": [
-        "code"
+        "code",
+        "maintenance",
+        "review",
+        "projectManagement"
       ]
     },
     {
@@ -47,7 +50,27 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/99383854?v=4",
       "profile": "https://github.com/Magnesium12",
       "contributions": [
+        "code",
+        "test"
+      ]
+    },
+    {
+      "login": "shashank-k-y",
+      "name": "Shashank",
+      "avatar_url": "https://avatars.githubusercontent.com/u/74789167?v=4",
+      "profile": "https://github.com/shashank-k-y",
+      "contributions": [
         "code"
+      ]
+    },
+    {
+      "login": "Ayush0Chaudhary",
+      "name": "Ayush Chaudhary",
+      "avatar_url": "https://avatars.githubusercontent.com/u/95746190?v=4",
+      "profile": "https://github.com/Ayush0Chaudhary",
+      "contributions": [
+        "code",
+        "test"
       ]
     }
   ]

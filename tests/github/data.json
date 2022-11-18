@@ -1,0 +1,516 @@
+{
+  "branch_create": [
+    {
+      "event_type": "create",
+      "raw_json": {
+        "ref": "refs/heads/branch-name",
+        "ref_type": "branch",
+        "pusher_type": "user",
+        "repository": {
+          "full_name": "example-org/example-repo",
+          "html_url": "https://github.com/example-org/example-repo"
+        },
+        "sender": {
+          "login": "example-user"
+        }
+      }
+    },
+    {
+      "ref": "branch-name",
+      "repo": "<https://github.com/example-org/example-repo|example-org/example-repo>",
+      "type": "EventType.BRANCH_CREATED",
+      "user": "<https://github.com/example-user|example-user>"
+    }
+  ],
+  "branch_delete": [
+    {
+      "event_type": "delete",
+      "raw_json": {
+        "ref": "branch-name",
+        "ref_type": "branch",
+        "pusher_type": "user",
+        "repository": {
+          "full_name": "example-org/example-repo",
+          "html_url": "https://github.com/example-org/example-repo"
+        },
+        "sender": {
+          "login": "example-user"
+        }
+      }
+    },
+    {
+      "ref": "branch-name",
+      "repo": "<https://github.com/example-org/example-repo|example-org/example-repo>",
+      "type": "EventType.BRANCH_DELETED",
+      "user": "<https://github.com/example-user|example-user>"
+    }
+  ],
+  "commit_comment": [
+    {
+      "event_type": "commit_comment",
+      "raw_json": {
+        "action": "created",
+        "comment": {
+          "html_url": "https://github.com/example-org/example-repo/commit/4d93b5294b201237#commitcomment-12345678",
+          "user": {
+            "login": "example-user"
+          },
+          "commit_id": "4d93b5294b201237",
+          "body": "comment content"
+        },
+        "repository": {
+          "full_name": "example-org/example-repo",
+          "html_url": "https://github.com/example-org/example-repo"
+        },
+        "sender": {
+          "login": "example-user"
+        }
+      }
+    },
+    {
+      "comments": ["comment content"],
+      "commits": ["<|https://github.com/example-org/example-repo/commit/4d93b529>"],
+      "links": ["<https://github.com/example-org/example-repo/commit/4d93b5294b201237#commitcomment-12345678|None>"],
+      "repo": "<https://github.com/example-org/example-repo|example-org/example-repo>",
+      "type": "EventType.COMMIT_COMMENT",
+      "user": "<https://github.com/example-user|example-user>"
+    }
+  ],
+  "fork": [
+    {
+      "event_type": "fork",
+      "raw_json": {
+        "forkee": {
+          "owner": {
+            "login": "user-who-forked"
+          },
+          "html_url": "https://github.com/user-who-forked/example-repo"
+        },
+        "repository": {
+          "full_name": "example-org/example-repo",
+          "html_url": "https://github.com/example-org/example-repo"
+        }
+      }
+    },
+    {
+      "links": ["<https://github.com/user-who-forked/example-repo|None>"],
+      "repo": "<https://github.com/example-org/example-repo|example-org/example-repo>",
+      "type": "EventType.FORK",
+      "user": "<https://github.com/user-who-forked|user-who-forked>"
+    }
+  ],
+  "push": [
+    {
+      "event_type": "push",
+      "raw_json": {
+        "ref": "refs/heads/branch-name",
+        "repository": {
+          "full_name": "example-org/example-repo",
+          "html_url": "https://github.com/example-org/example-repo"
+        },
+        "pusher": {
+          "name": "user-who-pushed"
+        },
+        "sender": {
+          "login": "user-who-pushed"
+        },
+        "commits": [
+          {
+            "id": "f30421319e41a3a",
+            "message": "commit-message1"
+          },
+          {
+            "id": "5g0521417e40i37d9",
+            "message": "commit-message2"
+          }
+
+        ]
+      }
+    },
+    {
+      "commits": ["<commit-message1|https://github.com/example-org/example-repo/commit/f30421319e41a3a>", "<commit-message2|https://github.com/example-org/example-repo/commit/5g0521417e40i37d9>"],
+      "ref": "branch-name",
+      "repo": "<https://github.com/example-org/example-repo|example-org/example-repo>",
+      "type": "EventType.PUSH",
+      "user": "<https://github.com/user-who-pushed|user-who-pushed>"
+    }
+  ],
+  "star_add": [
+    {
+      "event_type": "star",
+      "raw_json": {
+        "action": "created",
+        "repository": {
+          "full_name": "example-org/example-repo",
+          "html_url": "https://github.com/example-org/example-repo"
+        },
+        "sender": {
+          "login": "user-who-starred"
+        }
+      }
+    },
+    {
+      "repo": "<https://github.com/example-org/example-repo|example-org/example-repo>",
+      "type": "EventType.STAR_ADDED",
+      "user": "<https://github.com/user-who-starred|user-who-starred>"
+    }
+  ],
+  "star_remove": [
+    {
+      "event_type": "star",
+      "raw_json": {
+        "action": "deleted",
+        "repository": {
+          "full_name": "example-org/example-repo",
+          "html_url": "https://github.com/example-org/example-repo"
+        },
+        "sender": {
+          "login": "user-who-unstarred"
+        }
+      }
+    },
+    {
+      "repo": "<https://github.com/example-org/example-repo|example-org/example-repo>",
+      "type": "EventType.STAR_REMOVED",
+      "user": "<https://github.com/user-who-unstarred|user-who-unstarred>"
+    }
+  ],
+  "issue_open": [
+    {
+      "event_type": "issues",
+      "raw_json": {
+        "action": "opened",
+        "issue": {
+          "html_url": "https://github.com/example-org/example-repo/issues/3",
+          "number": 3,
+          "title": "ExampleIssue",
+          "user": {
+            "login": "user-who-opened-issue"
+          }
+        },
+        "repository": {
+          "full_name": "example-org/example-repo",
+          "html_url": "https://github.com/example-org/example-repo"
+        },
+        "sender": {
+          "login": "user-who-opened-issue"
+        }
+      }
+    },
+    {
+      "repo": "<https://github.com/example-org/example-repo|example-org/example-repo>",
+      "type": "EventType.ISSUE_OPENED",
+      "user": "<https://github.com/user-who-opened-issue|user-who-opened-issue>",
+      "issue": "<https://github.com/example-org/example-repo/issues/3|#3 ExampleIssue>"
+    }
+  ],
+  "issue_close": [
+    {
+      "event_type": "issues",
+      "raw_json": {
+        "action": "closed",
+        "issue": {
+          "html_url": "https://github.com/example-org/example-repo/issues/3",
+          "number": 3,
+          "title": "ExampleIssue",
+          "user": {
+            "login": "user-who-closed-issue"
+          }
+        },
+        "repository": {
+          "full_name": "example-org/example-repo",
+          "html_url": "https://github.com/example-org/example-repo"
+        },
+        "sender": {
+          "login": "user-who-closed-issue"
+        }
+      }
+    },
+    {
+      "repo": "<https://github.com/example-org/example-repo|example-org/example-repo>",
+      "type": "EventType.ISSUE_CLOSED",
+      "user": "<https://github.com/user-who-closed-issue|user-who-closed-issue>",
+      "issue": "<https://github.com/example-org/example-repo/issues/3|#3 ExampleIssue>"
+    }
+  ],
+  "issue_comment": [
+    {
+      "event_type": "issue_comment",
+      "raw_json": {
+        "action": "created",
+        "issue": {
+          "html_url": "https://github.com/example-org/example-repo/issues/3",
+          "number": 3,
+          "title": "ExampleIssue"
+        },
+        "comment": {
+          "html_url": "https://github.com/example-org/example-repo/issues/3#issuecomment-1234567890",
+          "body": "comment content"
+        },
+        "repository": {
+          "full_name": "example-org/example-repo",
+          "html_url": "https://github.com/example-org/example-repo"
+        },
+        "sender": {
+          "login": "user-who-commented"
+        }
+      }
+    },
+    {
+      "repo": "<https://github.com/example-org/example-repo|example-org/example-repo>",
+      "type": "EventType.ISSUE_COMMENT",
+      "user": "<https://github.com/user-who-commented|user-who-commented>",
+      "issue": "<https://github.com/example-org/example-repo/issues/3|#3 ExampleIssue>",
+      "comments": ["comment content"],
+      "links": ["<https://github.com/example-org/example-repo/issues/3#issuecomment-1234567890|None>"]
+    }
+  ],
+  "pull_close": [
+    {
+      "event_type": "pull_request",
+      "raw_json": {
+        "action": "closed",
+        "number": 3,
+        "pull_request": {
+          "html_url": "https://github.com/example-org/example-repo/pull/3",
+          "number": 3,
+          "title": "ExamplePR",
+          "user": {
+            "login": "user-who-closed-PR"
+          },
+          "merged": false
+        },
+        "repository": {
+          "full_name": "example-org/example-repo",
+          "html_url": "https://github.com/example-org/example-repo"
+        }
+      }
+    },
+    {
+      "repo": "<https://github.com/example-org/example-repo|example-org/example-repo>",
+      "type": "EventType.PULL_CLOSED",
+      "user": "<https://github.com/user-who-closed-PR|user-who-closed-PR>",
+      "pull_request": "<https://github.com/example-org/example-repo/pull/3|#3 ExamplePR>"
+    }
+  ],
+  "pull_merge": [
+    {
+      "event_type": "pull_request",
+      "raw_json": {
+        "action": "closed",
+        "number": 3,
+        "pull_request": {
+          "html_url": "https://github.com/example-org/example-repo/pull/3",
+          "number": 3,
+          "title": "ExamplePR",
+          "user": {
+            "login": "user-who-merged-PR"
+          },
+          "merged": true
+        },
+        "repository": {
+          "full_name": "example-org/example-repo",
+          "html_url": "https://github.com/example-org/example-repo"
+        }
+      }
+    },
+    {
+      "repo": "<https://github.com/example-org/example-repo|example-org/example-repo>",
+      "type": "EventType.PULL_MERGED",
+      "user": "<https://github.com/user-who-merged-PR|user-who-merged-PR>",
+      "pull_request": "<https://github.com/example-org/example-repo/pull/3|#3 ExamplePR>"
+    }
+  ],
+  "pull_open": [
+    {
+      "event_type": "pull_request",
+      "raw_json": {
+        "action": "opened",
+        "number": 3,
+        "pull_request": {
+          "html_url": "https://github.com/example-org/example-repo/pull/3",
+          "number": 3,
+          "title": "ExamplePR",
+          "user": {
+            "login": "user-who-opened-PR"
+          }
+        },
+        "repository": {
+          "full_name": "example-org/example-repo",
+          "html_url": "https://github.com/example-org/example-repo"
+        }
+      }
+    },
+    {
+      "repo": "<https://github.com/example-org/example-repo|example-org/example-repo>",
+      "type": "EventType.PULL_OPENED",
+      "user": "<https://github.com/user-who-opened-PR|user-who-opened-PR>",
+      "pull_request": "<https://github.com/example-org/example-repo/pull/3|#3 ExamplePR>"
+    }
+  ],
+  "pull_ready": [
+    {
+      "event_type": "pull_request",
+      "raw_json": {
+        "action": "review_requested",
+        "pull_request": {
+          "html_url": "https://github.com/example-org/example-repo/pull/3",
+          "number": 3,
+          "title": "ExamplePR",
+          "requested_reviewers": [
+            {
+              "login": "reviewer1"
+            },
+            {
+              "login": "reviewer2"
+            }
+          ]
+        },
+        "repository": {
+          "full_name": "example-org/example-repo",
+          "html_url": "https://github.com/example-org/example-repo"
+        }
+      }
+    },
+    {
+      "repo": "<https://github.com/example-org/example-repo|example-org/example-repo>",
+      "type": "EventType.PULL_READY",
+      "reviewers": ["<https://github.com/reviewer1|reviewer1>","<https://github.com/reviewer2|reviewer2>"],
+      "pull_request": "<https://github.com/example-org/example-repo/pull/3|#3 ExamplePR>"
+    }
+  ],
+  "release": [
+    {
+      "event_type": "release",
+      "raw_json": {
+        "action": "released",
+        "release": {
+          "tag_name": "example-tag"
+        },
+        "repository": {
+          "full_name": "example-org/example-repo",
+          "html_url": "https://github.com/example-org/example-repo"
+        },
+        "sender": {
+          "login": "example-user"
+        }
+      }
+    },
+    {
+      "ref": "example-tag",
+      "repo": "<https://github.com/example-org/example-repo|example-org/example-repo>",
+      "type": "EventType.RELEASE",
+      "status": "created",
+      "user": "<https://github.com/example-user|example-user>"
+    }
+  ],
+  "review": [
+    {
+      "event_type": "pull_request_review",
+      "raw_json": {
+        "action": "submitted",
+        "review": {
+          "state": "changes_requested"
+        },
+        "pull_request": {
+          "html_url": "https://github.com/example-org/example-repo/pull/3",
+          "number": 3,
+          "title": "ExamplePR"
+        },
+        "repository": {
+          "full_name": "example-org/example-repo",
+          "html_url": "https://github.com/example-org/example-repo"
+        },
+        "sender": {
+          "login": "reviewer"
+        }
+      }
+    },
+    {
+      "repo": "<https://github.com/example-org/example-repo|example-org/example-repo>",
+      "type": "EventType.REVIEW",
+      "pull_request": "<https://github.com/example-org/example-repo/pull/3|#3 ExamplePR>",
+      "status": "changes_requested",
+      "reviewers": ["<https://github.com/reviewer|reviewer>"]
+    }
+  ],
+  "review_comment": [
+    {
+      "event_type": "pull_request_review_comment",
+      "raw_json": {
+        "action": "created",
+        "comment": {
+          "url": "https://api.github.com/repos/example-org/example-repo/pulls/comments/123456789",
+          "html_url": "https://github.com/example-org/example-repo/pull/3#discussion_r123456789",
+          "body": "comment content"
+        },
+        "pull_request": {
+          "html_url": "https://github.com/example-org/example-repo/pull/3",
+          "number": 3,
+          "title": "ExamplePR"
+        },
+        "repository": {
+          "full_name": "example-org/example-repo",
+          "html_url": "https://github.com/example-org/example-repo"
+        },
+        "sender": {
+          "login": "user-who-commented"
+        }
+      }
+    },
+    {
+      "repo": "<https://github.com/example-org/example-repo|example-org/example-repo>",
+      "type": "EventType.REVIEW_COMMENT",
+      "user": "<https://github.com/user-who-commented|user-who-commented>",
+      "pull_request": "<https://github.com/example-org/example-repo/pull/3|#3 ExamplePR>",
+      "comments": ["comment content"],
+      "links": ["<https://github.com/example-org/example-repo/pull/3#discussion_r123456789|None>"]
+    }
+  ],
+  "tag_create": [
+    {
+      "event_type": "create",
+      "raw_json": {
+        "ref": "example-tag",
+        "ref_type": "tag",
+        "pusher_type": "user",
+        "repository": {
+          "full_name": "example-org/example-repo",
+          "html_url": "https://github.com/example-org/example-repo"
+        },
+        "sender": {
+          "login": "user-who-created-tag"
+        }
+      }
+    },
+    {
+      "ref": "example-tag",
+      "repo": "<https://github.com/example-org/example-repo|example-org/example-repo>",
+      "type": "EventType.TAG_CREATED",
+      "user": "<https://github.com/user-who-created-tag|user-who-created-tag>"
+    }
+  ],
+  "tag_delete": [
+    {
+      "event_type": "delete",
+      "raw_json": {
+        "ref": "example-tag",
+        "ref_type": "tag",
+        "pusher_type": "user",
+        "repository": {
+          "full_name": "example-org/example-repo",
+          "html_url": "https://github.com/example-org/example-repo"
+        },
+        "sender": {
+          "login": "user-who-deleted-tag"
+        }
+      }
+    },
+    {
+      "ref": "example-tag",
+      "repo": "<https://github.com/example-org/example-repo|example-org/example-repo>",
+      "type": "EventType.TAG_DELETED",
+      "user": "<https://github.com/user-who-deleted-tag|user-who-deleted-tag>"
+    }
+  ]
+}
