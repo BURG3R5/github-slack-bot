@@ -124,4 +124,4 @@ if __name__ == "__main__":
         bot_id=os.environ["SLACK_BOT_ID"],
     )
 
-    run(host="", port=5556, debug=debug)
+    run(host="", port=int(os.environ["CONTAINER_PORT"]), debug=debug)

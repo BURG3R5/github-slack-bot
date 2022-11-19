@@ -1,0 +1,8 @@
+version: '3'
+services:
+    github-slack-bot:
+        build:
+            context: .
+        container_name: github-slack-bot
+        ports:
+            - "${HOST_PORT}:${CONTAINER_PORT}"
