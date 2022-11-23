@@ -22,7 +22,7 @@ class SlackBot(Messenger, Runner):
 
     subscriptions: dict[str, set[Channel]]
 
-    def __init__(self, token: str, logger: Logger, bot_id: str):
+    def __init__(self, token: str, logger: Logger):
         Messenger.__init__(self, token)
-        Runner.__init__(self, token, logger, bot_id)
+        Runner.__init__(self, logger)
         self.subscriptions = Storage.import_subscriptions()
