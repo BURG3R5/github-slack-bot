@@ -13,7 +13,6 @@ class Logger:
         :param log_text: Information about the latest command to be saved.
         """
         # Read
-        lines = []
         with open('data/logs', 'a+') as file:
             file.seek(0)
             lines = file.readlines()
