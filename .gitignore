@@ -9,8 +9,9 @@
 .venv
 venv
 
+# Storage
+data
+
 # Temporary files
-.data
-.log
 __pycache__/
 *.pyc

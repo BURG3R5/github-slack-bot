@@ -1,0 +1,10 @@
+# Ignore everything
+*
+
+# Except these directories
+!/bot
+
+# And these files
+!/main.py
+!/requirements.txt
+!/.env

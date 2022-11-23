@@ -17,10 +17,10 @@ class Storage:
     @staticmethod
     def export_subscriptions(subscriptions: dict[str, set[Channel]]):
         """
-        Saves the passed subscriptions map to the file ".data".
+        Saves the passed subscriptions map in "data/subscriptions".
         :param subscriptions: Map containing the current subscriptions.
         """
-        with open(".data", mode="w", encoding="utf-8") as file:
+        with open("data/subscriptions", mode="w", encoding="utf-8") as file:
             exportable_dict: dict[str, dict[str, list[str]]] = {
                 repo: {
                     channel.name: [event.keyword for event in channel.events]
@@ -34,12 +34,12 @@ class Storage:
     @staticmethod
     def import_subscriptions() -> dict[str, set[Channel]]:
         """
-        Loads subscriptions from the file ".data", if it exists.
-        If there is no ".data" file, returns default subscriptions for testing and dev.
+        Loads subscriptions from "data/subscriptions", if it exists.
+        If the file doesn't exist, returns default subscriptions for testing and dev.
         :return: Map containing the saved subscriptions.
         """
-        if os.path.exists(".data"):
-            with open(".data", encoding="utf-8") as file:
+        if os.path.exists("data/subscriptions"):
+            with open("data/subscriptions", encoding="utf-8") as file:
                 imported_dict: dict[str, dict[str,
                                               list[str]]] = json.load(file)
                 subscriptions: dict[str, set[Channel]] = {
