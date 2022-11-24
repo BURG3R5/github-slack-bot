@@ -191,6 +191,7 @@ class Runner:
                 },
             ]
         if len(blocks) == 0:
+            ephemeral = True
             blocks = [
                 {
                     "text": {
