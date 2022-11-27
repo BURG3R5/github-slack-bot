@@ -254,10 +254,8 @@ class Runner:
                     "Format: `/list`")
             else:
                 for event in EventType:
-                    if query == event.keyword:
-                        return mini_help_response(f"`{event.keyword}`: "
-                                                  f"{event.docs}")
-                    elif query == event.name.lower():
+                    if ((query == event.keyword)
+                            or (query == event.name.lower())):
                         return mini_help_response(f"`{event.keyword}`: "
                                                   f"{event.docs}")
         return {
