@@ -115,7 +115,7 @@ class Runner(SlackBotBase):
                         "type":
                         "mrkdwn",
                         "text":
-                        "The event you tried to unsubscribe isn't subscribed to the channel in the first place."
+                        f"Found no subscriptions to `{repository}` in this channel"
                     }
                 }]
             }
