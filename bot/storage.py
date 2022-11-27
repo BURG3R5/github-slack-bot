@@ -35,10 +35,10 @@ class Storage:
         :param repository: Unique identifier of the GitHub repository, of the form "<owner-name>/<repo-name>"
         """
 
-        Subscription.delete().where(
-            channel=channel,
-            repository=repository,
-        ).execute()
+        Subscription\
+            .delete()\
+            .where((Subscription.channel == channel) & (Subscription.repository == repository))\
+            .execute()
 
     def update_subscription(
         self,
