@@ -22,7 +22,7 @@ class Storage:
         db.connect()
         Subscription.create_table()
         Subscription.insert(
-            channel="#github-slack-bot",
+            channel="#selene",
             repository="BURG3R5/github-slack-bot",
             events=list(EventType),
         )

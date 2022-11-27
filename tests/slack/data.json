@@ -126,7 +126,7 @@
   "run_unsubscribe_command|multiple_event": [
     {
       "github-slack-bot": {
-        "#github-slack-bot": [
+        "#selene": [
           "ic",
           "p",
           "isc",
@@ -162,7 +162,7 @@
         ]
       },
       "example-repo": {
-        "#github-slack-bot": [
+        "#selene": [
           "ic",
           "isc",
           "prm",

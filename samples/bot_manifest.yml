@@ -1,11 +1,11 @@
 display_information:
-  name: GitHubBot
+  name: Selene
   description: Concisely and precisely informs users of events on GitHub.
   background_color: "#000000"
   long_description: Concisely and precisely informs users of events on GitHub. Subscribe to any number of events using the `/subscribe` command. Get more usage instructions using the `/help` command. Source code at https://github.com/BURG3R5/github-slack-bot
 features:
   bot_user:
-    display_name: GitHubBot
+    display_name: Selene
     always_online: true
   slash_commands:
     - command: /subscribe

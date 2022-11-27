@@ -1,17 +1,17 @@
 version: '3'
 
 services:
-  proton:
+  selene:
     build:
       context: .
-    container_name: proton
+    container_name: selene
     ports:
       - "${HOST_PORT}:${CONTAINER_PORT}"
     volumes:
       - type: volume
-        source: proton
-        target: /github-slack-bot/data
+        source: selene
+        target: /selene/data
 
 volumes:
-  proton:
-    name: "proton"
+  selene:
+    name: "selene"
