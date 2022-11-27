@@ -245,10 +245,10 @@ class RunnerTest(unittest.TestCase):
         self.assertTrue(*Comparators.list_messages(
             self.data["run_list_command|overlapping"][1], response))
 
-    def test_help(self):
-        response = self.runner.run_help_command()
+    # def test_help(self):
+    #     response = self.runner.run_help_command()
 
-        self.assertEqual(self.data["run_help_command"][1], response)
+    #     self.assertEqual(self.data["run_help_command"][1], response)
 
 
 if __name__ == '__main__':
