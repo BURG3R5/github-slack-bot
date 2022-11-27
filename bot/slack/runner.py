@@ -7,13 +7,13 @@ from typing import Any
 from bottle import MultiDict
 
 from ..models.github import EventType, convert_keywords_to_events
-from ..models.slack import Channel
 from ..utils.json import JSON
+from ..utils.list_manip import intersperse
 from ..utils.log import Logger
-from ..utils.storage import Storage
+from .slackbot_base import SlackBotBase
 
 
-class Runner:
+class Runner(SlackBotBase):
     """
     Reacts to received slash commands.
     """
@@ -21,10 +21,8 @@ class Runner:
     logger: Logger
 
     def __init__(self, logger: Logger):
+        SlackBotBase.__init__(self)
         self.logger = logger
-
-        # Dummy initialization. Overridden in `SlackBot.__init__()`.
-        self.subscriptions: dict[str, set[Channel]] = {}
 
     def run(self, raw_json: MultiDict) -> dict[str, Any] | None:
         """
@@ -61,7 +59,6 @@ class Runner:
         elif command == "/help":
             result = self.run_help_command()
 
-        Storage.export_subscriptions(self.subscriptions)
         return result
 
     def run_subscribe_command(
@@ -71,44 +68,25 @@ class Runner:
     ) -> dict[str, Any]:
         """
         Triggered by "/subscribe". Adds the passed events to the channel's subscriptions.
+
         :param current_channel: Name of the current channel.
         :param args: `list` of events to subscribe to.
         """
-        repo: str = args[0]
+
+        repository = args[0]
         new_events = convert_keywords_to_events(args[1:])
-        if repo in self.subscriptions:
-            channels: set[Channel] = self.subscriptions[repo]
-            channel: Channel | None = next(
-                (subscribed_channel for subscribed_channel in channels
-                 if subscribed_channel.name == current_channel),
-                None,
-            )
-            if channel is None:
-                # If this channel has not subscribed to any events
-                # from this repo, add a subscription.
-                channels.add(Channel(
-                    name=current_channel,
-                    events=new_events,
-                ))
-                self.subscriptions[repo] = channels
-            else:
-                # If this channel has subscribed to some events
-                # from this repo, update the list of events.
-                old_events: set[EventType] = channel.events
-                self.subscriptions[repo].remove(channel)
-                self.subscriptions[repo].add(
-                    Channel(
-                        name=current_channel,
-                        events=(old_events.union(new_events)),
-                    ))
-        else:
-            # If no one has subscribed to this repo, add a repo entry.
-            self.subscriptions[repo] = {
-                Channel(
-                    name=current_channel,
-                    events=new_events,
-                )
-            }
+
+        subscriptions = self.storage.get_subscriptions(channel=current_channel,
+                                                       repository=repository)
+        if len(subscriptions) == 1:
+            new_events |= subscriptions[0].events
+
+        self.storage.update_subscription(
+            channel=current_channel,
+            repository=repository,
+            events=new_events,
+        )
+
         return self.run_list_command(current_channel, True)
 
     def run_unsubscribe_command(
@@ -118,36 +96,29 @@ class Runner:
     ) -> dict[str, Any]:
         """
         Triggered by "/unsubscribe". Removes the passed events from the channel's subscriptions.
+
         :param current_channel: Name of the current channel.
         :param args: `list` of events to unsubscribe from.
         """
-        repo: str = args[0]
-        channels: set[Channel] = self.subscriptions[repo]
-        channel: Channel | None = next(
-            (subscribed_channel for subscribed_channel in channels
-             if subscribed_channel.name == current_channel),
-            None,
-        )
-        if channel is not None:
-            # If this channel has subscribed to some events
-            # from this repo, update the list of events.
-            current_events = channel.events
-            chosen_events = convert_keywords_to_events(args[1:])
-            for event in chosen_events:
-                try:
-                    current_events.remove(event)
-                except KeyError:
-                    # This means that the user tried to unsubscribe from
-                    # an event that wasn't subscribed to in the first place.
-                    pass
-            self.subscriptions[repo].remove(channel)
-            if len(current_events) != 0:
-                self.subscriptions[repo].add(
-                    Channel(
-                        name=current_channel,
-                        events=current_events,
-                    ))
-        return self.run_list_command(current_channel, True)
+
+        repository = args[0]
+        subscriptions = self.storage.get_subscriptions(channel=current_channel,
+                                                       repository=repository)
+
+        if len(subscriptions) == 1:
+            events = subscriptions[0].events
+            updated_events = set(events) - convert_keywords_to_events(
+                (args[1:]))
+
+            if len(updated_events) == 0:
+                self.storage.remove_subscription(channel=current_channel,
+                                                 repository=repository)
+            else:
+                self.storage.update_subscription(channel=current_channel,
+                                                 repository=repository,
+                                                 events=updated_events)
+
+        return self.run_list_command(current_channel, ephemeral=True)
 
     def run_list_command(
         self,
@@ -156,34 +127,28 @@ class Runner:
     ) -> dict[str, Any]:
         """
         Triggered by "/list". Sends a message listing the current channel's subscriptions.
+
         :param current_channel: Name of the current channel.
         :param ephemeral: Whether message should be ephemeral or not.
+
         :return: Message containing subscriptions for the passed channel.
         """
-        blocks: list[dict] = []
-        for repo, channels in self.subscriptions.items():
-            channel: Channel | None = next(
-                (subscribed_channel for subscribed_channel in channels
-                 if subscribed_channel.name == current_channel),
-                None,
-            )
-            if channel is None:
-                continue
+
+        blocks: list[dict[str, Any]] = []
+        subscriptions = self.storage.get_subscriptions(channel=current_channel)
+        for subscription in subscriptions:
             events_string = ", ".join(f"`{event.name.lower()}`"
-                                      for event in channel.events)
-            blocks += [
-                {
-                    "type": "section",
-                    "text": {
-                        "type": "mrkdwn",
-                        "text": f"*{repo}*\n{events_string}",
-                    },
+                                      for event in subscription.events)
+            blocks.append({
+                "type": "section",
+                "text": {
+                    "type": "mrkdwn",
+                    "text": f"*{subscription.repository}*\n{events_string}",
                 },
-                {
-                    "type": "divider",
-                },
-            ]
-        if len(blocks) == 0:
+            })
+        if len(blocks) != 0:
+            blocks = intersperse(blocks, {"type": "divider"})
+        else:
             ephemeral = True
             blocks = [
                 {
