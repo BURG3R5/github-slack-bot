@@ -5,7 +5,7 @@ Important methods—
 * `SlackBot.inform` to notify channels about events,
 * `SlackBot.run` to execute slash commands.
 """
-from ..storage import Storage
+
 from ..utils.log import Logger
 from .messenger import Messenger
 from .runner import Runner
@@ -21,4 +21,3 @@ class SlackBot(Messenger, Runner):
     def __init__(self, token: str, logger: Logger):
         Messenger.__init__(self, token)
         Runner.__init__(self, logger)
-        self.storage = Storage()

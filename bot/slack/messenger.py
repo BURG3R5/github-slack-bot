@@ -6,17 +6,17 @@ from slack.web.client import WebClient
 
 from ..models.github import EventType
 from ..models.github.event import GitHubEvent
+from .slackbot_base import SlackBotBase
 
 
-class Messenger:
+class Messenger(SlackBotBase):
     """
     Sends Slack messages according to received GitHub events.
     """
 
     def __init__(self, token: str):
+        SlackBotBase.__init__(self)
         self.client: WebClient = WebClient(token)
-        # Dummy initialization. Overridden in `SlackBot.__init__()`.
-        self.storage = None
 
     def inform(self, event: GitHubEvent):
         """

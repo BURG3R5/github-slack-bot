@@ -10,9 +10,10 @@ from ..models.github import EventType, convert_keywords_to_events
 from ..utils.json import JSON
 from ..utils.list_manip import intersperse
 from ..utils.log import Logger
+from .slackbot_base import SlackBotBase
 
 
-class Runner:
+class Runner(SlackBotBase):
     """
     Reacts to received slash commands.
     """
@@ -20,10 +21,8 @@ class Runner:
     logger: Logger
 
     def __init__(self, logger: Logger):
+        SlackBotBase.__init__(self)
         self.logger = logger
-
-        # Dummy initialization. Overridden in `SlackBot.__init__()`.
-        self.storage = None
 
     def run(self, raw_json: MultiDict) -> dict[str, Any] | None:
         """
