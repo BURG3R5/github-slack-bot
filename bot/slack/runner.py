@@ -216,7 +216,7 @@ class Runner:
         Triggered by "/help". Sends an ephemeral help message as response.
         :return: Ephemeral message showcasing the bot features and keywords.
         """
-        if len(args) is 1:
+        if len(args[0]) > 0:
             for event in EventType:
                 args[0] = args[0].lower()
                 if args[0] is "/subscribe":
