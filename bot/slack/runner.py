@@ -218,6 +218,55 @@ class Runner:
         """
         if len(args) is 1:
             for event in EventType:
+                args[0] = args[0].lower()
+                if args[0] is "/subscribe":
+                    return {
+                        "response_type":
+                        "ephemeral",
+                        "blocks": [
+                            {
+                                "type": "section",
+                                "text": {
+                                    "type":
+                                    "mrkdwn",
+                                    "text":
+                                    "Subscribe to events in a GitHub repository"
+                                },
+                            },
+                        ],
+                    }
+                if args[0] is "/unsubscribe":
+                    return {
+                        "response_type":
+                        "ephemeral",
+                        "blocks": [
+                            {
+                                "type": "section",
+                                "text": {
+                                    "type":
+                                    "mrkdwn",
+                                    "text":
+                                    "Unsubscribe from events in a GitHub repository"
+                                },
+                            },
+                        ],
+                    }
+                if args[0] is "/list":
+                    return {
+                        "response_type":
+                        "ephemeral",
+                        "blocks": [
+                            {
+                                "type": "section",
+                                "text": {
+                                    "type":
+                                    "mrkdwn",
+                                    "text":
+                                    "Lists subscriptions for the current channel."
+                                },
+                            },
+                        ],
+                    }
                 if args[0] is event.keyword:
                     return {
                         "response_type":
@@ -232,7 +281,7 @@ class Runner:
                             },
                         ],
                     }
-                elif args[0] is event.name:
+                elif args[0] is event.name.lower():
                     return {
                         "response_type":
                         "ephemeral",
