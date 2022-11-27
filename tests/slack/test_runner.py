@@ -95,7 +95,7 @@ class RunnerTest(unittest.TestCase):
 
     def test_unsubscribe_single_event(self):
         response = self.runner.run_unsubscribe_command(
-            "#github-slack-bot",
+            "#selene",
             ["github-slack-bot", "isc"],
         )
 
@@ -106,7 +106,7 @@ class RunnerTest(unittest.TestCase):
 
     def test_unsubscribe_single_events(self):
         response = self.runner.run_unsubscribe_command(
-            "#github-slack-bot",
+            "#selene",
             ["github-slack-bot", "isc", "p"],
         )
 
@@ -117,7 +117,7 @@ class RunnerTest(unittest.TestCase):
 
     def test_unsubscribe_single_noargs(self):
         response = self.runner.run_unsubscribe_command(
-            "#github-slack-bot",
+            "#selene",
             ["github-slack-bot"],
         )
 
@@ -128,7 +128,7 @@ class RunnerTest(unittest.TestCase):
 
     def test_unsubscribe_single_all(self):
         response = self.runner.run_unsubscribe_command(
-            "#github-slack-bot",
+            "#selene",
             ["github-slack-bot", "*"],
         )
 
@@ -142,7 +142,7 @@ class RunnerTest(unittest.TestCase):
             self.data["run_unsubscribe_command|multiple_event"][0])
 
         response = self.runner.run_unsubscribe_command(
-            "#github-slack-bot",
+            "#selene",
             ["github-slack-bot", "isc"],
         )
 
@@ -157,7 +157,7 @@ class RunnerTest(unittest.TestCase):
         # Reuse subscriptions data
 
         response = self.runner.run_unsubscribe_command(
-            "#github-slack-bot",
+            "#selene",
             ["github-slack-bot", "isc", "p"],
         )
 
@@ -172,7 +172,7 @@ class RunnerTest(unittest.TestCase):
         # Reuse subscriptions data
 
         response = self.runner.run_unsubscribe_command(
-            "#github-slack-bot",
+            "#selene",
             ["github-slack-bot"],
         )
 
@@ -187,7 +187,7 @@ class RunnerTest(unittest.TestCase):
         # Reuse subscriptions data
 
         response = self.runner.run_unsubscribe_command(
-            "#github-slack-bot",
+            "#selene",
             ["github-slack-bot", "*"],
         )
 
@@ -204,7 +204,7 @@ class RunnerTest(unittest.TestCase):
         self.assertEqual(self.data["run_list_command|empty"][1], response)
 
     def test_list_default(self):
-        response = self.runner.run_list_command("#github-slack-bot")
+        response = self.runner.run_list_command("#selene")
 
         self.assertTrue(*Comparators.list_messages(
             self.data["run_list_command|default"][1], response))
@@ -227,10 +227,10 @@ class RunnerTest(unittest.TestCase):
 
     def test_list_multiple_repos(self):
         self.runner.subscriptions["example-repo"] = {
-            Channel("#github-slack-bot", convert_keywords_to_events([]))
+            Channel("#selene", convert_keywords_to_events([]))
         }
 
-        response = self.runner.run_list_command("#github-slack-bot")
+        response = self.runner.run_list_command("#selene")
 
         self.assertTrue(*Comparators.list_messages(
             self.data["run_list_command|multiple_repos"][1], response))

@@ -4,9 +4,9 @@
 [![All Contributors](https://img.shields.io/badge/all_contributors-6-orange.svg?style=flat-square)](#contributors)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
-# GitHubBot
+# Selene
 
-A Slack bot that informs users of updates in a GitHub org.
+Concisely and precisely informs users of events in a GitHub org.
 
 ### Features
 

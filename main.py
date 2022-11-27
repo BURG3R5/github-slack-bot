@@ -1,5 +1,5 @@
 """
-Execution entrypoint for the github-slack-bot project.
+Execution entrypoint for the project.
 
 Sets up a `bottle` server with three endpoints: "/", "/github/events" and "/slack/commands".
 
