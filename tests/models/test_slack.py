@@ -12,10 +12,16 @@ class ChannelTest(unittest.TestCase):
         ])
         self.assertEqual(str(channel), "unittest_channel")
 
-    def test_is_subscribed_to(self):
+    def test_is_subscribed_to_false(self):
         channel = Channel("unittest_channel", [
             EventType.BRANCH_CREATED, EventType.COMMIT_COMMENT, EventType.FORK
         ])
-        self.assertEqual([
+        self.assertEqual(
+            False, channel.is_subscribed_to(event=EventType.ISSUE_CLOSED))
+
+    def test_is_subscribed_to_true(self):
+        channel = Channel("unittest_channel", [
             EventType.BRANCH_CREATED, EventType.COMMIT_COMMENT, EventType.FORK
-        ], is_subs)
+        ])
+        self.assertEqual(True,
+                         channel.is_subscribed_to(EventType.BRANCH_CREATED))
