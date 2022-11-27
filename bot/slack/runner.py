@@ -211,51 +211,83 @@ class Runner:
         }
 
     @staticmethod
-    def run_help_command() -> dict[str, Any]:
+    def run_help_command(self, args: list[str]) -> dict[str, Any]:
         """
         Triggered by "/help". Sends an ephemeral help message as response.
         :return: Ephemeral message showcasing the bot features and keywords.
         """
-        # TODO: Prettify events section.
-        return {
-            "response_type":
-            "ephemeral",
-            "blocks": [
-                {
-                    "type": "section",
-                    "text": {
-                        "type":
-                        "mrkdwn",
-                        "text":
-                        ("*Commands*\n"
-                         "1. `/subscribe <repo> <event1> [<event2> ...]`\n"
-                         "2. `/unsubsribe <repo> <event1> [<event2> ...]`\n"
-                         "3. `/list`\n"
-                         "4. `/help`"),
+        if len(args) is 1:
+            for event in EventType:
+                if args[0] is event.keyword:
+                    return {
+                        "response_type":
+                        "ephemeral",
+                        "blocks": [
+                            {
+                                "type": "section",
+                                "text": {
+                                    "type": "mrkdwn",
+                                    "text": f"{event.keyword} : {event.docs}"
+                                },
+                            },
+                        ],
+                    }
+                elif args[0] is event.name:
+                    return {
+                        "response_type":
+                        "ephemeral",
+                        "blocks": [
+                            {
+                                "type": "section",
+                                "text": {
+                                    "type": "mrkdwn",
+                                    "text": f"{event.keyword} : {event.docs}"
+                                },
+                            },
+                        ],
+                    }
+
+        else:
+            # TODO: Prettify events section.
+            return {
+                "response_type":
+                "ephemeral",
+                "blocks": [
+                    {
+                        "type": "section",
+                        "text": {
+                            "type":
+                            "mrkdwn",
+                            "text":
+                            ("*Commands*\n"
+                             "1. `/subscribe <repo> <event1> [<event2> ...]`\n"
+                             "2. `/unsubsribe <repo> <event1> [<event2> ...]`\n"
+                             "3. `/list`\n"
+                             "4. `/help`"),
+                        },
                     },
-                },
-                {
-                    "type": "divider"
-                },
-                {
-                    "type": "section",
-                    "text": {
-                        "type":
-                        "mrkdwn",
-                        "text":
-                        ("*Events*\n"
-                         "GitHub events are abbreviated as follows:\n"
-                         "0. `default` or no arguments: Subscribe "
-                         "to the most common and important events.\n"
-                         "1. `all` or `*`: Subscribe to every supported event.\n"
-                         + "".join([
-                             f"{i + 2}. `{event.keyword}`: {event.docs}\n"
-                             for i, event in enumerate(EventType)
-                         ])),
+                    {
+                        "type": "divider"
                     },
-                },
-            ],
-        }
+                    {
+                        "type": "section",
+                        "text": {
+                            "type":
+                            "mrkdwn",
+                            "text":
+                            ("*Events*\n"
+                             "GitHub events are abbreviated as follows:\n"
+                             "0. `default` or no arguments: Subscribe "
+                             "to the most common and important events.\n"
+                             "1. `all` or `*`: Subscribe to every supported event.\n"
+                             + "".join([
+                                 f"{i + 2}. `{event.keyword}`: {event.docs}\n"
+                                 for i, event in enumerate(EventType)
+                             ])),
+                        },
+                    },
+                ],
+            }
 
     def run_cls_command(self, current_channel: str):
 
