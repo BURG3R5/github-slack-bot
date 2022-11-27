@@ -149,6 +149,7 @@ class Runner(SlackBotBase):
         if len(blocks) != 0:
             blocks = intersperse(blocks, {"type": "divider"})
         else:
+            ephemeral = True
             blocks = [
                 {
                     "text": {
