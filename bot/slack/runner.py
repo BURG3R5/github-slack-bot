@@ -57,7 +57,7 @@ class Runner(SlackBotBase):
         elif command == "/list":
             result = self.run_list_command(current_channel=current_channel)
         elif command == "/help":
-            result = self.run_help_command()
+            result = self.run_help_command(args)
 
         return result
 
@@ -170,12 +170,53 @@ class Runner(SlackBotBase):
         }
 
     @staticmethod
-    def run_help_command() -> dict[str, Any]:
+    def run_help_command(args: list[str]) -> dict[str, Any]:
         """
         Triggered by "/help". Sends an ephemeral help message as response.
+
+        :param args: Arguments passed to the command.
+
         :return: Ephemeral message showcasing the bot features and keywords.
         """
-        # TODO: Prettify events section.
+
+        def mini_help_response(text: str) -> dict[str, Any]:
+            return {
+                "response_type":
+                "ephemeral",
+                "blocks": [{
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": text
+                    }
+                }],
+            }
+
+        if len(args) == 1:
+            query = args[0].lower()
+            if "unsubscribe" in query:
+                return mini_help_response(
+                    "*/unsubscribe*\n"
+                    "Unsubscribe from events in a GitHub repository\n\n"
+                    "Format: `/unsubscribe <owner>/<repository> <event1> [<event2> <event3> ...]`"
+                )
+            elif "subscribe" in query:
+                return mini_help_response(
+                    "*/subscribe*\n"
+                    "Subscribe to events in a GitHub repository\n\n"
+                    "Format: `/subscribe <owner>/<repository> <event1> [<event2> <event3> ...]`"
+                )
+            elif "list" in query:
+                return mini_help_response(
+                    "*/list*\n"
+                    "Lists subscriptions for the current channel\n\n"
+                    "Format: `/list`")
+            else:
+                for event in EventType:
+                    if ((query == event.keyword)
+                            or (query == event.name.lower())):
+                        return mini_help_response(f"`{event.keyword}`: "
+                                                  f"{event.docs}")
         return {
             "response_type":
             "ephemeral",
@@ -187,10 +228,10 @@ class Runner(SlackBotBase):
                         "mrkdwn",
                         "text":
                         ("*Commands*\n"
-                         "1. `/subscribe <repo> <event1> [<event2> ...]`\n"
-                         "2. `/unsubsribe <repo> <event1> [<event2> ...]`\n"
+                         "1. `/subscribe <owner>/<repository> <event1> [<event2> <event3> ...]`\n"
+                         "2. `/unsubscribe <owner>/<repository> <event1> [<event2> <event3> ...]`\n"
                          "3. `/list`\n"
-                         "4. `/help`"),
+                         "4. `/help [<event name or keyword or command>]`"),
                     },
                 },
                 {
@@ -204,12 +245,12 @@ class Runner(SlackBotBase):
                         "text":
                         ("*Events*\n"
                          "GitHub events are abbreviated as follows:\n"
-                         "0. `default` or no arguments: Subscribe "
+                         "- `default` or no arguments: Subscribe "
                          "to the most common and important events.\n"
-                         "1. `all` or `*`: Subscribe to every supported event.\n"
+                         "- `all` or `*`: Subscribe to every supported event.\n"
                          + "".join([
-                             f"{i + 2}. `{event.keyword}`: {event.docs}\n"
-                             for i, event in enumerate(EventType)
+                             f"- `{event.keyword}`: {event.docs}\n"
+                             for event in EventType
                          ])),
                     },
                 },
