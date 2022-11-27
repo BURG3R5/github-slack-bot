@@ -246,7 +246,7 @@ class RunnerTest(unittest.TestCase):
             self.data["run_list_command|overlapping"][1], response))
 
     def test_help(self):
-        response = self.runner.run_help_command(self, args=[""])
+        response = self.runner.run_help_command([])
         self.assertEqual(self.data["run_help_command"][1], response)
 
 
