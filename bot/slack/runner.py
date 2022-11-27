@@ -105,6 +105,21 @@ class Runner(SlackBotBase):
         subscriptions = self.storage.get_subscriptions(channel=current_channel,
                                                        repository=repository)
 
+        if len(subscriptions) == 0:
+            return {
+                "response_type":
+                "ephemeral",
+                "blocks": [{
+                    "type": "section",
+                    "text": {
+                        "type":
+                        "mrkdwn",
+                        "text":
+                        "The event you tried to unsubscribe isn't subscribed to the channel in the first place."
+                    }
+                }]
+            }
+
         if len(subscriptions) == 1:
             events = subscriptions[0].events
             updated_events = set(events) - convert_keywords_to_events(
