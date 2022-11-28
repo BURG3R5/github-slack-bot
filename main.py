@@ -110,7 +110,7 @@ if __name__ == "__main__":
     load_dotenv(Path(".") / ".env")
     debug: bool = os.environ["DEBUG"] == "1"
 
-    if not debug:
+    if "SENTRY_DSN" in os.environ:
         sentry_sdk.init(
             dsn=os.environ["SENTRY_DSN"],
             integrations=[BottleIntegration()],
@@ -120,7 +120,7 @@ if __name__ == "__main__":
 
     bot: SlackBot = SlackBot(
         token=os.environ["SLACK_OAUTH_TOKEN"],
-        logger=Logger(int(os.environ["LOG_LAST_N_COMMANDS"] or 100)),
+        logger=Logger(int(os.environ.get("LOG_LAST_N_COMMANDS", 100))),
     )
 
-    run(host="", port=int(os.environ["CONTAINER_PORT"]), debug=debug)
+    run(host="", port=int(os.environ.get("CONTAINER_PORT", 5000)), debug=debug)
