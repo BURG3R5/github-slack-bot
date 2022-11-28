@@ -57,7 +57,7 @@ class Runner(SlackBotBase):
         elif command == "/list":
             result = self.run_list_command(
                 current_channel=current_channel,
-                args=args,
+                ephemeral=(("quiet" in args) or ("q" in args))
             )
         elif command == "/help":
             result = self.run_help_command(args)
@@ -90,7 +90,7 @@ class Runner(SlackBotBase):
             events=new_events,
         )
 
-        return self.run_list_command(current_channel, True)
+        return self.run_list_command(current_channel, ephemeral=True)
 
     def run_unsubscribe_command(
         self,
@@ -141,7 +141,6 @@ class Runner(SlackBotBase):
     def run_list_command(
         self,
         current_channel: str,
-        args: list[str],
         ephemeral: bool = False,
     ) -> dict[str, Any]:
         """
@@ -152,8 +151,6 @@ class Runner(SlackBotBase):
 
         :return: Message containing subscriptions for the passed channel.
         """
-        if args[0] == "q" or args[0] == "quiet":
-            ephemeral = True
 
         blocks: list[dict[str, Any]] = []
         subscriptions = self.storage.get_subscriptions(channel=current_channel)
