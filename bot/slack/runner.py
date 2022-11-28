@@ -36,7 +36,7 @@ class Runner(SlackBotBase):
         command: str = json["command"]
         args: list[str] = str(json["text"]).split()
         result: dict[str, Any] | None = None
-        if command == "/subscribe" and len(args) > 0:
+        if command == "/sel-subscribe" and len(args) > 0:
             current_unix_time = int(time.time() * 1000)
             self.logger.log_command(
                 f"{current_unix_time}, {username}, "
@@ -45,7 +45,7 @@ class Runner(SlackBotBase):
                 current_channel=current_channel,
                 args=args,
             )
-        elif command == "/unsubscribe" and len(args) > 0:
+        elif command == "/sel-unsubscribe" and len(args) > 0:
             current_unix_time = int(time.time() * 1000)
             self.logger.log_command(
                 f"{current_unix_time}, {username}, "
@@ -54,12 +54,12 @@ class Runner(SlackBotBase):
                 current_channel=current_channel,
                 args=args,
             )
-        elif command == "/list":
+        elif command == "/sel-list":
             result = self.run_list_command(
                 current_channel=current_channel,
-                args=args,
+                ephemeral=(("quiet" in args) or ("q" in args)),
             )
-        elif command == "/help":
+        elif command == "/sel-help":
             result = self.run_help_command(args)
 
         return result
@@ -141,7 +141,6 @@ class Runner(SlackBotBase):
     def run_list_command(
         self,
         current_channel: str,
-        args: list[str],
         ephemeral: bool = False,
     ) -> dict[str, Any]:
         """
@@ -152,8 +151,6 @@ class Runner(SlackBotBase):
 
         :return: Message containing subscriptions for the passed channel.
         """
-        if args[0] == "q" or args[0] == "quiet":
-            ephemeral = True
 
         blocks: list[dict[str, Any]] = []
         subscriptions = self.storage.get_subscriptions(channel=current_channel)
