@@ -8,21 +8,21 @@ features:
     display_name: Selene
     always_online: true
   slash_commands:
-    - command: /subscribe
+    - command: /sel-subscribe
       url: <your-url>/slack/commands
       description: Subscribe to events in a GitHub repository
       usage_hint: repository event1 [event2, event3, ...]
       should_escape: false
-    - command: /unsubscribe
+    - command: /sel-unsubscribe
       url: <your-url>/slack/commands
       description: Unsubscribe from events in a GitHub repository
       usage_hint: repository event1 [event2, event3, ...]
       should_escape: false
-    - command: /help
+    - command: /sel-help
       url: <your-url>/slack/commands
       description: Prints instructions and keywords.
       should_escape: false
-    - command: /list
+    - command: /sel-list
       url: <your-url>/slack/commands
       description: Lists subscriptions for the current channel.
       should_escape: false
