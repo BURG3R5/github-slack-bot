@@ -6,18 +6,17 @@ from slack.web.client import WebClient
 
 from ..models.github import EventType
 from ..models.github.event import GitHubEvent
-from ..models.slack import Channel
+from .slackbot_base import SlackBotBase
 
 
-class Messenger:
+class Messenger(SlackBotBase):
     """
     Sends Slack messages according to received GitHub events.
     """
 
     def __init__(self, token: str):
+        SlackBotBase.__init__(self)
         self.client: WebClient = WebClient(token)
-        # Dummy initialization. Overridden in `SlackBot.__init__()`.
-        self.subscriptions: dict[str, set[Channel]] = {}
 
     def inform(self, event: GitHubEvent):
         """
@@ -26,28 +25,30 @@ class Messenger:
         """
         message, details = Messenger.compose_message(event)
         correct_channels: list[str] = self.calculate_channels(
-            repo=event.repo.name,
+            repository=event.repo.name,
             event_type=event.type,
         )
         for channel in correct_channels:
             self.send_message(channel, message, details)
 
-    def calculate_channels(self, repo: str,
-                           event_type: EventType) -> list[str]:
+    def calculate_channels(
+        self,
+        repository: str,
+        event_type: EventType,
+    ) -> list[str]:
         """
         Determines the Slack channels that need to be notified about the passed event.
-        :param repo: Name of the repository that the event was triggered in.
+
+        :param repository: Name of the repository that the event was triggered in.
         :param event_type: Enum-ized type of event.
-        :return: `list` of names of channels that are subscribed to the repo+event_type.
+
+        :return: List of names of channels that are subscribed to the repo+event_type.
         """
-        repo_name: str = repo.split("/")[-1]
-        if repo not in self.subscriptions:
-            if repo_name not in self.subscriptions:
-                return []
-            repo = repo_name
+
         correct_channels: list[str] = [
-            channel.name for channel in self.subscriptions[repo]
-            if channel.is_subscribed_to(event=event_type)
+            subscription.channel
+            for subscription in self.storage.get_subscriptions(
+                repository=repository) if event_type in subscription.events
         ]
         return correct_channels
 

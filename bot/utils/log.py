@@ -1,6 +1,6 @@
 class Logger:
     """
-    Logs the latest commands to `.log` file.
+    Logs the latest commands to `./data/logs`.
     :param N: Number of latest commands to keep.
     """
 
@@ -9,12 +9,11 @@ class Logger:
 
     def log_command(self, log_text: str):
         """
-        Logs the latest command to `.log` file.
+        Logs the latest command to `./data/logs`.
         :param log_text: Information about the latest command to be saved.
         """
         # Read
-        lines = []
-        with open('.log', 'a+') as file:
+        with open('data/logs', 'a+') as file:
             file.seek(0)
             lines = file.readlines()
 
@@ -24,5 +23,5 @@ class Logger:
             lines.pop(0)
 
         # Write
-        with open('.log', 'w') as file:
+        with open('data/logs', 'w') as file:
             file.writelines(lines)

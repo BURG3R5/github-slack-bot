@@ -1,4 +1,5 @@
 bottle==0.12.23
+peewee==3.15.4
 python-dotenv==0.21.0
 requests~=2.28.1
 sentry-sdk[bottle]==1.10.1

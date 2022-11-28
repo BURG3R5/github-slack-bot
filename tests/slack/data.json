@@ -126,7 +126,7 @@
   "run_unsubscribe_command|multiple_event": [
     {
       "github-slack-bot": {
-        "#github-slack-bot": [
+        "#selene": [
           "ic",
           "p",
           "isc",
@@ -162,7 +162,7 @@
         ]
       },
       "example-repo": {
-        "#github-slack-bot": [
+        "#selene": [
           "ic",
           "isc",
           "prm",
@@ -295,7 +295,7 @@
           "type": "section",
           "text": {
             "type": "mrkdwn",
-            "text": "*Commands*\n1. `/subscribe <repo> <event1> [<event2> ...]`\n2. `/unsubsribe <repo> <event1> [<event2> ...]`\n3. `/list`\n4. `/help`"
+            "text": "*Commands*\n1. `/subscribe <owner>/<repository> <event1> [<event2> <event3> ...]`\n2. `/unsubscribe <owner>/<repository> <event1> [<event2> <event3> ...]`\n3. `/list`\n4. `/help [<event name or keyword or command>]`"
           }
         },
         {
@@ -305,7 +305,7 @@
           "type": "section",
           "text": {
             "type": "mrkdwn",
-            "text": "*Events*\nGitHub events are abbreviated as follows:\n0. `default` or no arguments: Subscribe to the most common and important events.\n1. `all` or `*`: Subscribe to every supported event.\n2. `bc`: A Branch was created\n3. `bd`: A Branch was deleted\n4. `tc`: A Tag was created\n5. `td`: A Tag was deleted\n6. `prc`: A Pull Request was closed\n7. `prm`: A Pull Request was merged\n8. `pro`: A Pull Request was opened\n9. `prr`: A Pull Request is ready\n10. `iso`: An Issue was opened\n11. `isc`: An Issue was closed\n12. `rv`: A Review was given on a Pull Request\n13. `rc`: A Comment was added to a Review\n14. `cc`: A Comment was made on a Commit\n15. `ic`: A Comment was made on an Issue\n16. `fk`: Repository was forked by a user\n17. `p`: One or more Commits were pushed\n18. `rl`: A new release was published\n19. `sa`: A star was added to repository\n20. `sr`: A star was removed from repository\n"
+            "text": "*Events*\nGitHub events are abbreviated as follows:\n- `default` or no arguments: Subscribe to the most common and important events.\n- `all` or `*`: Subscribe to every supported event.\n- `bc`: A Branch was created\n- `bd`: A Branch was deleted\n- `tc`: A Tag was created\n- `td`: A Tag was deleted\n- `prc`: A Pull Request was closed\n- `prm`: A Pull Request was merged\n- `pro`: A Pull Request was opened\n- `prr`: A Pull Request is ready\n- `iso`: An Issue was opened\n- `isc`: An Issue was closed\n- `rv`: A Review was given on a Pull Request\n- `rc`: A Comment was added to a Review\n- `cc`: A Comment was made on a Commit\n- `ic`: A Comment was made on an Issue\n- `fk`: Repository was forked by a user\n- `p`: One or more Commits were pushed\n- `rl`: A new release was published\n- `sa`: A star was added to repository\n- `sr`: A star was removed from repository\n"
           }
         }
       ]
@@ -314,7 +314,7 @@
   "run_list_command|empty": [
     {},
     {
-      "response_type": "in_channel",
+      "response_type": "ephemeral",
       "blocks": [
         {
           "type": "section",
@@ -347,7 +347,7 @@
   "run_list_command|missing": [
     {},
     {
-      "response_type": "in_channel",
+      "response_type": "ephemeral",
       "blocks": [
         {
           "type": "section",

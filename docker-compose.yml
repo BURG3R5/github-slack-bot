@@ -1,0 +1,17 @@
+version: '3'
+
+services:
+  selene:
+    build:
+      context: .
+    container_name: selene
+    ports:
+      - "${HOST_PORT}:${CONTAINER_PORT}"
+    volumes:
+      - type: volume
+        source: selene
+        target: /selene/data
+
+volumes:
+  selene:
+    name: "selene"

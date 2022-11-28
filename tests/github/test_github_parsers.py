@@ -1,7 +1,7 @@
 import unittest
 from typing import Any
 
-from bot.github.github_parsers import GitHubPayloadParser, convert_links, find_ref
+from bot.github.github_parsers import GitHubListener, convert_links, find_ref
 
 from ..test_utils.deserializers import github_payload_deserializer
 from ..test_utils.load import load_test_data
@@ -18,8 +18,9 @@ class TestMetaClass(type):
 
             def test_parser(self):
                 event_type, raw_json = github_payload_deserializer(raw_input)
+                listener = GitHubListener()
 
-                parsed_event = GitHubPayloadParser.parse(event_type, raw_json)
+                parsed_event = listener.parse(event_type, raw_json)
 
                 self.assertEqual(
                     github_event_serializer(parsed_event),
@@ -35,7 +36,7 @@ class TestMetaClass(type):
         return type.__new__(mcs, name, bases, attributes)
 
 
-class GitHubPayloadParserTest(unittest.TestCase, metaclass=TestMetaClass):
+class GitHubListenerTest(unittest.TestCase, metaclass=TestMetaClass):
     # Parser tests are created dynamically by metaclass
 
     def test_find_ref(self):
