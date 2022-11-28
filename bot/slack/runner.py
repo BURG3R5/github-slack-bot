@@ -55,7 +55,10 @@ class Runner(SlackBotBase):
                 args=args,
             )
         elif command == "/list":
-            result = self.run_list_command(current_channel=current_channel)
+            result = self.run_list_command(
+                current_channel=current_channel,
+                args=args,
+            )
         elif command == "/help":
             result = self.run_help_command(args)
 
@@ -138,6 +141,7 @@ class Runner(SlackBotBase):
     def run_list_command(
         self,
         current_channel: str,
+        args: list[str],
         ephemeral: bool = False,
     ) -> dict[str, Any]:
         """
@@ -148,6 +152,8 @@ class Runner(SlackBotBase):
 
         :return: Message containing subscriptions for the passed channel.
         """
+        if args[0] == "q" or args[0] == "quiet":
+            ephemeral = True
 
         blocks: list[dict[str, Any]] = []
         subscriptions = self.storage.get_subscriptions(channel=current_channel)
