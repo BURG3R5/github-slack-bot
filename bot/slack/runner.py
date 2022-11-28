@@ -55,10 +55,9 @@ class Runner(SlackBotBase):
                 args=args,
             )
         elif command == "/list":
-            result = self.run_list_command(
-                current_channel=current_channel,
-                ephemeral=(("quiet" in args) or ("q" in args))
-            )
+            result = self.run_list_command(current_channel=current_channel,
+                                           ephemeral=(("quiet" in args)
+                                                      or ("q" in args)))
         elif command == "/help":
             result = self.run_help_command(args)
 
@@ -77,6 +76,9 @@ class Runner(SlackBotBase):
         """
 
         repository = args[0]
+        if (repository.find('/') == -1):
+            return self.send_wrong_syntax_message()
+
         new_events = convert_keywords_to_events(args[1:])
 
         subscriptions = self.storage.get_subscriptions(channel=current_channel,
@@ -91,6 +93,24 @@ class Runner(SlackBotBase):
         )
 
         return self.run_list_command(current_channel, ephemeral=True)
+
+    def send_wrong_syntax_message(self) -> dict[str, Any]:
+        blocks = [
+            {
+                "text": {
+                    "type":
+                    "mrkdwn",
+                    "text":
+                    ("*Invalid syntax for repository name!*\nPlease include owner/organisation name in repository name.\n_For example:_ `BURG3R5/github-slack-bot`"
+                     ),
+                },
+                "type": "section",
+            },
+        ]
+        return {
+            "response_type": "ephemeral",
+            "blocks": blocks,
+        }
 
     def run_unsubscribe_command(
         self,
