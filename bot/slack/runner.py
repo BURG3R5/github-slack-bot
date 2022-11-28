@@ -55,8 +55,10 @@ class Runner(SlackBotBase):
                 args=args,
             )
         elif command == "/list":
-            result = self.run_list_command(current_channel=current_channel,
-                                           args=args)
+            result = self.run_list_command(
+                current_channel=current_channel,
+                args=args,
+            )
         elif command == "/help":
             result = self.run_help_command(args)
 
