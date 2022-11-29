@@ -253,7 +253,7 @@ class Runner(SlackBotBase):
                 return mini_help_response(
                     "*/sel-list*\n"
                     "Lists subscriptions for the current channel\n\n"
-                    "Format: `/sel-list`")
+                    "Format: `/sel-list ['q' or 'quiet']`")
             else:
                 for event in EventType:
                     if ((query == event.keyword)
@@ -273,7 +273,7 @@ class Runner(SlackBotBase):
                         ("*Commands*\n"
                          "1. `/sel-subscribe <owner>/<repository> <event1> [<event2> <event3> ...]`\n"
                          "2. `/sel-unsubscribe <owner>/<repository> <event1> [<event2> <event3> ...]`\n"
-                         "3. `/sel-list`\n"
+                         "3. `/sel-list` ['q' or 'quiet']\n"
                          "4. `/sel-help [<event name or keyword or command>]`"
                          ),
                     },
