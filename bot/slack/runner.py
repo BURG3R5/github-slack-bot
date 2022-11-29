@@ -92,6 +92,16 @@ class Runner(SlackBotBase):
 
         return self.run_list_command(current_channel, True)
 
+    def check_bot_in_channel(
+        self,
+        current_channel: str,
+    ) -> bool:
+        subscriptions = self.storage.get_subscriptions(current=current_channel)
+        if (len(subscriptions) == None):
+            return False
+        else:
+            return True
+
     def run_unsubscribe_command(
         self,
         current_channel: str,
