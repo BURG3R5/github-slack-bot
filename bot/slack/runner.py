@@ -5,6 +5,9 @@ import time
 from typing import Any
 
 from bottle import MultiDict
+from sentry_sdk import capture_message
+from slack.errors import SlackApiError
+from slack.web.client import WebClient
 
 from ..models.github import EventType, convert_keywords_to_events
 from ..utils.json import JSON
@@ -20,9 +23,11 @@ class Runner(SlackBotBase):
 
     logger: Logger
 
-    def __init__(self, logger: Logger):
+    def __init__(self, token: str, logger: Logger, bot_id: str):
         SlackBotBase.__init__(self)
         self.logger = logger
+        self.client = WebClient(token=token)
+        self.bot_id = bot_id
 
     def run(self, raw_json: MultiDict) -> dict[str, Any] | None:
         """
@@ -280,18 +285,32 @@ class Runner(SlackBotBase):
         self,
         current_channel: str,
     ) -> dict[str, Any]:
+        # TODO: Remove below subscription statement.
+
         subscriptions = self.storage.get_subscriptions(current=current_channel)
-        if (len(subscriptions) == 0):
-            return {
-                "response_type":
-                "ephemeral",
-                "blocks": [{
-                    "type": "section",
-                    "text": {
-                        "type":
-                        "mrkdwn",
-                        "text":
-                        "I am not in this channel, If you need me me, invite me in this channel channel first."
+
+        if len(subscriptions) != 0:
+            return True
+        try:
+            is_private = self.client.conversations_info(
+                channel=current_channel)["channel"]["is_private"]
+            if is_private:
+                if len(subscriptions) == 0:
+                    return {
+                        "response_type":
+                        "ephemeral",
+                        "blocks": [{
+                            "type": "section",
+                            "text": {
+                                "type":
+                                "mrkdwn",
+                                "text":
+                                "I subscribed this repo to the channel,\n but I am not in this channel, \nIf you need me to send you updates, invite me in this channel first."
+                            }
+                        }]
                     }
-                }]
-            }
+
+        except SlackApiError as E:
+            capture_message(
+                f"SlackApiError {E} Failed to fetch conversation info for #{current_channel}"
+            )
