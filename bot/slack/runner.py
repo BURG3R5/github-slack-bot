@@ -28,12 +28,24 @@ class Runner(SlackBotBase):
         self.logger = logger
         self.secret = secret.encode("utf-8") if secret else None
 
-    def check_validity(self, body: BytesIO, headers: WSGIHeaderDict):
+    def check_validity(
+        self,
+        body: BytesIO,
+        headers: WSGIHeaderDict,
+    ) -> tuple[bool, Optional[str]]:
+        """
+        Checks validity of incoming Slack request.
+
+        :param body: Body of the HTTP request
+        :param headers: Headers of the HTTP request
+        :return: A tuple of the form (V, E) — where V is a boolean indicating the validity, and E is an optional string giving a reason for the verdict.
+        """
+
         if self.secret is None:
             return True, "Bot is insecure"
 
-        if ("X-Slack-Signature" not in headers) or ("X-Slack-Request-Timestamp"
-                                                    not in headers):
+        if (("X-Slack-Signature" not in headers)
+                or ("X-Slack-Request-Timestamp" not in headers)):
             return False, "Request headers are imperfect"
 
         timestamp = headers['X-Slack-Request-Timestamp']
@@ -42,12 +54,9 @@ class Runner(SlackBotBase):
             return False, "Request is too old"
 
         expected_digest = headers["X-Slack-Signature"].split('=', 1)[-1]
-
-        sig_basestring = 'v0:' + timestamp + ':' + body.getvalue().decode()
-        sig_basestring = sig_basestring.encode('utf-8')
+        sig_basestring = ('v0:' + timestamp + ':').encode() + body.getvalue()
         digest = hmac.new(self.secret, sig_basestring,
                           hashlib.sha256).hexdigest()
-
         is_valid = hmac.compare_digest(expected_digest, digest)
 
         if not is_valid:
