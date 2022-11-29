@@ -75,6 +75,7 @@ class Runner(SlackBotBase):
         :param current_channel: Name of the current channel.
         :param args: `list` of events to subscribe to.
         """
+        self.check_bot_in_channel(current_channel=current_channel)
 
         repository = args[0]
         new_events = convert_keywords_to_events(args[1:])
@@ -91,16 +92,6 @@ class Runner(SlackBotBase):
         )
 
         return self.run_list_command(current_channel, True)
-
-    def check_bot_in_channel(
-        self,
-        current_channel: str,
-    ) -> bool:
-        subscriptions = self.storage.get_subscriptions(current=current_channel)
-        if (len(subscriptions) == None):
-            return False
-        else:
-            return True
 
     def run_unsubscribe_command(
         self,
@@ -284,3 +275,23 @@ class Runner(SlackBotBase):
                 },
             ],
         }
+
+    def check_bot_in_channel(
+        self,
+        current_channel: str,
+    ) -> dict[str, Any]:
+        subscriptions = self.storage.get_subscriptions(current=current_channel)
+        if (len(subscriptions) == 0):
+            return {
+                "response_type":
+                "ephemeral",
+                "blocks": [{
+                    "type": "section",
+                    "text": {
+                        "type":
+                        "mrkdwn",
+                        "text":
+                        "I am not in this channel, If you need me me, invite me in this channel channel first."
+                    }
+                }]
+            }
