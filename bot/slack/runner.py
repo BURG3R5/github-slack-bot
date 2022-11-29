@@ -36,7 +36,7 @@ class Runner(SlackBotBase):
         command: str = json["command"]
         args: list[str] = str(json["text"]).split()
         result: dict[str, Any] | None = None
-        if command == "/subscribe" and len(args) > 0:
+        if command == "/sel-subscribe" and len(args) > 0:
             current_unix_time = int(time.time() * 1000)
             self.logger.log_command(
                 f"{current_unix_time}, {username}, "
@@ -45,7 +45,7 @@ class Runner(SlackBotBase):
                 current_channel=current_channel,
                 args=args,
             )
-        elif command == "/unsubscribe" and len(args) > 0:
+        elif command == "/sel-unsubscribe" and len(args) > 0:
             current_unix_time = int(time.time() * 1000)
             self.logger.log_command(
                 f"{current_unix_time}, {username}, "
@@ -54,11 +54,12 @@ class Runner(SlackBotBase):
                 current_channel=current_channel,
                 args=args,
             )
-        elif command == "/list":
-            result = self.run_list_command(current_channel=current_channel,
-                                           ephemeral=(("quiet" in args)
-                                                      or ("q" in args)))
-        elif command == "/help":
+        elif command == "/sel-list":
+            result = self.run_list_command(
+                current_channel=current_channel,
+                ephemeral=(("quiet" in args) or ("q" in args)),
+            )
+        elif command == "/sel-help":
             result = self.run_help_command(args)
 
         return result
