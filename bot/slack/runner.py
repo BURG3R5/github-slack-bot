@@ -273,7 +273,7 @@ class Runner(SlackBotBase):
                         ("*Commands*\n"
                          "1. `/sel-subscribe <owner>/<repository> <event1> [<event2> <event3> ...]`\n"
                          "2. `/sel-unsubscribe <owner>/<repository> <event1> [<event2> <event3> ...]`\n"
-                         "3. `/sel-list` ['q' or 'quiet']\n"
+                         "3. `/sel-list ['q' or 'quiet']`\n"
                          "4. `/sel-help [<event name or keyword or command>]`"
                          ),
                     },
