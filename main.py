@@ -131,6 +131,6 @@ if __name__ == "__main__":
                              logger=Logger(
                                  int(os.environ.get("LOG_LAST_N_COMMANDS",
                                                     100))),
-                             secret=os.environ["SLACK_SIGNING_SECRET"])
+                             secret=os.environ.get("SLACK_SIGNING_SECRET"))
 
     run(host="", port=int(os.environ.get("CONTAINER_PORT", 5000)), debug=debug)

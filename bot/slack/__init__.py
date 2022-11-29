@@ -6,6 +6,8 @@ Important methods—
 * `SlackBot.run` to execute slash commands.
 """
 
+from typing import Optional
+
 from ..utils.log import Logger
 from .messenger import Messenger
 from .runner import Runner
@@ -18,6 +20,9 @@ class SlackBot(Messenger, Runner):
     Specifics are delegated to parent classes `Messenger` and `Runner`.
     """
 
-    def __init__(self, token: str, logger: Logger):
+    def __init__(self,
+                 token: str,
+                 logger: Logger,
+                 secret: Optional[str] = None):
         Messenger.__init__(self, token)
-        Runner.__init__(self, logger)
+        Runner.__init__(self, logger, secret)
