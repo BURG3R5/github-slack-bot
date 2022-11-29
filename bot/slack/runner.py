@@ -70,7 +70,7 @@ class Runner(SlackBotBase):
         args: list[str],
     ) -> dict[str, Any]:
         """
-        Triggered by "/subscribe". Adds the passed events to the channel's subscriptions.
+        Triggered by "/sel-subscribe". Adds the passed events to the channel's subscriptions.
 
         :param current_channel: Name of the current channel.
         :param args: `list` of events to subscribe to.
@@ -101,7 +101,7 @@ class Runner(SlackBotBase):
         args: list[str],
     ) -> dict[str, Any]:
         """
-        Triggered by "/unsubscribe". Removes the passed events from the channel's subscriptions.
+        Triggered by "/sel-unsubscribe". Removes the passed events from the channel's subscriptions.
 
         :param current_channel: Name of the current channel.
         :param args: `list` of events to unsubscribe from.
@@ -169,7 +169,7 @@ class Runner(SlackBotBase):
         ephemeral: bool = False,
     ) -> dict[str, Any]:
         """
-        Triggered by "/list". Sends a message listing the current channel's subscriptions.
+        Triggered by "/sel-list". Sends a message listing the current channel's subscriptions.
 
         :param current_channel: Name of the current channel.
         :param ephemeral: Whether message should be ephemeral or not.
@@ -201,8 +201,8 @@ class Runner(SlackBotBase):
                         "text":
                         ("This channel has not yet subscribed to anything. "
                          "You can subscribe to your favorite repositories "
-                         "using the `/subscribe` command. For more info, "
-                         "use the `/help` command."),
+                         "using the `/sel-subscribe` command. For more info, "
+                         "use the `/sel-help` command."),
                     },
                     "type": "section",
                 },
@@ -215,7 +215,7 @@ class Runner(SlackBotBase):
     @staticmethod
     def run_help_command(args: list[str]) -> dict[str, Any]:
         """
-        Triggered by "/help". Sends an ephemeral help message as response.
+        Triggered by "/sel-help". Sends an ephemeral help message as response.
 
         :param args: Arguments passed to the command.
 
@@ -239,21 +239,21 @@ class Runner(SlackBotBase):
             query = args[0].lower()
             if "unsubscribe" in query:
                 return mini_help_response(
-                    "*/unsubscribe*\n"
+                    "*/sel-unsubscribe*\n"
                     "Unsubscribe from events in a GitHub repository\n\n"
-                    "Format: `/unsubscribe <owner>/<repository> <event1> [<event2> <event3> ...]`"
+                    "Format: `/sel-unsubscribe <owner>/<repository> <event1> [<event2> <event3> ...]`"
                 )
             elif "subscribe" in query:
                 return mini_help_response(
-                    "*/subscribe*\n"
+                    "*/sel-subscribe*\n"
                     "Subscribe to events in a GitHub repository\n\n"
-                    "Format: `/subscribe <owner>/<repository> <event1> [<event2> <event3> ...]`"
+                    "Format: `/sel-subscribe <owner>/<repository> <event1> [<event2> <event3> ...]`"
                 )
             elif "list" in query:
                 return mini_help_response(
-                    "*/list*\n"
+                    "*/sel-list*\n"
                     "Lists subscriptions for the current channel\n\n"
-                    "Format: `/list`")
+                    "Format: `/sel-list ['q' or 'quiet']`")
             else:
                 for event in EventType:
                     if ((query == event.keyword)
@@ -271,10 +271,11 @@ class Runner(SlackBotBase):
                         "mrkdwn",
                         "text":
                         ("*Commands*\n"
-                         "1. `/subscribe <owner>/<repository> <event1> [<event2> <event3> ...]`\n"
-                         "2. `/unsubscribe <owner>/<repository> <event1> [<event2> <event3> ...]`\n"
-                         "3. `/list`\n"
-                         "4. `/help [<event name or keyword or command>]`"),
+                         "1. `/sel-subscribe <owner>/<repository> <event1> [<event2> <event3> ...]`\n"
+                         "2. `/sel-unsubscribe <owner>/<repository> <event1> [<event2> <event3> ...]`\n"
+                         "3. `/sel-list ['q' or 'quiet']`\n"
+                         "4. `/sel-help [<event name or keyword or command>]`"
+                         ),
                     },
                 },
                 {
