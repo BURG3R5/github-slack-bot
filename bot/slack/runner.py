@@ -23,11 +23,10 @@ class Runner(SlackBotBase):
 
     logger: Logger
 
-    def __init__(self, token: str, logger: Logger, bot_id: str):
+    def __init__(self, token: str, logger: Logger, r):
         SlackBotBase.__init__(self)
         self.logger = logger
         self.client = WebClient(token=token)
-        self.bot_id = bot_id
 
     def run(self, raw_json: MultiDict) -> dict[str, Any] | None:
         """
@@ -285,8 +284,6 @@ class Runner(SlackBotBase):
         self,
         current_channel: str,
     ) -> dict[str, Any]:
-        # TODO: Remove below subscription statement.
-
         subscriptions = self.storage.get_subscriptions(current=current_channel)
 
         if len(subscriptions) != 0:
@@ -309,7 +306,6 @@ class Runner(SlackBotBase):
                             }
                         }]
                     }
-
         except SlackApiError as E:
             capture_message(
                 f"SlackApiError {E} Failed to fetch conversation info for #{current_channel}"
