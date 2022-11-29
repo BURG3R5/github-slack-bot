@@ -95,7 +95,7 @@ def manage_slack_commands() -> dict | None:
             headers=request.headers,
         )
         if not is_valid_request:
-            return f"Couldn't fulfill your request ({error_message})"
+            return f"⚠️ Couldn't fulfill your request ({error_message})"
 
     response: dict[str, Any] | None = bot.run(raw_json=request.forms)
     return response
