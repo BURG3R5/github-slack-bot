@@ -144,7 +144,8 @@ class Runner(SlackBotBase):
 
         return self.run_list_command(current_channel, ephemeral=True)
 
-    def send_wrong_syntax_message(self) -> dict[str, Any]:
+    @staticmethod
+    def send_wrong_syntax_message() -> dict[str, Any]:
         blocks = [
             {
                 "text": {
