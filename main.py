@@ -89,6 +89,14 @@ def manage_slack_commands() -> dict | None:
     """
     # Unlike GitHub webhooks, Slack does not send the data in `requests.json`.
     # Instead, the data is passed in `request.forms`.
+    if bot.secret is not None:
+        is_valid_request, error_message = bot.check_validity(
+            body=request.body,
+            headers=request.headers,
+        )
+        if not is_valid_request:
+            return f"⚠️ Couldn't fulfill your request ({error_message})"
+
     response: dict[str, Any] | None = bot.run(raw_json=request.forms)
     return response
 
@@ -121,6 +129,7 @@ if __name__ == "__main__":
     bot: SlackBot = SlackBot(
         token=os.environ["SLACK_OAUTH_TOKEN"],
         logger=Logger(int(os.environ.get("LOG_LAST_N_COMMANDS", 100))),
+        secret=os.environ.get("SLACK_SIGNING_SECRET"),
     )
 
     run(host="", port=int(os.environ.get("CONTAINER_PORT", 5000)), debug=debug)
