@@ -1,10 +1,13 @@
 """
 Contains the `Runner` class, which reacts to slash commands.
 """
+import hashlib
+import hmac
 import time
-from typing import Any
+from io import BytesIO
+from typing import Any, Optional
 
-from bottle import MultiDict
+from bottle import MultiDict, WSGIHeaderDict
 
 from ..models.github import EventType, convert_keywords_to_events
 from ..utils.json import JSON
@@ -20,9 +23,37 @@ class Runner(SlackBotBase):
 
     logger: Logger
 
-    def __init__(self, logger: Logger):
+    def __init__(self, logger: Logger, secret: Optional[str] = None):
         SlackBotBase.__init__(self)
         self.logger = logger
+        self.secret = secret.encode("utf-8") if secret else None
+
+    def check_validity(self, body: BytesIO, headers: WSGIHeaderDict):
+        if self.secret is None:
+            return True, "Bot is insecure"
+
+        if ("X-Slack-Signature" not in headers) or ("X-Slack-Request-Timestamp"
+                                                    not in headers):
+            return False, "Request headers are imperfect"
+
+        timestamp = headers['X-Slack-Request-Timestamp']
+
+        if abs(time.time() - int(timestamp)) > 60 * 5:
+            return False, "Request is too old"
+
+        expected_digest = headers["X-Slack-Signature"].split('=', 1)[-1]
+
+        sig_basestring = 'v0:' + timestamp + ':' + body.getvalue().decode()
+        sig_basestring = sig_basestring.encode('utf-8')
+        digest = hmac.new(self.secret, sig_basestring,
+                          hashlib.sha256).hexdigest()
+
+        is_valid = hmac.compare_digest(expected_digest, digest)
+
+        if not is_valid:
+            return False, "Payload is imperfect"
+
+        return True, "Request is secure and valid"
 
     def run(self, raw_json: MultiDict) -> dict[str, Any] | None:
         """
