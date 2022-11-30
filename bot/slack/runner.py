@@ -1,11 +1,14 @@
 """
 Contains the `Runner` class, which reacts to slash commands.
 """
+import hashlib
+import hmac
 import time
 import urllib.parse
-from typing import Any
+from io import BytesIO
+from typing import Any, Optional
 
-from bottle import MultiDict
+from bottle import MultiDict, WSGIHeaderDict
 
 from ..models.github import EventType, convert_keywords_to_events
 from ..utils.json import JSON
@@ -21,10 +24,52 @@ class Runner(SlackBotBase):
 
     logger: Logger
 
-    def __init__(self, logger: Logger, base_url: str):
+    def __init__(
+        self,
+        logger: Logger,
+        base_url: str,
+        secret: Optional[str] = None,
+    ):
         SlackBotBase.__init__(self)
         self.logger = logger
         self.base_url = base_url
+        self.secret = secret.encode("utf-8") if secret else None
+
+    def check_validity(
+        self,
+        body: BytesIO,
+        headers: WSGIHeaderDict,
+    ) -> tuple[bool, Optional[str]]:
+        """
+        Checks validity of incoming Slack request.
+
+        :param body: Body of the HTTP request
+        :param headers: Headers of the HTTP request
+        :return: A tuple of the form (V, E) — where V is a boolean indicating the validity, and E is an optional string giving a reason for the verdict.
+        """
+
+        if self.secret is None:
+            return True, "Bot is insecure"
+
+        if (("X-Slack-Signature" not in headers)
+                or ("X-Slack-Request-Timestamp" not in headers)):
+            return False, "Request headers are imperfect"
+
+        timestamp = headers['X-Slack-Request-Timestamp']
+
+        if abs(time.time() - int(timestamp)) > 60 * 5:
+            return False, "Request is too old"
+
+        expected_digest = headers["X-Slack-Signature"].split('=', 1)[-1]
+        sig_basestring = ('v0:' + timestamp + ':').encode() + body.getvalue()
+        digest = hmac.new(self.secret, sig_basestring,
+                          hashlib.sha256).hexdigest()
+        is_valid = hmac.compare_digest(expected_digest, digest)
+
+        if not is_valid:
+            return False, "Payload is imperfect"
+
+        return True, "Request is secure and valid"
 
     def run(self, raw_json: MultiDict) -> dict[str, Any] | None:
         """
@@ -38,7 +83,7 @@ class Runner(SlackBotBase):
         command: str = json["command"]
         args: list[str] = str(json["text"]).split()
         result: dict[str, Any] | None = None
-        if command == "/subscribe" and len(args) > 0:
+        if command == "/sel-subscribe" and len(args) > 0:
             current_unix_time = int(time.time() * 1000)
             self.logger.log_command(
                 f"{current_unix_time}, {username}, "
@@ -47,7 +92,7 @@ class Runner(SlackBotBase):
                 current_channel=current_channel,
                 args=args,
             )
-        elif command == "/unsubscribe" and len(args) > 0:
+        elif command == "/sel-unsubscribe" and len(args) > 0:
             current_unix_time = int(time.time() * 1000)
             self.logger.log_command(
                 f"{current_unix_time}, {username}, "
@@ -56,12 +101,12 @@ class Runner(SlackBotBase):
                 current_channel=current_channel,
                 args=args,
             )
-        elif command == "/list":
+        elif command == "/sel-list":
             result = self.run_list_command(
                 current_channel=current_channel,
-                ephemeral=("quiet" in args),
+                ephemeral=(("quiet" in args) or ("q" in args)),
             )
-        elif command == "/help":
+        elif command == "/sel-help":
             result = self.run_help_command(args)
 
         return result
@@ -72,13 +117,16 @@ class Runner(SlackBotBase):
         args: list[str],
     ) -> dict[str, Any]:
         """
-        Triggered by "/subscribe". Adds the passed events to the channel's subscriptions.
+        Triggered by "/sel-subscribe". Adds the passed events to the channel's subscriptions.
 
         :param current_channel: Name of the current channel.
         :param args: `list` of events to subscribe to.
         """
 
         repository = args[0]
+        if (repository.find('/') == -1):
+            return self.send_wrong_syntax_message()
+
         new_events = convert_keywords_to_events(args[1:])
 
         subscriptions = self.storage.get_subscriptions(channel=current_channel,
@@ -130,13 +178,16 @@ class Runner(SlackBotBase):
         args: list[str],
     ) -> dict[str, Any]:
         """
-        Triggered by "/unsubscribe". Removes the passed events from the channel's subscriptions.
+        Triggered by "/sel-unsubscribe". Removes the passed events from the channel's subscriptions.
 
         :param current_channel: Name of the current channel.
         :param args: `list` of events to unsubscribe from.
         """
 
         repository = args[0]
+        if (repository.find('/') == -1):
+            return self.send_wrong_syntax_message()
+
         subscriptions = self.storage.get_subscriptions(channel=current_channel,
                                                        repository=repository)
 
@@ -170,13 +221,32 @@ class Runner(SlackBotBase):
 
         return self.run_list_command(current_channel, ephemeral=True)
 
+    @staticmethod
+    def send_wrong_syntax_message() -> dict[str, Any]:
+        blocks = [
+            {
+                "text": {
+                    "type":
+                    "mrkdwn",
+                    "text":
+                    ("*Invalid syntax for repository name!*\nPlease include owner/organisation name in repository name.\n_For example:_ `BURG3R5/github-slack-bot`"
+                     ),
+                },
+                "type": "section",
+            },
+        ]
+        return {
+            "response_type": "ephemeral",
+            "blocks": blocks,
+        }
+
     def run_list_command(
         self,
         current_channel: str,
         ephemeral: bool = False,
     ) -> dict[str, Any]:
         """
-        Triggered by "/list". Sends a message listing the current channel's subscriptions.
+        Triggered by "/sel-list". Sends a message listing the current channel's subscriptions.
 
         :param current_channel: Name of the current channel.
         :param ephemeral: Whether message should be ephemeral or not.
@@ -208,8 +278,8 @@ class Runner(SlackBotBase):
                         "text":
                         ("This channel has not yet subscribed to anything. "
                          "You can subscribe to your favorite repositories "
-                         "using the `/subscribe` command. For more info, "
-                         "use the `/help` command."),
+                         "using the `/sel-subscribe` command. For more info, "
+                         "use the `/sel-help` command."),
                     },
                     "type": "section",
                 },
@@ -222,7 +292,7 @@ class Runner(SlackBotBase):
     @staticmethod
     def run_help_command(args: list[str]) -> dict[str, Any]:
         """
-        Triggered by "/help". Sends an ephemeral help message as response.
+        Triggered by "/sel-help". Sends an ephemeral help message as response.
 
         :param args: Arguments passed to the command.
 
@@ -246,21 +316,21 @@ class Runner(SlackBotBase):
             query = args[0].lower()
             if "unsubscribe" in query:
                 return mini_help_response(
-                    "*/unsubscribe*\n"
+                    "*/sel-unsubscribe*\n"
                     "Unsubscribe from events in a GitHub repository\n\n"
-                    "Format: `/unsubscribe <owner>/<repository> <event1> [<event2> <event3> ...]`"
+                    "Format: `/sel-unsubscribe <owner>/<repository> <event1> [<event2> <event3> ...]`"
                 )
             elif "subscribe" in query:
                 return mini_help_response(
-                    "*/subscribe*\n"
+                    "*/sel-subscribe*\n"
                     "Subscribe to events in a GitHub repository\n\n"
-                    "Format: `/subscribe <owner>/<repository> <event1> [<event2> <event3> ...]`"
+                    "Format: `/sel-subscribe <owner>/<repository> <event1> [<event2> <event3> ...]`"
                 )
             elif "list" in query:
                 return mini_help_response(
-                    "*/list*\n"
+                    "*/sel-list*\n"
                     "Lists subscriptions for the current channel\n\n"
-                    "Format: `/list`")
+                    "Format: `/sel-list ['q' or 'quiet']`")
             else:
                 for event in EventType:
                     if ((query == event.keyword)
@@ -278,10 +348,11 @@ class Runner(SlackBotBase):
                         "mrkdwn",
                         "text":
                         ("*Commands*\n"
-                         "1. `/subscribe <owner>/<repository> <event1> [<event2> <event3> ...]`\n"
-                         "2. `/unsubscribe <owner>/<repository> <event1> [<event2> <event3> ...]`\n"
-                         "3. `/list`\n"
-                         "4. `/help [<event name or keyword or command>]`"),
+                         "1. `/sel-subscribe <owner>/<repository> <event1> [<event2> <event3> ...]`\n"
+                         "2. `/sel-unsubscribe <owner>/<repository> <event1> [<event2> <event3> ...]`\n"
+                         "3. `/sel-list ['q' or 'quiet']`\n"
+                         "4. `/sel-help [<event name or keyword or command>]`"
+                         ),
                     },
                 },
                 {
