@@ -1,9 +1,3 @@
-import json
-import urllib.parse
-import os
-
-import requests
-
 """
 Steps:
 1) Go to https://api.slack.com/authentication/config-tokens#creating
@@ -13,10 +7,16 @@ Steps:
 5) Run this script.
 
 """
+import json
+import os
+import urllib.parse
+
+import requests
 
 url = "<URL>"
 token = "<YOUR_TOKEN>"
 app_id = os.environ["SLACK_BOT_ID"]
+
 
 def update_app_manifest():
     prev_manifest: dict = get_prev_manifest()
@@ -53,8 +53,10 @@ def get_prev_manifest():
 
     return response.json()["manifest"]
 
+
 def rotate_token(refresh_token):
-    endpoint = "https://slack.com/api/tooling.tokens.rotate/?" + urllib.parse.urlencode(refresh_token)
+    endpoint = "https://slack.com/api/tooling.tokens.rotate/?" + urllib.parse.urlencode(
+        refresh_token)
     response = requests.post(
         endpoint,
         headers={
@@ -63,7 +65,7 @@ def rotate_token(refresh_token):
         },
     )
 
-    return response.json()["token"] , response.json()["refresh_token"]
+    return response.json()["token"], response.json()["refresh_token"]
 
 
 if __name__ == "__main__":
