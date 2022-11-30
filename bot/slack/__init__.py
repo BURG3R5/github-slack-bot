@@ -18,6 +18,14 @@ class SlackBot(Messenger, Runner):
     Specifics are delegated to parent classes `Messenger` and `Runner`.
     """
 
-    def __init__(self, token: str, logger: Logger, bot_id: str):
+    def __init__(
+        self,
+        token: str,
+        logger: Logger,
+    ):
         Messenger.__init__(self, token)
-        Runner.__init__(self, token, logger, bot_id)
+        Runner.__init__(
+            self,
+            token,
+            logger,
+        )

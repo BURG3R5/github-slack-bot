@@ -23,7 +23,11 @@ class Runner(SlackBotBase):
 
     logger: Logger
 
-    def __init__(self, token: str, logger: Logger, r):
+    def __init__(
+        self,
+        token: str,
+        logger: Logger,
+    ):
         SlackBotBase.__init__(self)
         self.logger = logger
         self.client = WebClient(token=token)
@@ -79,7 +83,21 @@ class Runner(SlackBotBase):
         :param current_channel: Name of the current channel.
         :param args: `list` of events to subscribe to.
         """
-        self.check_bot_in_channel(current_channel=current_channel)
+        in_channel = self.check_bot_in_channel(current_channel=current_channel)
+        if not in_channel:
+            return {
+                "response_type":
+                "ephemeral",
+                "blocks": [{
+                    "type": "section",
+                    "text": {
+                        "type":
+                        "mrkdwn",
+                        "text":
+                        "I subscribed this repo to the channel,\n but I am not in this channel, \nIf you need me to send you updates, invite me in this channel first."
+                    }
+                }]
+            }
 
         repository = args[0]
         new_events = convert_keywords_to_events(args[1:])
@@ -283,8 +301,8 @@ class Runner(SlackBotBase):
     def check_bot_in_channel(
         self,
         current_channel: str,
-    ) -> dict[str, Any]:
-        subscriptions = self.storage.get_subscriptions(current=current_channel)
+    ) -> bool:
+        subscriptions = self.storage.get_subscriptions(channel=current_channel)
 
         if len(subscriptions) != 0:
             return True
@@ -293,20 +311,10 @@ class Runner(SlackBotBase):
                 channel=current_channel)["channel"]["is_private"]
             if is_private:
                 if len(subscriptions) == 0:
-                    return {
-                        "response_type":
-                        "ephemeral",
-                        "blocks": [{
-                            "type": "section",
-                            "text": {
-                                "type":
-                                "mrkdwn",
-                                "text":
-                                "I subscribed this repo to the channel,\n but I am not in this channel, \nIf you need me to send you updates, invite me in this channel first."
-                            }
-                        }]
-                    }
+                    return False
+                else:
+                    return True
         except SlackApiError as E:
             capture_message(
-                f"SlackApiError {E} Failed to fetch conversation info for #{current_channel}"
+                f"SlackApiError {E} Failed to fetch conversation info for {current_channel}"
             )
