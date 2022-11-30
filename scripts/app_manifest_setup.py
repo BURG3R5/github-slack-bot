@@ -1,12 +1,22 @@
 import json
 import urllib.parse
+import os
 
 import requests
 
-url = "https://petite-things-join-103-37-201-146.loca.lt/slack/commands"
-token = "xoxe.xoxp-1-Mi0yLTM5NDM5NTk2MzY5MTktMzk1NjA1MzE4MTM4MS00NDQxMjUwMjk2Njc0LTQ0NDE3NzkwNDc0MTAtNjM3ZWRlZmVjYTAzN2E5NjJhMTNlMzkwZWNkN2RhNDFiMmI0YTczNjE2MTFiNTM5YjExZjZhMTMyMWNlYjhjMg"
-app_id = "A03UW8FPP32"
+"""
+Steps:
+1) Go to https://api.slack.com/authentication/config-tokens#creating
+2) Create App config token.
+3) Paste it below.
+4) Write url of your server.
+5) Run this script.
 
+"""
+
+url = "<URL>"
+token = "<YOUR_TOKEN>"
+app_id = os.environ["SLACK_BOT_ID"]
 
 def update_app_manifest():
     prev_manifest: dict = get_prev_manifest()
@@ -42,6 +52,18 @@ def get_prev_manifest():
     )
 
     return response.json()["manifest"]
+
+def rotate_token(refresh_token):
+    endpoint = "https://slack.com/api/tooling.tokens.rotate/?" + urllib.parse.urlencode(refresh_token)
+    response = requests.post(
+        endpoint,
+        headers={
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+        },
+    )
+
+    return response.json()["token"] , response.json()["refresh_token"]
 
 
 if __name__ == "__main__":
