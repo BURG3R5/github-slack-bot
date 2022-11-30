@@ -1,31 +1,41 @@
 import json
-import os
 import urllib.parse
 
 import requests
+import sentry_sdk
 from bottle import redirect
 
 
 class GitHubOAuth:
 
-    @staticmethod
-    def redirect_to_oauth_flow(repository: str):
-        endpoint = f"https://github.com/login/oauth/authorize/"
+    def __init__(
+        self,
+        *,
+        base_url: str,
+        gh_app_client_id: str,
+        gh_app_client_secret: str,
+    ):
+        self.base_url = base_url
+        self.app_id = gh_app_client_id
+        self.app_secret = gh_app_client_secret
+
+    def redirect_to_oauth_flow(self, repository: str):
+        endpoint = f"https://github.com/login/oauth/authorize"
         params = {
             "scope":
             "admin:repo_hook",
             "client_id":
-            os.environ["GITHUB_APP_CLIENT_ID"],
+            self.app_id,
             "redirect_uri":
-            f"http://127.0.0.1:5556/github/auth/redirect/{repository}",
+            f"https://redirect.mdgspace.org/{self.base_url}"
+            f"/github/auth/redirect/{repository}",
         }
         redirect(endpoint + "?" + urllib.parse.urlencode(params))
 
-    @classmethod
-    def set_up_webhooks(cls, code: str, repository: str) -> str:
+    def set_up_webhooks(self, code: str, repository: str) -> str:
         try:
-            github_oauth_token = cls.exchange_code_for_token(code)
-            cls.use_token_for_webhooks(github_oauth_token, repository)
+            github_oauth_token = self.exchange_code_for_token(code)
+            self.use_token_for_webhooks(github_oauth_token, repository)
         except AuthenticationError:
             return ("GitHub Authentication failed. Access to "
                     "webhooks is needed to set up your repository")
@@ -34,13 +44,11 @@ class GitHubOAuth:
         else:
             return "Webhooks have been set up successfully!"
 
-    @staticmethod
-    def exchange_code_for_token(code: str) -> str:
+    def exchange_code_for_token(self, code: str) -> str:
         data = {
             "code": code,
-            "client_id": os.environ["GITHUB_APP_CLIENT_ID"],
-            "client_secret": os.environ["GITHUB_APP_CLIENT_SECRET"],
-            # "redirect_uri": "https://google.com/"
+            "client_id": self.app_id,
+            "client_secret": self.app_secret,
         }
 
         response = requests.post(
@@ -57,14 +65,13 @@ class GitHubOAuth:
 
         return response.json()["access_token"]
 
-    @staticmethod
-    def use_token_for_webhooks(token: str, repository: str):
+    def use_token_for_webhooks(self, token: str, repository: str):
         data = {
             "name": "web",
             "active": True,
             "events": ["*"],
             "config": {
-                "url": os.environ["BASE_URL"] + "/github/events",
+                "url": f"https://{self.base_url}/github/events",
                 "content_type": "json",
             },
         }
@@ -80,6 +87,9 @@ class GitHubOAuth:
         )
 
         if response.status_code != 201:
+            sentry_sdk.capture_message(f"Failed during webhook creation\n"
+                                       f"Status code: {response.status_code}\n"
+                                       f"Content: {response.content}")
             raise WebhookCreationError
 
 

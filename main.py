@@ -103,12 +103,12 @@ def manage_slack_commands() -> dict | None:
 
 @get("/github/auth")
 def initiate_auth():
-    GitHubOAuth.redirect_to_oauth_flow(request.params.get("repository"))
+    gh_authenticator.redirect_to_oauth_flow(request.params.get("repository"))
 
 
 @get("/github/auth/redirect/<owner>/<repo>")
 def complete_auth(owner, repo):
-    return GitHubOAuth.set_up_webhooks(
+    return gh_authenticator.set_up_webhooks(
         code=request.query.get("code"),
         repository=f"{owner}/{repo}",
     )
@@ -116,9 +116,11 @@ def complete_auth(owner, repo):
 
 if __name__ == "__main__":
     load_dotenv(Path(".") / ".env")
-    debug: bool = os.environ["DEBUG"] == "1"
 
-    if "SENTRY_DSN" in os.environ:
+    debug = os.environ["DEBUG"] == "1"
+    port = int(os.environ.get("CONTAINER_PORT", 5000))
+
+    if (not debug) and ("SENTRY_DSN" in os.environ):
         sentry_sdk.init(
             dsn=os.environ["SENTRY_DSN"],
             integrations=[BottleIntegration()],
@@ -126,10 +128,17 @@ if __name__ == "__main__":
 
     listener = GitHubListener(os.environ.get("GITHUB_WEBHOOK_SECRET"))
 
-    bot: SlackBot = SlackBot(
+    bot = SlackBot(
         token=os.environ["SLACK_OAUTH_TOKEN"],
         logger=Logger(int(os.environ.get("LOG_LAST_N_COMMANDS", 100))),
+        base_url=os.environ["BASE_URL"],
         secret=os.environ.get("SLACK_SIGNING_SECRET"),
     )
 
-    run(host="", port=int(os.environ.get("CONTAINER_PORT", 5000)), debug=debug)
+    gh_authenticator = GitHubOAuth(
+        base_url=os.environ["BASE_URL"],
+        gh_app_client_id=os.environ["GITHUB_APP_CLIENT_ID"],
+        gh_app_client_secret=os.environ["GITHUB_APP_CLIENT_SECRET"],
+    )
+
+    run(host="", port=port, debug=debug)

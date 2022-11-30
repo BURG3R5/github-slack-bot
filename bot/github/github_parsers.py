@@ -10,6 +10,7 @@ from abc import ABC, abstractmethod
 from io import BytesIO
 from typing import Optional, Type
 
+import sentry_sdk
 from bottle import WSGIHeaderDict
 
 from ..models.github import Commit, EventType, Issue, PullRequest, Ref, Repository, User
@@ -63,7 +64,11 @@ class GitHubListener:
                     event_type=event_type,
                     json=json,
                 )
-        print(f"Undefined event: {event_type}\n***\n{raw_json}***")
+
+        sentry_sdk.capture_message(f"Undefined event received\n"
+                                   f"Type: {event_type}\n"
+                                   f"Content: {raw_json}")
+
         return None
 
     def check_validity(
