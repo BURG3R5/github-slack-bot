@@ -21,9 +21,10 @@ class Runner(SlackBotBase):
 
     logger: Logger
 
-    def __init__(self, logger: Logger):
+    def __init__(self, logger: Logger, base_url: str):
         SlackBotBase.__init__(self)
         self.logger = logger
+        self.base_url = base_url
 
     def run(self, raw_json: MultiDict) -> dict[str, Any] | None:
         """
@@ -104,29 +105,19 @@ class Runner(SlackBotBase):
         """
 
         params = {"repository": repository}
-        url = "http://127.0.0.1:5556/github/auth" + "?" + urllib.parse.urlencode(
-            params)
+        url = f"https://redirect.mdgspace.org/{self.base_url}" \
+              f"/github/auth?{urllib.parse.urlencode(params)}"
 
         blocks = [{
             "type": "section",
             "text": {
-                "type": "plain_text",
-                "text": "Finish connecting your Github Account"
+                "type":
+                "mrkdwn",
+                "text":
+                f"To subscribe to this repository, "
+                f"please finish connecting your GitHub "
+                f"account <{url}|here>"
             }
-        }, {
-            "type":
-            "actions",
-            "elements": [{
-                "type": "button",
-                "text": {
-                    "type": "plain_text",
-                    "text": "Connect Github Account"
-                },
-                "value": "click_me_123",
-                "action_id": "actionId-0",
-                "url": url,
-                "style": "primary"
-            }]
         }]
         return {
             "response_type": "ephemeral",
