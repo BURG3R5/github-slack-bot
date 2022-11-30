@@ -2,6 +2,7 @@ import json
 import urllib.parse
 
 import requests
+import sentry_sdk
 from bottle import redirect
 
 
@@ -86,6 +87,9 @@ class GitHubOAuth:
         )
 
         if response.status_code != 201:
+            sentry_sdk.capture_message(f"Failed during webhook creation\n"
+                                       f"Status code: {response.status_code}\n"
+                                       f"Content: {response.content}")
             raise WebhookCreationError
 
 
