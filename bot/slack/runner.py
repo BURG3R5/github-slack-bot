@@ -79,7 +79,6 @@ class Runner(SlackBotBase):
         """
         json: JSON = JSON.from_multi_dict(raw_json)
         current_channel: str = f"{json['team_id']}#{json['channel_id']}"
-        username: str = json["user_name"]
         command: str = json["command"]
         args: list[str] = str(json["text"]).split()
         result: dict[str, Any] | None = None
@@ -126,7 +125,7 @@ class Runner(SlackBotBase):
         """
 
         repository = args[0]
-        if (repository.find('/') == -1):
+        if repository.find('/') == -1:
             return self.send_wrong_syntax_message()
 
         new_events = convert_keywords_to_events(args[1:])
@@ -187,7 +186,7 @@ class Runner(SlackBotBase):
         """
 
         repository = args[0]
-        if (repository.find('/') == -1):
+        if repository.find('/') == -1:
             return self.send_wrong_syntax_message()
 
         subscriptions = self.storage.get_subscriptions(channel=current_channel,
