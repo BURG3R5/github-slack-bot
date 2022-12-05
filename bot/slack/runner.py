@@ -4,6 +4,7 @@ Contains the `Runner` class, which reacts to slash commands.
 import hashlib
 import hmac
 import time
+import urllib.parse
 from io import BytesIO
 from typing import Any, Optional
 
@@ -23,9 +24,15 @@ class Runner(SlackBotBase):
 
     logger: Logger
 
-    def __init__(self, logger: Logger, secret: Optional[str] = None):
+    def __init__(
+        self,
+        logger: Logger,
+        base_url: str,
+        secret: Optional[str] = None,
+    ):
         SlackBotBase.__init__(self)
         self.logger = logger
+        self.base_url = base_url
         self.secret = secret.encode("utf-8") if secret else None
 
     def check_validity(
@@ -133,7 +140,37 @@ class Runner(SlackBotBase):
             events=new_events,
         )
 
-        return self.run_list_command(current_channel, ephemeral=True)
+        if len(subscriptions) == 0:
+            return self.send_welcome_message(repository=repository)
+        else:
+            return self.run_list_command(current_channel, ephemeral=True)
+
+    def send_welcome_message(self, repository: str) -> dict[str, Any]:
+        """
+        Sends a message to prompt authentication for creation of webhooks.
+
+        :param repository: Repository for which webhook is to be created.
+        """
+
+        params = {"repository": repository}
+        url = f"https://redirect.mdgspace.org/{self.base_url}" \
+              f"/github/auth?{urllib.parse.urlencode(params)}"
+
+        blocks = [{
+            "type": "section",
+            "text": {
+                "type":
+                "mrkdwn",
+                "text":
+                f"To subscribe to this repository, "
+                f"please finish connecting your GitHub "
+                f"account <{url}|here>"
+            }
+        }]
+        return {
+            "response_type": "ephemeral",
+            "blocks": blocks,
+        }
 
     def run_unsubscribe_command(
         self,
