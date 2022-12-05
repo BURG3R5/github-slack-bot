@@ -78,7 +78,7 @@ class Runner(SlackBotBase):
         :return: Response to the triggered command, in Slack block format.
         """
         json: JSON = JSON.from_multi_dict(raw_json)
-        current_channel: str = "#" + json["channel_name"]
+        current_channel: str = f"{json['team_id']}#{json['channel_id']}"
         username: str = json["user_name"]
         command: str = json["command"]
         args: list[str] = str(json["text"]).split()
