@@ -6,7 +6,7 @@ from slack.web.client import WebClient
 
 from ..models.github import EventType
 from ..models.github.event import GitHubEvent
-from .slackbot_base import SlackBotBase
+from .base import SlackBotBase
 
 
 class Messenger(SlackBotBase):
