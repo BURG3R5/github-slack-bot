@@ -1,4 +1,5 @@
 import json
+import secrets
 import urllib.parse
 
 import requests
@@ -66,6 +67,10 @@ class GitHubOAuth:
         return response.json()["access_token"]
 
     def use_token_for_webhooks(self, token: str, repository: str):
+        secret = secrets.token_hex(20)
+
+        # TODO(BURG3R5): Save secret
+
         data = {
             "name": "web",
             "active": True,
@@ -73,6 +78,7 @@ class GitHubOAuth:
             "config": {
                 "url": f"https://{self.base_url}/github/events",
                 "content_type": "json",
+                "secret": secret,
             },
         }
 
