@@ -6,19 +6,21 @@ import requests
 import sentry_sdk
 from bottle import redirect
 
+from bot.github.base import GitHubBase
 
-class GitHubOAuth:
+
+class Authenticator(GitHubBase):
 
     def __init__(
         self,
-        *,
         base_url: str,
-        gh_app_client_id: str,
-        gh_app_client_secret: str,
+        client_id: str,
+        client_secret: str,
     ):
+        GitHubBase.__init__(self)
         self.base_url = base_url
-        self.app_id = gh_app_client_id
-        self.app_secret = gh_app_client_secret
+        self.app_id = client_id
+        self.app_secret = client_secret
 
     def redirect_to_oauth_flow(self, repository: str):
         endpoint = f"https://github.com/login/oauth/authorize"
@@ -67,9 +69,12 @@ class GitHubOAuth:
         return response.json()["access_token"]
 
     def use_token_for_webhooks(self, token: str, repository: str):
-        secret = secrets.token_hex(20)
+        secret = db.token_hex(20)
 
-        # TODO(BURG3R5): Save secret
+        successful = self.storage.add_secret(repository, secret)
+
+        if not successful:
+            raise DuplicationError
 
         data = {
             "name": "web",
@@ -100,6 +105,10 @@ class GitHubOAuth:
 
 
 class AuthenticationError(Exception):
+    pass
+
+
+class DuplicationError(Exception):
     pass
 
 

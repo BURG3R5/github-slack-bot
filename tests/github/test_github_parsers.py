@@ -1,7 +1,7 @@
 import unittest
 from typing import Any
 
-from bot.github.github_parsers import GitHubListener, convert_links, find_ref
+from bot.github.parser import Parser, convert_links, find_ref
 
 from ..test_utils.deserializers import github_payload_deserializer
 from ..test_utils.load import load_test_data
@@ -18,7 +18,7 @@ class TestMetaClass(type):
 
             def test_parser(self):
                 event_type, raw_json = github_payload_deserializer(raw_input)
-                listener = GitHubListener()
+                listener = Parser()
 
                 parsed_event = listener.parse(event_type, raw_json)
 

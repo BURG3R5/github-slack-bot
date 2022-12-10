@@ -1,33 +1,31 @@
 """
-Contains the `GitHubListener` and `*EventParser` classes, to handle validating and parsing of webhook data.
+Contains the `Parser` and `*EventParser` classes, to handle validating and parsing of webhook data.
 
-Exposed API is only the `GitHubListener` class, to validate and serialize the raw event data.
+Exposed API is only the `Parser` class, to validate and serialize the raw event data.
 """
 import hashlib
 import hmac
 import re
 from abc import ABC, abstractmethod
-from io import BytesIO
-from typing import Optional, Type
+from typing import Type
 
 import sentry_sdk
-from bottle import WSGIHeaderDict
+from bottle import LocalRequest
 
 from ..models.github import Commit, EventType, Issue, PullRequest, Ref, Repository, User
 from ..models.github.event import GitHubEvent
 from ..models.link import Link
 from ..utils.json import JSON
+from .base import GitHubBase
 
 
-class GitHubListener:
+class Parser(GitHubBase):
     """
     Contains methods dealing with validating and parsing incoming GitHub events.
-
-    :param secret: Optional secret that has been set at webhook.
     """
 
-    def __init__(self, secret: Optional[str] = None):
-        self.secret = secret.encode("utf-8") if secret else None
+    def __init__(self):
+        GitHubBase.__init__(self)
 
     def parse(self, event_type, raw_json) -> GitHubEvent | None:
         """
@@ -71,28 +69,31 @@ class GitHubListener:
 
         return None
 
-    def check_validity(
-        self,
-        body: BytesIO,
-        headers: WSGIHeaderDict,
-    ) -> tuple[bool, Optional[str]]:
+    def verify(self, request: LocalRequest) -> tuple[bool, str]:
         """
-        Checks validity of incoming GitHub event.
+        Verifies incoming GitHub event.
 
-        :param body: Body of the HTTP request
-        :param headers: Headers of the HTTP request
+        :param request: The entire HTTP request
+
         :return: A tuple of the form (V, E) — where V is a boolean indicating the validity, and E is an optional string giving a reason for the verdict.
         """
 
-        if self.secret is None:
-            return True, "Webhook is insecure"
-
+        headers = request.headers
         if "X-Hub-Signature-256" not in headers:
             return False, "Request headers are imperfect"
 
+        repository = request.json["repository"]["full_name"]
+        secret = self.storage.get_secret(repository)
+
+        if secret is None:
+            return False, "Webhook hasn't been registered correctly"
+
         expected_digest = headers["X-Hub-Signature-256"].split('=', 1)[-1]
-        digest = hmac.new(self.secret, body.getvalue(),
-                          hashlib.sha256).hexdigest()
+        digest = hmac.new(
+            secret,
+            request.body.getvalue(),
+            hashlib.sha256,
+        ).hexdigest()
         is_valid = hmac.compare_digest(expected_digest, digest)
 
         if not is_valid:

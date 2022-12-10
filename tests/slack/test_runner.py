@@ -7,7 +7,7 @@ from bottle import MultiDict
 from bot.models.github import convert_keywords_to_events
 from bot.models.slack import Channel
 from bot.slack.runner import Runner
-from bot.storage import Storage
+from bot.storage import SubscriptionStorage
 from bot.utils.log import Logger
 
 from ..test_utils.comparators import Comparators
@@ -28,10 +28,10 @@ class RunnerTest(unittest.TestCase):
         cls.runner = Runner(logger)
 
     def setUp(self):
-        self.runner.subscriptions = Storage.import_subscriptions()
+        self.runner.subscriptions = SubscriptionStorage.import_subscriptions()
 
     @patch("bot.slack.runner.Storage")
-    def test_run_calls_subscribe(self, MockStorage):
+    def test_run_calls_subscribe(self, MockSubscriptionStorage):
         raw_json = MultiDict(self.data["run|calls_subscribe"][0])
         with patch.object(self.logger, "log_command") as mock_logger:
             with patch.object(self.runner,
@@ -42,10 +42,10 @@ class RunnerTest(unittest.TestCase):
             args=["github-slack-bot", "*"],
         )
         mock_logger.assert_called_once()
-        MockStorage.export_subscriptions.assert_called_once()
+        MockSubscriptionStorage.export_subscriptions.assert_called_once()
 
     @patch("bot.slack.runner.Storage")
-    def test_run_calls_unsubscribe(self, MockStorage):
+    def test_run_calls_unsubscribe(self, MockSubscriptionStorage):
         raw_json = MultiDict(self.data["run|calls_unsubscribe"][0])
         with patch.object(self.logger, "log_command") as mock_logger:
             with patch.object(self.runner,
@@ -56,7 +56,7 @@ class RunnerTest(unittest.TestCase):
             args=["github-slack-bot", "*"],
         )
         mock_logger.assert_called_once()
-        MockStorage.export_subscriptions.assert_called_once()
+        MockSubscriptionStorage.export_subscriptions.assert_called_once()
 
     @patch("bot.slack.runner.Storage")
     def test_run_calls_list(self, _):
