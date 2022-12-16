@@ -69,7 +69,7 @@ class Authenticator(GitHubBase):
         return response.json()["access_token"]
 
     def use_token_for_webhooks(self, token: str, repository: str):
-        secret = db.token_hex(20)
+        secret = secrets.token_hex(20)
 
         successful = self.storage.add_secret(repository, secret)
 

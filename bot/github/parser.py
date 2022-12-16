@@ -90,7 +90,7 @@ class Parser(GitHubBase):
 
         expected_digest = headers["X-Hub-Signature-256"].split('=', 1)[-1]
         digest = hmac.new(
-            secret,
+            secret.encode(),
             request.body.getvalue(),
             hashlib.sha256,
         ).hexdigest()
