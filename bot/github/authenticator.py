@@ -6,7 +6,7 @@ import requests
 import sentry_sdk
 from bottle import redirect
 
-from bot.github.base import GitHubBase
+from .base import GitHubBase
 
 
 class Authenticator(GitHubBase):
@@ -69,9 +69,9 @@ class Authenticator(GitHubBase):
         return response.json()["access_token"]
 
     def use_token_for_webhooks(self, token: str, repository: str):
-        secret = secrets.token_hex(20)
+        webhook_secret = secrets.token_hex(20)
 
-        successful = self.storage.add_secret(repository, secret)
+        successful = self.storage.add_secret(repository, webhook_secret)
 
         if not successful:
             raise DuplicationError
@@ -83,7 +83,7 @@ class Authenticator(GitHubBase):
             "config": {
                 "url": f"https://{self.base_url}/github/events",
                 "content_type": "json",
-                "secret": secret,
+                "secret": webhook_secret,
             },
         }
 

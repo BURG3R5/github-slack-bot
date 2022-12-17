@@ -6,7 +6,7 @@ Sets up a `bottle` server with three endpoints: "/", "/github/events" and "/slac
 "/" is used for testing and status checks.
 
 "/github/events" is provided to GitHub Webhooks to POST event info at.
-Triggers `manage_github_events` which uses `GitHubApp.listen` and `SlackBot.inform`.
+Triggers `manage_github_events` which uses `GitHubApp.parse` and `SlackBot.inform`.
 
 "/slack/commands" is provided to Slack to POST slash command info at.
 Triggers `manage_slack_commands` which uses `SlackBot.run`.
@@ -14,7 +14,7 @@ Triggers `manage_slack_commands` which uses `SlackBot.run`.
 
 import os
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Optional, Union
 
 import sentry_sdk
 from bottle import get, post, request
@@ -76,7 +76,7 @@ def manage_github_events():
 
 
 @post("/slack/commands")
-def manage_slack_commands() -> dict | None:
+def manage_slack_commands() -> Union[dict, str, None]:
     """
     Uses a `SlackBot` instance to run the slash command triggered by the user.
     Optionally returns a Slack message dict as a reply.

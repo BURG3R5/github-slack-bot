@@ -2,8 +2,8 @@
 Contains the `SlackBot` class, to handle all Slack-related features.
 
 Important methods—
-* `SlackBot.inform` to notify channels about events,
-* `SlackBot.run` to execute slash commands.
+* `.inform` to notify channels about events,
+* `.run` to execute slash commands.
 """
 
 from typing import Optional

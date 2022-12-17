@@ -75,7 +75,7 @@ class Parser(GitHubBase):
 
         :param request: The entire HTTP request
 
-        :return: A tuple of the form (V, E) — where V is a boolean indicating the validity, and E is an optional string giving a reason for the verdict.
+        :return: A tuple of the form (V, E) — where V indicates the validity, and E is the reason for the verdict.
         """
 
         headers = request.headers
