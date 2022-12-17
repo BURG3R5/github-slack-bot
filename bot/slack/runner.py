@@ -14,7 +14,7 @@ from ..models.github import EventType, convert_keywords_to_events
 from ..utils.json import JSON
 from ..utils.list_manip import intersperse
 from ..utils.log import Logger
-from .slackbot_base import SlackBotBase
+from .base import SlackBotBase
 
 
 class Runner(SlackBotBase):

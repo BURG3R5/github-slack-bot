@@ -1,4 +1,4 @@
-from bot.storage import Storage
+from bot.storage import SubscriptionStorage
 
 
 class SlackBotBase:
@@ -7,4 +7,4 @@ class SlackBotBase:
     """
 
     def __init__(self):
-        self.storage = Storage()
+        self.storage = SubscriptionStorage()
