@@ -122,7 +122,7 @@ class Runner(SlackBotBase):
         """
 
         repository = args[0]
-        if (repository.find('/') == -1):
+        if repository.find('/') == -1:
             return self.send_wrong_syntax_message()
 
         new_events = convert_keywords_to_events(args[1:])
@@ -183,11 +183,13 @@ class Runner(SlackBotBase):
         """
 
         repository = args[0]
-        if (repository.find('/') == -1):
+        if repository.find('/') == -1:
             return self.send_wrong_syntax_message()
 
-        subscriptions = self.storage.get_subscriptions(channel=current_channel,
-                                                       repository=repository)
+        subscriptions = self.storage.get_subscriptions(
+            channel=current_channel,
+            repository=repository,
+        )
 
         if len(subscriptions) == 0:
             return {
