@@ -6,7 +6,7 @@ import hmac
 import time
 import urllib.parse
 from io import BytesIO
-from typing import Any, Optional
+from typing import Any
 
 from bottle import MultiDict, WSGIHeaderDict
 
@@ -28,28 +28,26 @@ class Runner(SlackBotBase):
         self,
         logger: Logger,
         base_url: str,
-        secret: Optional[str] = None,
+        secret: str,
     ):
         SlackBotBase.__init__(self)
         self.logger = logger
         self.base_url = base_url
-        self.secret = secret.encode("utf-8") if secret else None
+        self.secret = secret.encode("utf-8")
 
-    def check_validity(
+    def verify(
         self,
         body: BytesIO,
         headers: WSGIHeaderDict,
-    ) -> tuple[bool, Optional[str]]:
+    ) -> tuple[bool, str]:
         """
         Checks validity of incoming Slack request.
 
         :param body: Body of the HTTP request
         :param headers: Headers of the HTTP request
-        :return: A tuple of the form (V, E) — where V is a boolean indicating the validity, and E is an optional string giving a reason for the verdict.
-        """
 
-        if self.secret is None:
-            return True, "Bot is insecure"
+        :return: A tuple of the form (V, E) — where V indicates the validity, and E is the reason for the verdict.
+        """
 
         if (("X-Slack-Signature" not in headers)
                 or ("X-Slack-Request-Timestamp" not in headers)):
