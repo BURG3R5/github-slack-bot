@@ -1,5 +1,5 @@
 """
-Contains the `Storage` class, to save and fetch subscriptions using the peewee library.
+Contains the `SubscriptionStorage` class, to save and fetch subscriptions using the peewee library.
 """
 from typing import Optional
 
@@ -11,9 +11,9 @@ from bot.models.github import EventType, convert_keywords_to_events
 db = SqliteDatabase(None)
 
 
-class Storage:
+class SubscriptionStorage:
     """
-    Uses the `peewee` library to save and fetch subscriptions from a SQL database.
+    Uses the `peewee` library to save and fetch subscriptions from an SQL database.
     """
 
     def __init__(self):

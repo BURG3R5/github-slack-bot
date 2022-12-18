@@ -1,4 +1,4 @@
-[![CI](https://img.shields.io/github/workflow/status/BURG3R5/github-slack-bot/CI?style=flat-square)](https://github.com/BURG3R5/github-slack-bot/actions/workflows/ci.yml)
+[![CI](https://img.shields.io/github/actions/workflow/status/BURG3R5/github-slack-bot/ci.yml?branch=master&style=flat-square)](https://github.com/BURG3R5/github-slack-bot/actions/workflows/ci.yml)
 [![slack](https://img.shields.io/badge/slack-github--slack--bot-lightgrey?logo=slack&style=flat-square)](https://join.slack.com/t/github-slack-bot/shared_invite/zt-1ebtvtdfr-3bPrsDDBnL95hW1pIjivbw)
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
 [![All Contributors](https://img.shields.io/badge/all_contributors-6-orange.svg?style=flat-square)](#contributors)

@@ -1,23 +1,26 @@
 import json
+import secrets
 import urllib.parse
 
 import requests
 import sentry_sdk
 from bottle import redirect
 
+from .base import GitHubBase
 
-class GitHubOAuth:
+
+class Authenticator(GitHubBase):
 
     def __init__(
         self,
-        *,
         base_url: str,
-        gh_app_client_id: str,
-        gh_app_client_secret: str,
+        client_id: str,
+        client_secret: str,
     ):
+        GitHubBase.__init__(self)
         self.base_url = base_url
-        self.app_id = gh_app_client_id
-        self.app_secret = gh_app_client_secret
+        self.app_id = client_id
+        self.app_secret = client_secret
 
     def redirect_to_oauth_flow(self, repository: str):
         endpoint = f"https://github.com/login/oauth/authorize"
@@ -66,6 +69,13 @@ class GitHubOAuth:
         return response.json()["access_token"]
 
     def use_token_for_webhooks(self, token: str, repository: str):
+        webhook_secret = secrets.token_hex(20)
+
+        successful = self.storage.add_secret(repository, webhook_secret)
+
+        if not successful:
+            raise DuplicationError
+
         data = {
             "name": "web",
             "active": True,
@@ -73,6 +83,7 @@ class GitHubOAuth:
             "config": {
                 "url": f"https://{self.base_url}/github/events",
                 "content_type": "json",
+                "secret": webhook_secret,
             },
         }
 
@@ -94,6 +105,10 @@ class GitHubOAuth:
 
 
 class AuthenticationError(Exception):
+    pass
+
+
+class DuplicationError(Exception):
     pass
 
 
