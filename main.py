@@ -82,16 +82,30 @@ def manage_slack_commands() -> Union[dict, str, None]:
     Optionally returns a Slack message dict as a reply.
     :return: Appropriate response for received slash command in Slack block format.
     """
+
+    is_valid_request, message = slack_bot.verify(
+        body=request.body,
+        headers=request.headers,
+    )
+    if not is_valid_request:
+        attachments = [{
+            "color":
+            "#bb2124",
+            "blocks": [{
+                "type": "section",
+                "text": {
+                    "type": "mrkdwn",
+                    "text": f"⚠️ Couldn't fulfill your request: {message}"
+                }
+            }]
+        }]
+        return {
+            "response_type": "ephemeral",
+            "attachments": attachments,
+        }
+
     # Unlike GitHub webhooks, Slack does not send the data in `requests.json`.
     # Instead, the data is passed in `request.forms`.
-    if slack_bot.secret is not None:
-        is_valid_request, error_message = slack_bot.check_validity(
-            body=request.body,
-            headers=request.headers,
-        )
-        if not is_valid_request:
-            return f"⚠️ Couldn't fulfill your request ({error_message})"
-
     response: dict[str, Any] | None = slack_bot.run(raw_json=request.forms)
     return response
 
@@ -125,7 +139,7 @@ if __name__ == "__main__":
         token=os.environ["SLACK_OAUTH_TOKEN"],
         logger=Logger(int(os.environ.get("LOG_LAST_N_COMMANDS", 100))),
         base_url=os.environ["BASE_URL"],
-        secret=os.environ.get("SLACK_SIGNING_SECRET"),
+        secret=os.environ["SLACK_SIGNING_SECRET"],
     )
 
     github_app = GitHubApp(
