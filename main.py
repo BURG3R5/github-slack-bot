@@ -88,8 +88,21 @@ def manage_slack_commands() -> Union[dict, str, None]:
         headers=request.headers,
     )
     if not is_valid_request:
-        http_response.status = "400 Bad Request"
-        return f"⚠️ Couldn't fulfill your request ({message})"
+        attachments = [{
+            "color":
+            "#bb2124",
+            "blocks": [{
+                "type": "section",
+                "text": {
+                    "type": "mrkdwn",
+                    "text": f"⚠️ Couldn't fulfill your request: {message}"
+                }
+            }]
+        }]
+        return {
+            "response_type": "ephemeral",
+            "attachments": attachments,
+        }
 
     # Unlike GitHub webhooks, Slack does not send the data in `requests.json`.
     # Instead, the data is passed in `request.forms`.
