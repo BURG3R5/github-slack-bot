@@ -4,7 +4,7 @@ import urllib.parse
 
 import requests
 import sentry_sdk
-from bottle import redirect
+from flask import redirect
 
 from .base import GitHubBase
 
@@ -33,7 +33,7 @@ class Authenticator(GitHubBase):
             f"https://redirect.mdgspace.org/{self.base_url}"
             f"/github/auth/redirect/{repository}",
         }
-        redirect(endpoint + "?" + urllib.parse.urlencode(params))
+        return redirect(endpoint + "?" + urllib.parse.urlencode(params))
 
     def set_up_webhooks(self, code: str, repository: str) -> str:
         try:

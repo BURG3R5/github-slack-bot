@@ -2,7 +2,7 @@ import unittest
 from unittest import skip
 from unittest.mock import patch
 
-from bottle import MultiDict
+from werkzeug.datastructures import ImmutableMultiDict
 
 from bot.models.github import convert_keywords_to_events
 from bot.models.slack import Channel
@@ -32,7 +32,7 @@ class RunnerTest(unittest.TestCase):
 
     @patch("bot.slack.runner.Storage")
     def test_run_calls_subscribe(self, MockSubscriptionStorage):
-        raw_json = MultiDict(self.data["run|calls_subscribe"][0])
+        raw_json = ImmutableMultiDict(self.data["run|calls_subscribe"][0])
         with patch.object(self.logger, "log_command") as mock_logger:
             with patch.object(self.runner,
                               "run_subscribe_command") as mock_function:
@@ -46,7 +46,7 @@ class RunnerTest(unittest.TestCase):
 
     @patch("bot.slack.runner.Storage")
     def test_run_calls_unsubscribe(self, MockSubscriptionStorage):
-        raw_json = MultiDict(self.data["run|calls_unsubscribe"][0])
+        raw_json = ImmutableMultiDict(self.data["run|calls_unsubscribe"][0])
         with patch.object(self.logger, "log_command") as mock_logger:
             with patch.object(self.runner,
                               "run_unsubscribe_command") as mock_function:
@@ -60,7 +60,7 @@ class RunnerTest(unittest.TestCase):
 
     @patch("bot.slack.runner.Storage")
     def test_run_calls_list(self, _):
-        raw_json = MultiDict(self.data["run|calls_list"][0])
+        raw_json = ImmutableMultiDict(self.data["run|calls_list"][0])
         with patch.object(self.logger, "log_command") as mock_logger:
             with patch.object(self.runner,
                               "run_list_command") as mock_function:
@@ -71,7 +71,7 @@ class RunnerTest(unittest.TestCase):
 
     @patch("bot.slack.runner.Storage")
     def test_run_calls_help(self, _):
-        raw_json = MultiDict(self.data["run|calls_help"][0])
+        raw_json = ImmutableMultiDict(self.data["run|calls_help"][0])
         with patch.object(self.logger, "log_command") as mock_logger:
             with patch.object(self.runner,
                               "run_help_command") as mock_function:
@@ -83,13 +83,13 @@ class RunnerTest(unittest.TestCase):
     def test_run_doesnt_call(self, _):
         with patch.object(self.logger, "log_command") as mock_logger:
             # Wrong command
-            raw_json = MultiDict(self.data["run|doesnt_call"][0])
+            raw_json = ImmutableMultiDict(self.data["run|doesnt_call"][0])
             self.assertIsNone(self.runner.run(raw_json))
 
             # No args for subscribe or unsubscribe
-            raw_json = MultiDict(self.data["run|doesnt_call"][1])
+            raw_json = ImmutableMultiDict(self.data["run|doesnt_call"][1])
             self.assertIsNone(self.runner.run(raw_json))
-            raw_json = MultiDict(self.data["run|doesnt_call"][2])
+            raw_json = ImmutableMultiDict(self.data["run|doesnt_call"][2])
             self.assertIsNone(self.runner.run(raw_json))
         mock_logger.assert_not_called()
 

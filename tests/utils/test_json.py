@@ -1,6 +1,6 @@
 import unittest
 
-from bottle import MultiDict
+from werkzeug.datastructures import ImmutableMultiDict
 
 from bot.utils.json import JSON
 
@@ -32,7 +32,7 @@ class JSONTest(unittest.TestCase):
         self.assertEqual("NAME", json["name", "login"])
 
     def test_from_multi_dict(self):
-        multi_dict = MultiDict({
+        multi_dict = ImmutableMultiDict({
             "name": "exampleuser",
             "login": "example_user"
         })
