@@ -33,6 +33,7 @@ oauth_config:
       - chat:write.customize
       - commands
       - files:write
+      - chat:write:public
 settings:
   org_deploy_enabled: false
   socket_mode_enabled: false

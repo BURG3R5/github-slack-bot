@@ -29,4 +29,4 @@ class SlackBot(Messenger, Runner):
         secret: str,
     ):
         Messenger.__init__(self, token)
-        Runner.__init__(self, logger, base_url, secret)
+        Runner.__init__(self, logger, base_url, secret, token)
