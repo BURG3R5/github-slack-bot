@@ -9,6 +9,9 @@ from io import BytesIO
 from typing import Any
 
 from bottle import MultiDict, WSGIHeaderDict
+from sentry_sdk import capture_message
+from slack.errors import SlackApiError
+from slack.web.client import WebClient
 
 from ..models.github import EventType, convert_keywords_to_events
 from ..utils.json import JSON
@@ -29,11 +32,13 @@ class Runner(SlackBotBase):
         logger: Logger,
         base_url: str,
         secret: str,
+        token: str,
     ):
         SlackBotBase.__init__(self)
         self.logger = logger
         self.base_url = base_url
         self.secret = secret.encode("utf-8")
+        self.client = WebClient(token=token)
 
     def verify(
         self,
@@ -120,7 +125,21 @@ class Runner(SlackBotBase):
         :param current_channel: Name of the current channel.
         :param args: `list` of events to subscribe to.
         """
-
+        in_channel = self.check_bot_in_channel(current_channel=current_channel)
+        if not in_channel:
+            return {
+                "response_type":
+                "ephemeral",
+                "blocks": [{
+                    "type": "section",
+                    "text": {
+                        "type":
+                        "mrkdwn",
+                        "text":
+                        "I can not subscribed this repo to the channel,\n beacuse I am not in this channel, \nIf you need me to send you updates, invite me in this channel first."
+                    }
+                }]
+            }
         repository = args[0]
         if repository.find('/') == -1:
             return self.send_wrong_syntax_message()
@@ -288,6 +307,27 @@ class Runner(SlackBotBase):
             "response_type": "ephemeral" if ephemeral else "in_channel",
             "blocks": blocks,
         }
+
+    def check_bot_in_channel(
+        self,
+        current_channel: str,
+    ) -> bool:
+        subscriptions = self.storage.get_subscriptions(channel=current_channel)
+        print(subscriptions)
+        if len(subscriptions) != 0:
+            return True
+        try:
+            is_private = self.client.conversations_info(
+                channel=current_channel)["channel"]["is_private"]
+            if is_private:
+                if len(subscriptions) == 0:
+                    return False
+                else:
+                    return True
+        except SlackApiError as E:
+            capture_message(
+                f"SlackApiError {E} Failed to fetch conversation info for {current_channel}"
+            )
 
     @staticmethod
     def run_help_command(args: list[str]) -> dict[str, Any]:
