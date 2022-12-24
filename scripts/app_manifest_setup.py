@@ -35,11 +35,7 @@ def update_app_manifest() -> tuple[int, bool]:
             "Authorization": f"Bearer {token}",
         },
     )
-    if response.json()["ok"]:
-        return response.status_code, response.json()["ok"]
-    else:
-        print(response.json())
-        raise Exception()
+    return response.status_code, response.json()["ok"]
 
 
 def get_prev_manifest() -> dict[str, Any]:
@@ -92,10 +88,6 @@ if __name__ == "__main__":
     if not url.startswith("https://"):
         url = "https://" + url
 
+    token, refresh_token = rotate_token()
     status_code, is_okay = update_app_manifest()
     print(status_code, is_okay)
-
-    if not is_okay:
-        should_refresh = input("Refresh access token? (y/N): ")
-        if should_refresh in ('y', 'Y'):
-            token, refresh_token = rotate_token()
