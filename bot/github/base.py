@@ -1,4 +1,4 @@
-from bot.storage import SecretStorage
+from bot.storage import GithubStorage
 
 
 class GitHubBase:
@@ -7,4 +7,4 @@ class GitHubBase:
     """
 
     def __init__(self):
-        self.storage = SecretStorage()
+        self.storage = GithubStorage()

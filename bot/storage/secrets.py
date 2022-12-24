@@ -1,5 +1,5 @@
 """
-Contains the `SecretStorage` class, to save and fetch secrets using the peewee library.
+Contains the `GithubStorage` class, to save and fetch secrets using the peewee library.
 """
 
 from typing import Optional
@@ -9,7 +9,7 @@ from peewee import CharField, IntegrityError, Model, SqliteDatabase
 db = SqliteDatabase(None)
 
 
-class SecretStorage:
+class GithubStorage:
     """
     Uses the `peewee` library to save and fetch secrets from an SQL database.
     """
@@ -18,7 +18,7 @@ class SecretStorage:
         global db
         db.init("data/secrets.db")
         db.connect()
-        db.create_tables([GitHubSecret])
+        db.create_tables([GitHubSecret, User])
 
     def add_secret(
         self,
@@ -67,6 +67,63 @@ class SecretStorage:
 
         return None
 
+    def add_user(self,
+                 slack_user_id: str,
+                 github_user_name: str,
+                 force_replace: bool = False):
+        """
+        Creates or updates a user object in the database.
+
+        :param slack_user_id: Unique identifier of the Slack User-id.
+        :param github_user_name: Unique identifier of Github User-name.
+        :param force_replace: Whether in case of duplication the old user should be overwritten.
+        """
+
+        try:
+            User\
+                .insert(slack_user_id=slack_user_id, github_user_name=github_user_name)\
+                .execute()
+        except IntegrityError:
+            if force_replace:
+                User\
+                    .insert(slack_user_id=slack_user_id, github_user_name=github_user_name)\
+                    .on_conflict_replace()\
+                    .execute()
+
+    def get_slack_id(self, github_user_name) -> Optional[str]:
+        """
+        Queries the `user` database for `slack_user_id` corresponding to given Github user-name.
+
+        :param github_user_name: Unique identifier for the GitHub User-name.
+
+        :return: Result of query, Slack user-id corresponding to given Github user-name.
+        """
+
+        user: User = User\
+                    .get_or_none(User.github_user_name == github_user_name)
+        if user is not None:
+            return user.slack_user_id
+        return None
+
+    def remove_user(self, slack_user_id: str = "", github_user_name: str = ""):
+        """
+        Deletes the `user` entry having the given `slack_user_id` or `github_user_name` (only one is required).
+
+        :param slack_user_id: Slack user-id of the entry which is to be deleted.
+        :param github_user_name: Github user-name of the entry which is to be deleted.
+        """
+
+        if slack_user_id != "":
+            User\
+                .delete()\
+                .where(User.slack_user_id == slack_user_id)\
+                .execute()
+        elif github_user_name != "":
+            User\
+                .delete()\
+                .where(User.github_user_name == github_user_name)\
+                .execute()
+
 
 class GitHubSecret(Model):
     """
@@ -81,6 +138,26 @@ class GitHubSecret(Model):
 
     class Meta:
         database = db
+        table_name = "githubsecret"
 
     def __str__(self):
         return f"({self.repository}) — {self.secret}"
+
+
+class User(Model):
+    """
+    A peewee-friendly model that represents a mapping between Slack user-id and Github user-name.
+
+    :keyword slack_user_id: Unique identifier for Slack user-id."
+    :keyword github_user_name: Unique identifier for Github user-name.
+    """
+
+    slack_user_id = CharField(unique=True)
+    github_user_name = CharField(unique=True)
+
+    class Meta:
+        database = db
+        table_name = "user"
+
+    def __str__(self):
+        return f"{self.github_user_name} ({self.slack_user_id})"

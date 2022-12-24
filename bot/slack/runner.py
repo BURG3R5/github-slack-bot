@@ -77,23 +77,25 @@ class Runner(SlackBotBase):
         """
         json: JSON = JSON.from_multi_dict(raw_json)
         current_channel: str = "#" + json["channel_name"]
-        username: str = json["user_name"]
+        slack_username: str = json["user_name"]
+        slack_user_id: str = json["user_id"]
         command: str = json["command"]
         args: list[str] = str(json["text"]).split()
         result: dict[str, Any] | None = None
         if command == "/sel-subscribe" and len(args) > 0:
             current_unix_time = int(time.time() * 1000)
             self.logger.log_command(
-                f"{current_unix_time}, {username}, "
+                f"{current_unix_time}, {slack_username}, "
                 f"{current_channel}, subscribe, {', '.join(args)}")
             result = self.run_subscribe_command(
                 current_channel=current_channel,
+                slack_user_id=slack_user_id,
                 args=args,
             )
         elif command == "/sel-unsubscribe" and len(args) > 0:
             current_unix_time = int(time.time() * 1000)
             self.logger.log_command(
-                f"{current_unix_time}, {username}, "
+                f"{current_unix_time}, {slack_username}, "
                 f"{current_channel}, unsubscribe, {', '.join(args)}")
             result = self.run_unsubscribe_command(
                 current_channel=current_channel,
@@ -112,12 +114,14 @@ class Runner(SlackBotBase):
     def run_subscribe_command(
         self,
         current_channel: str,
+        slack_user_id: str,
         args: list[str],
     ) -> dict[str, Any]:
         """
         Triggered by "/sel-subscribe". Adds the passed events to the channel's subscriptions.
 
         :param current_channel: Name of the current channel.
+        :param slack_user_id: Slack User-id of the user who entered the command.
         :param args: `list` of events to subscribe to.
         """
 
@@ -139,18 +143,21 @@ class Runner(SlackBotBase):
         )
 
         if len(subscriptions) == 0:
-            return self.send_welcome_message(repository=repository)
+            return self.send_welcome_message(repository=repository,
+                                             slack_user_id=slack_user_id)
         else:
             return self.run_list_command(current_channel, ephemeral=True)
 
-    def send_welcome_message(self, repository: str) -> dict[str, Any]:
+    def send_welcome_message(self, repository: str,
+                             slack_user_id: str) -> dict[str, Any]:
         """
         Sends a message to prompt authentication for creation of webhooks.
 
         :param repository: Repository for which webhook is to be created.
+        :param slack_user_id: Slack User-id of the user who entered the command.
         """
 
-        params = {"repository": repository}
+        params = {"repository": repository, "slack_user_id": slack_user_id}
         url = f"https://redirect.mdgspace.org/{self.base_url}" \
               f"/github/auth?{urllib.parse.urlencode(params)}"
 
