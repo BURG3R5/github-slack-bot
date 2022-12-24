@@ -42,8 +42,8 @@ class Authenticator(GitHubBase):
         except AuthenticationError:
             return ("GitHub Authentication failed. Access to "
                     "webhooks is needed to set up your repository")
-        except WebhookCreationError:
-            return "Webhook Creation failed. Please retry in five seconds"
+        except WebhookCreationError as e:
+            return f"Webhook Creation failed with error {e.msg}. Please retry in five seconds"
         else:
             return "Webhooks have been set up successfully!"
 
@@ -101,7 +101,7 @@ class Authenticator(GitHubBase):
             sentry_sdk.capture_message(f"Failed during webhook creation\n"
                                        f"Status code: {response.status_code}\n"
                                        f"Content: {response.content}")
-            raise WebhookCreationError
+            raise WebhookCreationError(response.status_code)
 
 
 class AuthenticationError(Exception):
@@ -113,4 +113,13 @@ class DuplicationError(Exception):
 
 
 class WebhookCreationError(Exception):
-    pass
+
+    def __init__(self, error: int):
+        self.error = error
+        self.msg = "Error occured"
+        if error == 403:
+            self.msg = "Forbidden"
+        if error == 404:
+            self.msg = "Resource not found"
+        if error == 422:
+            self.msg == "Validation failed, or the endpoint has been spammed."
