@@ -76,25 +76,26 @@ class Runner(SlackBotBase):
         :return: Response to the triggered command, in Slack block format.
         """
         json: JSON = JSON.from_multi_dict(raw_json)
-        current_channel: str = "#" + json["channel_name"]
-        username: str = json["user_name"]
+        current_channel: str = f"{json['team_id']}#{json['channel_id']}"
         command: str = json["command"]
         args: list[str] = str(json["text"]).split()
         result: dict[str, Any] | None = None
-        if command == "/sel-subscribe" and len(args) > 0:
-            current_unix_time = int(time.time() * 1000)
+
+        if ("subscribe" in command) and (len(args) > 0) and ("/" in args[0]):
             self.logger.log_command(
-                f"{current_unix_time}, {username}, "
-                f"{current_channel}, subscribe, {', '.join(args)}")
+                f"{int(time.time() * 1000)}, "
+                f"<{json['user_id']}|{json['user_name']}>, "
+                f"<{json['channel_id']}|{json['channel_name']}>, "
+                f"<{json['team_id']}|{json['team_domain']}>, "
+                f"{command}, "
+                f"{json['text']}")
+
+        if command == "/sel-subscribe" and len(args) > 0:
             result = self.run_subscribe_command(
                 current_channel=current_channel,
                 args=args,
             )
         elif command == "/sel-unsubscribe" and len(args) > 0:
-            current_unix_time = int(time.time() * 1000)
-            self.logger.log_command(
-                f"{current_unix_time}, {username}, "
-                f"{current_channel}, unsubscribe, {', '.join(args)}")
             result = self.run_unsubscribe_command(
                 current_channel=current_channel,
                 args=args,
