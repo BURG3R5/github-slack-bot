@@ -1,2 +1,2 @@
-from .secrets import GithubStorage
+from .github import GithubStorage
 from .subscriptions import SubscriptionStorage

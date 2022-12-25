@@ -16,7 +16,7 @@ class GithubStorage:
 
     def __init__(self):
         global db
-        db.init("data/secrets.db")
+        db.init("data/github.db")
         db.connect()
         db.create_tables([GitHubSecret, User])
 
@@ -140,7 +140,7 @@ class GitHubSecret(Model):
 
     class Meta:
         database = db
-        table_name = "githubsecret"
+        table_name = "GitHubSecret"
 
     def __str__(self):
         return f"({self.repository}) — {self.secret}"
@@ -159,7 +159,7 @@ class User(Model):
 
     class Meta:
         database = db
-        table_name = "user"
+        table_name = "User"
 
     def __str__(self):
         return f"{self.github_user_name} - {self.slack_user_id}"
