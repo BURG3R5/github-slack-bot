@@ -21,6 +21,7 @@ from dotenv import load_dotenv
 from flask import Flask, make_response, request
 from sentry_sdk.integrations.flask import FlaskIntegration
 
+from bot import views
 from bot.github import GitHubApp
 from bot.models.github.event import GitHubEvent
 from bot.slack import SlackBot
@@ -28,30 +29,7 @@ from bot.utils.log import Logger
 
 app = Flask(__name__)
 
-
-@app.route("/")
-def test_get() -> str:
-    """
-    First test endpoint.
-    :return: Plaintext confirming server status.
-    """
-    return "This server is running!"
-
-
-@app.route("/", methods=['POST'])
-def test_post() -> str:
-    """
-    Second test endpoint.
-    :return: Status confirmation plaintext containing name supplied in request body.
-    """
-    try:
-        name: str = request.json["name"]
-    except KeyError:
-        name: str = "(empty JSON)"
-    except TypeError:
-        name: str = "(invalid JSON)"
-    return (f"This server is working, and to prove it to you, "
-            f"I'll guess your name!\nYour name is... {name}!")
+app.add_url_rule("/", view_func=views.test_get)
 
 
 @app.route("/github/events", methods=['POST'])
@@ -74,10 +52,9 @@ def manage_github_events():
 
     if event is not None:
         slack_bot.inform(event)
+        return make_response("OK", 200)
 
-    # After creation of Github-Webhook (through api),
-    # github sends a ping request to payload uri (for its verification) and expects an HTTP 200 OK response.
-    return make_response("Correct Payload URI", 200)
+    return make_response("Unrecognized Event", 204)
 
 
 @app.route("/slack/commands", methods=['POST'])
