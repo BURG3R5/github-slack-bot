@@ -29,7 +29,7 @@ class RunnerTest(unittest.TestCase):
         cls.runner = Runner(logger, secret=secret, base_url=base_url)
 
     def setUp(self):
-        self.runner.subscriptions = SubscriptionStorage.import_subscriptions()
+        self.runner.subscriptions = SubscriptionStorage.get_subscriptions(self)
 
     @patch("bot.slack.runner.Storage")
     @unittest.skip("will correct later")
@@ -210,13 +210,20 @@ class RunnerTest(unittest.TestCase):
             response,
         ))
 
-    @unittest.skip("will correct later")
     def test_list_empty(self):
+        self.maxDiff = None
         self.runner.subscriptions = {}
 
         response = self.runner.run_list_command("#example-channel")
 
         self.assertEqual(self.data["run_list_command|empty"][1], response)
+
+    def test_list_quiet(self):
+        self.runner.subscription = {}
+
+        response = self.runner.run_list_command("#example-channel",
+                                                ephemeral=True)
+        self.assertEqual(self.data["run_list_command|quiet"][1], response)
 
     @unittest.skip("will correct later")
     def test_list_default(self):
