@@ -1,5 +1,5 @@
 """
-Contains the `GithubStorage` class, to save and fetch secrets using the peewee library.
+Contains the `GitHubStorage` class, to save and fetch secrets using the peewee library.
 """
 
 from typing import Optional
@@ -9,7 +9,7 @@ from peewee import CharField, IntegrityError, Model, SqliteDatabase
 db = SqliteDatabase(None)
 
 
-class GithubStorage:
+class GitHubStorage:
     """
     Uses the `peewee` library to save and fetch secrets from an SQL database.
     """
@@ -77,7 +77,7 @@ class GithubStorage:
         Creates or updates a user object in the database.
 
         :param slack_user_id: Unique identifier of the Slack User-id.
-        :param github_user_name: Unique identifier of Github User-name.
+        :param github_user_name: Unique identifier of GitHub User-name.
         :param force_replace: Whether in case of duplication the old user should be overwritten.
         """
 
@@ -94,11 +94,11 @@ class GithubStorage:
 
     def get_slack_id(self, github_user_name) -> Optional[str]:
         """
-        Queries the `user` database for `slack_user_id` corresponding to given Github user-name.
+        Queries the `user` database for `slack_user_id` corresponding to given GitHub user-name.
 
         :param github_user_name: Unique identifier for the GitHub User-name.
 
-        :return: Result of query, Slack user-id corresponding to given Github user-name.
+        :return: Result of query, Slack user-id corresponding to given GitHub user-name.
         """
 
         user = User\
@@ -112,7 +112,7 @@ class GithubStorage:
         Deletes the `user` entry having the given `slack_user_id` or `github_user_name` (only one is required).
 
         :param slack_user_id: Slack user-id of the entry which is to be deleted.
-        :param github_user_name: Github user-name of the entry which is to be deleted.
+        :param github_user_name: GitHub user-name of the entry which is to be deleted.
         """
 
         if slack_user_id != "":
@@ -148,10 +148,10 @@ class GitHubSecret(Model):
 
 class User(Model):
     """
-    A peewee-friendly model that represents a mapping between Slack user-id and Github user-name.
+    A peewee-friendly model that represents a mapping between Slack user-id and GitHub user-name.
 
     :keyword slack_user_id: Unique identifier for Slack user-id.
-    :keyword github_user_name: Unique identifier for Github user-name.
+    :keyword github_user_name: Unique identifier for GitHub user-name.
     """
 
     slack_user_id = CharField(unique=True)
