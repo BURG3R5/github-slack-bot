@@ -6,6 +6,7 @@ import hmac
 import time
 import urllib.parse
 from io import BytesIO
+from json import dumps as json_dumps
 from typing import Any
 
 from bottle import MultiDict, WSGIHeaderDict
@@ -77,6 +78,7 @@ class Runner(SlackBotBase):
         """
         json: JSON = JSON.from_multi_dict(raw_json)
         current_channel: str = f"{json['team_id']}#{json['channel_id']}"
+        user_id: str = json["user_id"]
         command: str = json["command"]
         args: list[str] = str(json["text"]).split()
         result: dict[str, Any] | None = None
@@ -93,6 +95,7 @@ class Runner(SlackBotBase):
         if command == "/sel-subscribe" and len(args) > 0:
             result = self.run_subscribe_command(
                 current_channel=current_channel,
+                user_id=user_id,
                 args=args,
             )
         elif command == "/sel-unsubscribe" and len(args) > 0:
@@ -113,12 +116,14 @@ class Runner(SlackBotBase):
     def run_subscribe_command(
         self,
         current_channel: str,
+        user_id: str,
         args: list[str],
     ) -> dict[str, Any]:
         """
         Triggered by "/sel-subscribe". Adds the passed events to the channel's subscriptions.
 
         :param current_channel: Name of the current channel.
+        :param user_id: Slack User-id of the user who entered the command.
         :param args: `list` of events to subscribe to.
         """
 
@@ -140,20 +145,27 @@ class Runner(SlackBotBase):
         )
 
         if len(subscriptions) == 0:
-            return self.send_welcome_message(repository=repository)
+            return self.send_welcome_message(repository=repository,
+                                             user_id=user_id)
         else:
             return self.run_list_command(current_channel, ephemeral=True)
 
-    def send_welcome_message(self, repository: str) -> dict[str, Any]:
+    def send_welcome_message(
+        self,
+        repository: str,
+        user_id: str,
+    ) -> dict[str, Any]:
         """
         Sends a message to prompt authentication for creation of webhooks.
 
         :param repository: Repository for which webhook is to be created.
+        :param user_id: Slack User-id of the user who entered the command.
         """
 
-        params = {"repository": repository}
+        params = {"repository": repository, "user_id": user_id}
+        state = json_dumps(params)
         url = f"https://redirect.mdgspace.org/{self.base_url}" \
-              f"/github/auth?{urllib.parse.urlencode(params)}"
+              f"/github/auth?{urllib.parse.urlencode({'state': state})}"
 
         blocks = [{
             "type": "section",
