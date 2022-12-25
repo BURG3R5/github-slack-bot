@@ -128,6 +128,10 @@ class Messenger(SlackBotBase):
         print(
             f"\n\nSENDING:\n{message}\n\nWITH DETAILS:\n{details}\n\nTO: {channel}"
         )
+
+        # Strip the team id prefix
+        channel = channel[channel.index('#') + 1:]
+
         if details is None:
             self.client.chat_postMessage(
                 channel=channel,
