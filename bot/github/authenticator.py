@@ -22,16 +22,15 @@ class Authenticator(GitHubBase):
         self.app_id = client_id
         self.app_secret = client_secret
 
-    def redirect_to_oauth_flow(self, repository: str, slack_user_id: str):
+    def redirect_to_oauth_flow(self, state: str):
         endpoint = f"https://github.com/login/oauth/authorize"
-        state = {"repository": repository, "slack_user_id": slack_user_id}
         params = {
             "scope":
             "admin:repo_hook",
             "client_id":
             self.app_id,
             "state":
-            json.dumps(state),
+            state,
             "redirect_uri":
             f"https://redirect.mdgspace.org/{self.base_url}"
             f"/github/auth/redirect",
@@ -40,7 +39,7 @@ class Authenticator(GitHubBase):
 
     def set_up_webhooks(self, code: str, state: str) -> str:
         repository = json.loads(state).get("repository")
-        slack_user_id = json.loads(state).get("slack_user_id")
+        slack_user_id = json.loads(state).get("user_id")
 
         if (repository is None) or (slack_user_id is None):
             return ("GitHub Redirect failed."

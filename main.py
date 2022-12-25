@@ -112,14 +112,15 @@ def manage_slack_commands() -> Union[dict, str, None]:
 
 @get("/github/auth")
 def initiate_auth():
-    github_app.redirect_to_oauth_flow(request.params.get("repository"),
-                                      request.params.get("slack_user_id"))
+    github_app.redirect_to_oauth_flow(request.params.get("state"))
 
 
 @get("/github/auth/redirect")
 def complete_auth():
-    return github_app.set_up_webhooks(code=request.query.get("code"),
-                                      state=request.params.get("state"))
+    return github_app.set_up_webhooks(
+        code=request.query.get("code"),
+        state=request.params.get("state"),
+    )
 
 
 if __name__ == "__main__":

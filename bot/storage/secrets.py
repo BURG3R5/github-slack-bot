@@ -67,10 +67,12 @@ class GithubStorage:
 
         return None
 
-    def add_user(self,
-                 slack_user_id: str,
-                 github_user_name: str,
-                 force_replace: bool = False):
+    def add_user(
+        self,
+        slack_user_id: str,
+        github_user_name: str,
+        force_replace: bool = False,
+    ):
         """
         Creates or updates a user object in the database.
 
@@ -99,7 +101,7 @@ class GithubStorage:
         :return: Result of query, Slack user-id corresponding to given Github user-name.
         """
 
-        user: User = User\
+        user = User\
                     .get_or_none(User.github_user_name == github_user_name)
         if user is not None:
             return user.slack_user_id
@@ -148,7 +150,7 @@ class User(Model):
     """
     A peewee-friendly model that represents a mapping between Slack user-id and Github user-name.
 
-    :keyword slack_user_id: Unique identifier for Slack user-id."
+    :keyword slack_user_id: Unique identifier for Slack user-id.
     :keyword github_user_name: Unique identifier for Github user-name.
     """
 
@@ -160,4 +162,4 @@ class User(Model):
         table_name = "user"
 
     def __str__(self):
-        return f"{self.github_user_name} ({self.slack_user_id})"
+        return f"{self.github_user_name} - {self.slack_user_id}"
