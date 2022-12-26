@@ -31,7 +31,7 @@ class Runner(SlackBotBase):
         base_url: str,
         secret: str,
     ):
-        SlackBotBase.__init__(self)
+        super(self.__class__, self).__init__()
         self.logger = logger
         self.base_url = base_url
         self.secret = secret.encode("utf-8")
