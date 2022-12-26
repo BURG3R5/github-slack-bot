@@ -12,6 +12,11 @@ class Logger:
         Logs the latest command to `./data/logs`.
         :param log_text: Information about the latest command to be saved.
         """
+
+        if self.N == 0:
+            # Early exit
+            return
+
         # Read
         with open('data/logs', 'a+') as file:
             file.seek(0)

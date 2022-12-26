@@ -1,10 +1,11 @@
 {
   "run|calls_subscribe": [
     {
-      "channel_name": "example-channel",
-      "user_name": "example.user.123",
-      "command": "/subscribe",
-      "text": "github-slack-bot *"
+      "channel_id": "selene",
+      "team_id": "workspace",
+      "user_id": "USER101",
+      "command": "/sel-subscribe",
+      "text": "BURG3R5/github-slack-bot *"
     },
     {}
   ],
@@ -326,7 +327,7 @@
       ]
     }
   ],
-  "run_list_command|quiet": [
+  "run_list_command|empty_quiet": [
     {},
     {
       "response_type": "ephemeral",
