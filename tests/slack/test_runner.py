@@ -32,19 +32,22 @@ class RunnerTest(unittest.TestCase):
         # Reset subscriptions before every test
         self.runner.storage = MockSubscriptionStorage()
 
-    @skip('This test is being skipped for the current PR')
     def test_run_calls_subscribe(self):
         raw_json = MultiDict(self.data["run|calls_subscribe"][0])
-        with patch.object(self.logger, "log_command") as mock_logger:
-            with patch.object(self.runner,
-                              "run_subscribe_command") as mock_function:
+
+        with patch.object(self.logger, "log_command") as log_command:
+            with patch.object(
+                    self.runner,
+                    "run_subscribe_command",
+            ) as run_subscribe_command:
                 self.runner.run(raw_json)
-        mock_function.assert_called_once_with(
-            current_channel="#example-channel",
-            args=["github-slack-bot", "*"],
+
+        run_subscribe_command.assert_called_once_with(
+            current_channel="workspace#selene",
+            user_id="USER101",
+            args=["BURG3R5/github-slack-bot", "*"],
         )
-        mock_logger.assert_called_once()
-        MockSubscriptionStorage.export_subscriptions.assert_called_once()
+        log_command.assert_called_once()
 
     @skip('This test is being skipped for the current PR')
     def test_run_calls_unsubscribe(self):
