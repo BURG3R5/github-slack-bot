@@ -92,14 +92,14 @@ def manage_slack_commands() -> Union[dict, str, None]:
 
 @app.route("/github/auth")
 def initiate_auth():
-    return github_app.redirect_to_oauth_flow(request.args.get("repository"))
+    return github_app.redirect_to_oauth_flow(request.args.get("state"))
 
 
-@app.route("/github/auth/redirect/<owner>/<repo>")
-def complete_auth(owner, repo):
+@app.route("/github/auth/redirect")
+def complete_auth():
     return github_app.set_up_webhooks(
         code=request.args.get("code"),
-        repository=f"{owner}/{repo}",
+        state=request.args.get("state"),
     )
 
 

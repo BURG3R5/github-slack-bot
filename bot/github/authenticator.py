@@ -22,28 +22,43 @@ class Authenticator(GitHubBase):
         self.app_id = client_id
         self.app_secret = client_secret
 
-    def redirect_to_oauth_flow(self, repository: str):
+    def redirect_to_oauth_flow(self, state: str):
         endpoint = f"https://github.com/login/oauth/authorize"
         params = {
             "scope":
             "admin:repo_hook",
             "client_id":
             self.app_id,
+            "state":
+            state,
             "redirect_uri":
             f"https://redirect.mdgspace.org/{self.base_url}"
-            f"/github/auth/redirect/{repository}",
+            f"/github/auth/redirect",
         }
         return redirect(endpoint + "?" + urllib.parse.urlencode(params))
 
-    def set_up_webhooks(self, code: str, repository: str) -> str:
+    def set_up_webhooks(self, code: str, state: str) -> str:
+        repository = json.loads(state).get("repository")
+        slack_user_id = json.loads(state).get("user_id")
+
+        if (repository is None) or (slack_user_id is None):
+            return ("GitHub Redirect failed."
+                    "Incorrect or Incomplete state parameter")
+
         try:
             github_oauth_token = self.exchange_code_for_token(code)
             self.use_token_for_webhooks(github_oauth_token, repository)
+            github_user_name = self.use_token_for_user_name(github_oauth_token)
+
+            if github_user_name is not None:
+                self.storage.add_user(slack_user_id=slack_user_id,
+                                      github_user_name=github_user_name)
+
         except AuthenticationError:
             return ("GitHub Authentication failed. Access to "
                     "webhooks is needed to set up your repository")
-        except WebhookCreationError:
-            return "Webhook Creation failed. Please retry in five seconds"
+        except WebhookCreationError as e:
+            return f"Webhook Creation failed with error {e.msg}. Please retry in five seconds"
         else:
             return "Webhooks have been set up successfully!"
 
@@ -101,7 +116,21 @@ class Authenticator(GitHubBase):
             sentry_sdk.capture_message(f"Failed during webhook creation\n"
                                        f"Status code: {response.status_code}\n"
                                        f"Content: {response.content}")
-            raise WebhookCreationError
+            raise WebhookCreationError(response.status_code)
+
+    def use_token_for_user_name(self, token: str) -> str | None:
+        response = requests.get(
+            f"https://api.github.com/user",
+            headers={
+                "Content-Type": "application/json",
+                "Accept": "application/vnd.github+json",
+                "Authorization": f"Bearer {token}",
+            },
+        )
+        if response.status_code == 200:
+            return response.json().get("login")
+        else:
+            return None
 
 
 class AuthenticationError(Exception):
@@ -113,4 +142,13 @@ class DuplicationError(Exception):
 
 
 class WebhookCreationError(Exception):
-    pass
+
+    def __init__(self, error: int):
+        self.error = error
+        self.msg = "Error occured"
+        if error == 403:
+            self.msg = "Forbidden"
+        if error == 404:
+            self.msg = "Resource not found"
+        if error == 422:
+            self.msg == "Validation failed, or the endpoint has been spammed."

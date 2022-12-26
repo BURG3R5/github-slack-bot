@@ -5,6 +5,7 @@ import hashlib
 import hmac
 import time
 import urllib.parse
+from json import dumps as json_dumps
 from typing import Any
 
 from werkzeug.datastructures import Headers, ImmutableMultiDict
@@ -75,25 +76,28 @@ class Runner(SlackBotBase):
         :return: Response to the triggered command, in Slack block format.
         """
         json: JSON = JSON.from_multi_dict(raw_json)
-        current_channel: str = "#" + json["channel_name"]
-        username: str = json["user_name"]
+        current_channel: str = f"{json['team_id']}#{json['channel_id']}"
+        user_id: str = json["user_id"]
         command: str = json["command"]
         args: list[str] = str(json["text"]).split()
         result: dict[str, Any] | None = None
-        if command == "/sel-subscribe" and len(args) > 0:
-            current_unix_time = int(time.time() * 1000)
+
+        if ("subscribe" in command) and (len(args) > 0) and ("/" in args[0]):
             self.logger.log_command(
-                f"{current_unix_time}, {username}, "
-                f"{current_channel}, subscribe, {', '.join(args)}")
+                f"{int(time.time() * 1000)}, "
+                f"<{json['user_id']}|{json['user_name']}>, "
+                f"<{json['channel_id']}|{json['channel_name']}>, "
+                f"<{json['team_id']}|{json['team_domain']}>, "
+                f"{command}, "
+                f"{json['text']}")
+
+        if command == "/sel-subscribe" and len(args) > 0:
             result = self.run_subscribe_command(
                 current_channel=current_channel,
+                user_id=user_id,
                 args=args,
             )
         elif command == "/sel-unsubscribe" and len(args) > 0:
-            current_unix_time = int(time.time() * 1000)
-            self.logger.log_command(
-                f"{current_unix_time}, {username}, "
-                f"{current_channel}, unsubscribe, {', '.join(args)}")
             result = self.run_unsubscribe_command(
                 current_channel=current_channel,
                 args=args,
@@ -111,12 +115,14 @@ class Runner(SlackBotBase):
     def run_subscribe_command(
         self,
         current_channel: str,
+        user_id: str,
         args: list[str],
     ) -> dict[str, Any]:
         """
         Triggered by "/sel-subscribe". Adds the passed events to the channel's subscriptions.
 
         :param current_channel: Name of the current channel.
+        :param user_id: Slack User-id of the user who entered the command.
         :param args: `list` of events to subscribe to.
         """
 
@@ -138,20 +144,27 @@ class Runner(SlackBotBase):
         )
 
         if len(subscriptions) == 0:
-            return self.send_welcome_message(repository=repository)
+            return self.send_welcome_message(repository=repository,
+                                             user_id=user_id)
         else:
             return self.run_list_command(current_channel, ephemeral=True)
 
-    def send_welcome_message(self, repository: str) -> dict[str, Any]:
+    def send_welcome_message(
+        self,
+        repository: str,
+        user_id: str,
+    ) -> dict[str, Any]:
         """
         Sends a message to prompt authentication for creation of webhooks.
 
         :param repository: Repository for which webhook is to be created.
+        :param user_id: Slack User-id of the user who entered the command.
         """
 
-        params = {"repository": repository}
+        params = {"repository": repository, "user_id": user_id}
+        state = json_dumps(params)
         url = f"https://redirect.mdgspace.org/{self.base_url}" \
-              f"/github/auth?{urllib.parse.urlencode(params)}"
+              f"/github/auth?{urllib.parse.urlencode({'state': state})}"
 
         blocks = [{
             "type": "section",
