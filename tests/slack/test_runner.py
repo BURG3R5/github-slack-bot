@@ -32,7 +32,7 @@ class RunnerTest(unittest.TestCase):
         self.runner.subscriptions = SubscriptionStorage.get_subscriptions(self)
 
     @patch("bot.slack.runner.Storage")
-    @unittest.skip("will correct later")
+    @skip('This test is being skipped for the current PR')
     def test_run_calls_subscribe(self, MockSubscriptionStorage):
         raw_json = MultiDict(self.data["run|calls_subscribe"][0])
         with patch.object(self.logger, "log_command") as mock_logger:
@@ -47,7 +47,7 @@ class RunnerTest(unittest.TestCase):
         MockSubscriptionStorage.export_subscriptions.assert_called_once()
 
     @patch("bot.slack.runner.Storage")
-    @unittest.skip("will correct later")
+    @skip('This test is being skipped for the current PR')
     def test_run_calls_unsubscribe(self, MockSubscriptionStorage):
         raw_json = MultiDict(self.data["run|calls_unsubscribe"][0])
         with patch.object(self.logger, "log_command") as mock_logger:
@@ -62,7 +62,7 @@ class RunnerTest(unittest.TestCase):
         MockSubscriptionStorage.export_subscriptions.assert_called_once()
 
     @patch("bot.slack.runner.Storage")
-    @unittest.skip("will correct later")
+    @skip('This test is being skipped for the current PR')
     def test_run_calls_list(self, _):
         raw_json = MultiDict(self.data["run|calls_list"][0])
         with patch.object(self.logger, "log_command") as mock_logger:
@@ -74,7 +74,7 @@ class RunnerTest(unittest.TestCase):
         mock_logger.assert_not_called()
 
     @patch("bot.slack.runner.Storage")
-    @unittest.skip("will correct later")
+    @skip('This test is being skipped for the current PR')
     def test_run_calls_help(self, _):
         raw_json = MultiDict(self.data["run|calls_help"][0])
         with patch.object(self.logger, "log_command") as mock_logger:
@@ -85,7 +85,7 @@ class RunnerTest(unittest.TestCase):
         mock_logger.assert_not_called()
 
     @patch("bot.slack.runner.Storage")
-    @unittest.skip("will correct later")
+    @skip('This test is being skipped for the current PR')
     def test_run_doesnt_call(self, _):
         with patch.object(self.logger, "log_command") as mock_logger:
             # Wrong command
@@ -99,7 +99,7 @@ class RunnerTest(unittest.TestCase):
             self.assertIsNone(self.runner.run(raw_json))
         mock_logger.assert_not_called()
 
-    @unittest.skip("will correct later")
+    @skip('This test is being skipped for the current PR')
     def test_unsubscribe_single_event(self):
         response = self.runner.run_unsubscribe_command(
             "#selene",
@@ -111,7 +111,7 @@ class RunnerTest(unittest.TestCase):
             response,
         ))
 
-    @unittest.skip("will correct later")
+    @skip('This test is being skipped for the current PR')
     def test_unsubscribe_single_events(self):
         response = self.runner.run_unsubscribe_command(
             "#selene",
@@ -123,7 +123,7 @@ class RunnerTest(unittest.TestCase):
             response,
         ))
 
-    @unittest.skip("will correct later")
+    @skip('This test is being skipped for the current PR')
     def test_unsubscribe_single_noargs(self):
         response = self.runner.run_unsubscribe_command(
             "#selene",
@@ -135,7 +135,7 @@ class RunnerTest(unittest.TestCase):
             response,
         ))
 
-    @unittest.skip("will correct later")
+    @skip('This test is being skipped for the current PR')
     def test_unsubscribe_single_all(self):
         response = self.runner.run_unsubscribe_command(
             "#selene",
@@ -147,7 +147,7 @@ class RunnerTest(unittest.TestCase):
             response,
         ))
 
-    @unittest.skip("will correct later")
+    @skip('This test is being skipped for the current PR')
     def test_unsubscribe_multiple_event(self):
         self.runner.subscriptions = subscriptions_deserializer(
             self.data["run_unsubscribe_command|multiple_event"][0])
@@ -162,7 +162,7 @@ class RunnerTest(unittest.TestCase):
             response,
         ))
 
-    @unittest.skip("will correct later")
+    @skip('This test is being skipped for the current PR')
     def test_unsubscribe_multiple_events(self):
         self.runner.subscriptions = subscriptions_deserializer(
             self.data["run_unsubscribe_command|multiple_event"][0])
@@ -178,7 +178,7 @@ class RunnerTest(unittest.TestCase):
             response,
         ))
 
-    @unittest.skip("will correct later")
+    @skip('This test is being skipped for the current PR')
     def test_unsubscribe_multiple_noargs(self):
         self.runner.subscriptions = subscriptions_deserializer(
             self.data["run_unsubscribe_command|multiple_event"][0])
@@ -194,7 +194,7 @@ class RunnerTest(unittest.TestCase):
             response,
         ))
 
-    @unittest.skip("will correct later")
+    @skip('This test is being skipped for the current PR')
     def test_unsubscribe_multiple_all(self):
         self.runner.subscriptions = subscriptions_deserializer(
             self.data["run_unsubscribe_command|multiple_event"][0])
@@ -211,35 +211,33 @@ class RunnerTest(unittest.TestCase):
         ))
 
     def test_list_empty(self):
-        self.maxDiff = None
         self.runner.subscriptions = {}
 
         response = self.runner.run_list_command("#example-channel")
 
         self.assertEqual(self.data["run_list_command|empty"][1], response)
 
-    def test_list_quiet(self):
-        self.runner.subscription = {}
-
-        response = self.runner.run_list_command("#example-channel",
-                                                ephemeral=True)
+        response = self.runner.run_list_command(
+            "#example-channel",
+            ephemeral=True,
+        )
         self.assertEqual(self.data["run_list_command|quiet"][1], response)
 
-    @unittest.skip("will correct later")
+    @skip('This test is being skipped for the current PR')
     def test_list_default(self):
         response = self.runner.run_list_command("#selene")
 
         self.assertTrue(*Comparators.list_messages(
             self.data["run_list_command|default"][1], response))
 
-    @unittest.skip("will correct later")
+    @skip('This test is being skipped for the current PR')
     def test_list_missing(self):
         response = self.runner.run_list_command("#example-channel")
 
         self.assertTrue(*Comparators.list_messages(
             self.data["run_list_command|missing"][1], response))
 
-    @unittest.skip("will correct later")
+    @skip('This test is being skipped for the current PR')
     def test_list_multiple_channels(self):
         self.runner.subscriptions["example-repo"] = {
             Channel("#example-channel", convert_keywords_to_events([]))
@@ -250,7 +248,7 @@ class RunnerTest(unittest.TestCase):
         self.assertTrue(*Comparators.list_messages(
             self.data["run_list_command|multiple_channels"][1], response))
 
-    @unittest.skip("will correct later")
+    @skip('This test is being skipped for the current PR')
     def test_list_multiple_repos(self):
         self.runner.subscriptions["example-repo"] = {
             Channel("#selene", convert_keywords_to_events([]))
@@ -261,7 +259,7 @@ class RunnerTest(unittest.TestCase):
         self.assertTrue(*Comparators.list_messages(
             self.data["run_list_command|multiple_repos"][1], response))
 
-    @unittest.skip("will correct later")
+    @skip('This test is being skipped for the current PR')
     def test_list_overlapping(self):
         self.runner.subscriptions["example-repo"] = {
             Channel("#example-channel", convert_keywords_to_events([]))
@@ -274,7 +272,7 @@ class RunnerTest(unittest.TestCase):
         self.assertTrue(*Comparators.list_messages(
             self.data["run_list_command|overlapping"][1], response))
 
-    @unittest.skip("will correct later")
+    @skip('This test is being skipped for the current PR')
     def test_help(self):
         response = self.runner.run_help_command([])
         self.assertEqual(self.data["run_help_command"][1], response)
