@@ -6,10 +6,10 @@ from bottle import MultiDict
 
 from bot.models.github import convert_keywords_to_events
 from bot.models.slack import Channel
-from bot.slack.runner import Runner
-from bot.storage import SubscriptionStorage
 from bot.utils.log import Logger
 
+from ..mocks.slack.runner import TestableRunner
+from ..mocks.storage import MockSubscriptionStorage
 from ..test_utils.comparators import Comparators
 from ..test_utils.deserializers import subscriptions_deserializer
 from ..test_utils.load import load_test_data
@@ -24,16 +24,16 @@ class RunnerTest(unittest.TestCase):
 
         # Construct common Runner instance.
         cls.logger = logger = Logger(0)
-        cls.secret = secret = "secret"
-        cls.base_url = base_url = "www.unittest.com"
-        cls.runner = Runner(logger, secret=secret, base_url=base_url)
+        cls.secret = secret = "example_secret"
+        cls.base_url = base_url = "sub.example.com"
+        cls.runner = TestableRunner(logger, secret=secret, base_url=base_url)
 
     def setUp(self):
-        self.runner.subscriptions = SubscriptionStorage.get_subscriptions(self)
+        # Reset subscriptions before every test
+        self.runner.storage = MockSubscriptionStorage()
 
-    @patch("bot.slack.runner.Storage")
     @skip('This test is being skipped for the current PR')
-    def test_run_calls_subscribe(self, MockSubscriptionStorage):
+    def test_run_calls_subscribe(self):
         raw_json = MultiDict(self.data["run|calls_subscribe"][0])
         with patch.object(self.logger, "log_command") as mock_logger:
             with patch.object(self.runner,
@@ -46,9 +46,8 @@ class RunnerTest(unittest.TestCase):
         mock_logger.assert_called_once()
         MockSubscriptionStorage.export_subscriptions.assert_called_once()
 
-    @patch("bot.slack.runner.Storage")
     @skip('This test is being skipped for the current PR')
-    def test_run_calls_unsubscribe(self, MockSubscriptionStorage):
+    def test_run_calls_unsubscribe(self):
         raw_json = MultiDict(self.data["run|calls_unsubscribe"][0])
         with patch.object(self.logger, "log_command") as mock_logger:
             with patch.object(self.runner,
@@ -61,9 +60,8 @@ class RunnerTest(unittest.TestCase):
         mock_logger.assert_called_once()
         MockSubscriptionStorage.export_subscriptions.assert_called_once()
 
-    @patch("bot.slack.runner.Storage")
     @skip('This test is being skipped for the current PR')
-    def test_run_calls_list(self, _):
+    def test_run_calls_list(self):
         raw_json = MultiDict(self.data["run|calls_list"][0])
         with patch.object(self.logger, "log_command") as mock_logger:
             with patch.object(self.runner,
@@ -73,9 +71,8 @@ class RunnerTest(unittest.TestCase):
             current_channel="#example-channel")
         mock_logger.assert_not_called()
 
-    @patch("bot.slack.runner.Storage")
     @skip('This test is being skipped for the current PR')
-    def test_run_calls_help(self, _):
+    def test_run_calls_help(self):
         raw_json = MultiDict(self.data["run|calls_help"][0])
         with patch.object(self.logger, "log_command") as mock_logger:
             with patch.object(self.runner,
@@ -84,9 +81,8 @@ class RunnerTest(unittest.TestCase):
         mock_function.assert_called_once()
         mock_logger.assert_not_called()
 
-    @patch("bot.slack.runner.Storage")
     @skip('This test is being skipped for the current PR')
-    def test_run_doesnt_call(self, _):
+    def test_run_doesnt_call(self):
         with patch.object(self.logger, "log_command") as mock_logger:
             # Wrong command
             raw_json = MultiDict(self.data["run|doesnt_call"][0])
