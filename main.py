@@ -41,9 +41,7 @@ def manage_github_events():
 
     is_valid_request, error_message = github_app.verify(request)
     if not is_valid_request:
-        response = make_response(error_message)
-        response.status_code = 400
-        return response
+        return make_response(error_message, 400)
 
     event: Optional[GitHubEvent] = github_app.parse(
         event_type=request.headers["X-GitHub-Event"],
@@ -52,9 +50,9 @@ def manage_github_events():
 
     if event is not None:
         slack_bot.inform(event)
-        return make_response("OK", 200)
+        return "Informed appropriate channels"
 
-    return make_response("Unrecognized Event", 204)
+    return "Unrecognized Event"
 
 
 @app.route("/slack/commands", methods=['POST'])
