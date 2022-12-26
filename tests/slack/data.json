@@ -327,7 +327,7 @@
       ]
     }
   ],
-  "run_list_command|quiet": [
+  "run_list_command|empty_quiet": [
     {},
     {
       "response_type": "ephemeral",

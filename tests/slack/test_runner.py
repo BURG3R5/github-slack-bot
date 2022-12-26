@@ -210,17 +210,24 @@ class RunnerTest(unittest.TestCase):
         ))
 
     def test_list_empty(self):
-        self.runner.subscriptions = {}
+        # Normal
+        response = self.runner.run_list_command("workspace#example-channel")
 
-        response = self.runner.run_list_command("#example-channel")
+        self.assertEqual(
+            self.data["run_list_command|empty"][1],
+            response,
+        )
 
-        self.assertEqual(self.data["run_list_command|empty"][1], response)
-
+        # Quiet
         response = self.runner.run_list_command(
-            "#example-channel",
+            "workspace#example-channel",
             ephemeral=True,
         )
-        self.assertEqual(self.data["run_list_command|quiet"][1], response)
+
+        self.assertEqual(
+            self.data["run_list_command|empty_quiet"][1],
+            response,
+        )
 
     @skip('This test is being skipped for the current PR')
     def test_list_default(self):
