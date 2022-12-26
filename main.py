@@ -106,8 +106,7 @@ def complete_auth(owner, repo):
 if __name__ == "__main__":
     load_dotenv(Path(".") / ".env")
 
-    debug = os.environ["DEBUG"] == "1"
-    port = int(os.environ.get("CONTAINER_PORT", 5000))
+    debug = os.environ["FLASK_DEBUG"] == "True"
 
     if (not debug) and ("SENTRY_DSN" in os.environ):
         sentry_sdk.init(
@@ -128,4 +127,4 @@ if __name__ == "__main__":
         client_secret=os.environ["GITHUB_APP_CLIENT_SECRET"],
     )
 
-    app.run(host="", port=port, debug=debug)
+    app.run(port=int(os.environ.get("CONTAINER_PORT", 5000)))
