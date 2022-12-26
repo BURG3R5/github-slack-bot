@@ -4,3 +4,4 @@ python-dotenv==0.21.0
 requests~=2.28.1
 sentry-sdk[flask]==1.12.1
 slackclient==2.9.4
+Werkzeug~=2.2.2
