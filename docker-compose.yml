@@ -6,7 +6,7 @@ services:
       context: .
     container_name: selene
     ports:
-      - "${HOST_PORT}:${CONTAINER_PORT}"
+      - "${HOST_PORT}:5000"
     volumes:
       - type: volume
         source: selene
