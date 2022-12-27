@@ -14,9 +14,11 @@ class Messenger(SlackBotBase):
     Sends Slack messages according to received GitHub events.
     """
 
-    def __init__(self, token: str):
-        SlackBotBase.__init__(self)
-        self.client: WebClient = WebClient(token)
+    def __init__(self, token):
+        SlackBotBase.__init__(
+            self,
+            token,
+        )
 
     def inform(self, event: GitHubEvent):
         """

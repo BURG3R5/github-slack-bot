@@ -3,6 +3,7 @@ Contains the `Runner` class, which reacts to slash commands.
 """
 import hashlib
 import hmac
+import os
 import time
 import urllib.parse
 from io import BytesIO
@@ -33,12 +34,13 @@ class Runner(SlackBotBase):
         base_url: str,
         secret: str,
         token: str,
+        bot_id: str,
     ):
-        SlackBotBase.__init__(self)
+        SlackBotBase.__init__(self, token)
         self.logger = logger
         self.base_url = base_url
         self.secret = secret.encode("utf-8")
-        self.client = WebClient(token=token)
+        self.bot_id = bot_id
 
     def verify(
         self,
@@ -127,9 +129,9 @@ class Runner(SlackBotBase):
         """
         in_channel = self.check_bot_in_channel(current_channel=current_channel)
         if not in_channel:
-            return {
-                "response_type":
-                "ephemeral",
+            attachments = [{
+                "color":
+                "#bb2124",
                 "blocks": [{
                     "type": "section",
                     "text": {
@@ -139,6 +141,11 @@ class Runner(SlackBotBase):
                         "I can not subscribed this repo to the channel,\n beacuse I am not in this channel, \nIf you need me to send you updates, invite me in this channel first."
                     }
                 }]
+            }]
+
+            return {
+                "response_type": "ephemeral",
+                "attachments": attachments,
             }
         repository = args[0]
         if repository.find('/') == -1:
@@ -317,16 +324,18 @@ class Runner(SlackBotBase):
         if len(subscriptions) != 0:
             return True
         try:
-            is_private = self.client.conversations_info(
-                channel=current_channel)["channel"]["is_private"]
-            if is_private:
-                if len(subscriptions) == 0:
-                    return False
-                else:
-                    return True
+            response = self.client.conversations_members(
+                channel=current_channel)
+            user_ids = response["members"]
+
+            if self.bot_id in user_ids:
+                return True
+            else:
+                return False
+
         except SlackApiError as E:
             capture_message(
-                f"SlackApiError {E} Failed to fetch conversation info for {current_channel}"
+                f"SlackApiError {E} Failed to fetch conversation member for {current_channel}"
             )
 
     @staticmethod

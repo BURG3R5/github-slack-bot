@@ -140,6 +140,7 @@ if __name__ == "__main__":
         logger=Logger(int(os.environ.get("LOG_LAST_N_COMMANDS", 100))),
         base_url=os.environ["BASE_URL"],
         secret=os.environ["SLACK_SIGNING_SECRET"],
+        bot_id=os.environ["BOT_ID"],
     )
 
     github_app = GitHubApp(
