@@ -9,15 +9,24 @@ Steps:
 
 import json
 import os
-from pathlib import Path
 from typing import Any
 
+import dotenv
 import requests
-from dotenv import load_dotenv
 
 
 def update_app_manifest() -> tuple[int, bool]:
     prev_manifest = get_prev_manifest()
+
+    url = os.environ["BASE_URL"]
+    if url.startswith("http://"):
+        url = "https://" + url[7:]
+    elif not url.startswith("https://"):
+        url = "https://" + url
+    if url.endswith('/'):
+        url = url[:-1]
+
+    url += "/slack/commands"
 
     for i in range(4):
         prev_manifest["features"]["slash_commands"][i].update({"url": url})
@@ -26,13 +35,13 @@ def update_app_manifest() -> tuple[int, bool]:
     response = requests.post(
         endpoint,
         params={
-            "app_id": app_id,
+            "app_id": os.environ["SLACK_APP_ID"],
             "manifest": json.dumps(prev_manifest),
         },
         headers={
             "Content-Type": "application/json",
             "Accept": "application/json",
-            "Authorization": f"Bearer {token}",
+            "Authorization": f"Bearer {access_token}",
         },
     )
     return response.status_code, response.json()["ok"]
@@ -43,12 +52,12 @@ def get_prev_manifest() -> dict[str, Any]:
     response = requests.post(
         endpoint,
         params={
-            "app_id": app_id
+            "app_id": os.environ["SLACK_APP_ID"],
         },
         headers={
             "Content-Type": "application/json",
             "Accept": "application/json",
-            "Authorization": f"Bearer {token}",
+            "Authorization": f"Bearer {access_token}",
         },
     ).json()
 
@@ -59,12 +68,12 @@ def get_prev_manifest() -> dict[str, Any]:
         raise Exception()
 
 
-def rotate_token() -> tuple[str, str]:
+def rotate_token() -> str:
     endpoint = "https://slack.com/api/tooling.tokens.rotate/"
     response = requests.post(
         endpoint,
         params={
-            "refresh_token": refresh_token
+            "refresh_token": os.environ["MANIFEST_REFRESH_TOKEN"]
         },
         headers={
             "Content-Type": "application/json",
@@ -72,22 +81,20 @@ def rotate_token() -> tuple[str, str]:
         },
     ).json()
     if response["ok"]:
-        return response["token"], response["refresh_token"]
+        dotenv.set_key(
+            dotenv_path=dotenv.find_dotenv(),
+            key_to_set="MANIFEST_REFRESH_TOKEN",
+            value_to_set=response["refresh_token"],
+        )
+        return response["token"]
     else:
         print(response)
         raise Exception()
 
 
 if __name__ == "__main__":
-    load_dotenv(Path("..") / ".env")
+    dotenv.load_dotenv(dotenv.find_dotenv())
 
-    app_id = os.environ["SLACK_APP_ID"]
-    refresh_token = os.environ["MANIFEST_REFRESH_TOKEN"]
-    token = os.environ["MANIFEST_ACCESS_TOKEN"]
-    url = os.environ["BASE_URL"] + "/slack/commands"
-    if not url.startswith("https://"):
-        url = "https://" + url
-
-    token, refresh_token = rotate_token()
+    access_token = rotate_token()
     status_code, is_okay = update_app_manifest()
     print(status_code, is_okay)
