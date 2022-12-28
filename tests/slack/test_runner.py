@@ -24,9 +24,11 @@ class RunnerTest(unittest.TestCase):
 
         # Construct common Runner instance.
         cls.logger = logger = Logger(0)
-        cls.secret = secret = "example_secret"
-        cls.base_url = base_url = "sub.example.com"
-        cls.runner = TestableRunner(logger, secret=secret, base_url=base_url)
+        secret = "example_secret"
+        base_url = "sub.example.com"
+        token = "xoxb-slack-token-101"
+        bot_id = "B0123456789"
+        cls.runner = TestableRunner(logger, base_url, secret, token, bot_id)
 
     def setUp(self):
         # Reset subscriptions before every test
