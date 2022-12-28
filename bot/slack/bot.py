@@ -6,8 +6,6 @@ Important methods—
 * `.run` to execute slash commands.
 """
 
-from typing import Optional
-
 from ..utils.log import Logger
 from .messenger import Messenger
 from .runner import Runner

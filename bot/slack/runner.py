@@ -3,7 +3,6 @@ Contains the `Runner` class, which reacts to slash commands.
 """
 import hashlib
 import hmac
-import os
 import time
 import urllib.parse
 from io import BytesIO
@@ -12,7 +11,6 @@ from typing import Any
 from bottle import MultiDict, WSGIHeaderDict
 from sentry_sdk import capture_message
 from slack.errors import SlackApiError
-from slack.web.client import WebClient
 
 from ..models.github import EventType, convert_keywords_to_events
 from ..utils.json import JSON

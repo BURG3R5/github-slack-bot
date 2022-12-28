@@ -15,10 +15,7 @@ class Messenger(SlackBotBase):
     """
 
     def __init__(self, token):
-        SlackBotBase.__init__(
-            self,
-            token,
-        )
+        SlackBotBase.__init__(self, token)
 
     def inform(self, event: GitHubEvent):
         """
