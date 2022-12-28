@@ -17,6 +17,7 @@ from ..utils.json import JSON
 from ..utils.list_manip import intersperse
 from ..utils.log import Logger
 from .base import SlackBotBase
+from .templates import error_message
 
 
 class Runner(SlackBotBase):
@@ -127,24 +128,10 @@ class Runner(SlackBotBase):
         """
         in_channel = self.check_bot_in_channel(current_channel=current_channel)
         if not in_channel:
-            attachments = [{
-                "color":
-                "#bb2124",
-                "blocks": [{
-                    "type": "section",
-                    "text": {
-                        "type":
-                        "mrkdwn",
-                        "text":
-                        "I can not subscribed this repo to the channel,\n beacuse I am not in this channel, \nIf you need me to send you updates, invite me in this channel first."
-                    }
-                }]
-            }]
-
-            return {
-                "response_type": "ephemeral",
-                "attachments": attachments,
-            }
+            return error_message(
+                "Unable to subscribe. To receive notifications, "
+                "you need to invite @GitHub to this conversation "
+                "using `/invite @Selene`")
         repository = args[0]
         if repository.find('/') == -1:
             return self.send_wrong_syntax_message()
@@ -323,13 +310,8 @@ class Runner(SlackBotBase):
             return True
         try:
             response = self.client.conversations_members(
-                channel=current_channel)
-            user_ids = response["members"]
-
-            if self.bot_id in user_ids:
-                return True
-            else:
-                return False
+                channel=current_channel, )
+            return self.bot_id in response["members"]
 
         except SlackApiError as E:
             capture_message(
