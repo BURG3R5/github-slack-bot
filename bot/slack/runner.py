@@ -126,12 +126,14 @@ class Runner(SlackBotBase):
         :param current_channel: Name of the current channel.
         :param args: `list` of events to subscribe to.
         """
+
         in_channel = self.check_bot_in_channel(current_channel=current_channel)
         if not in_channel:
             return error_message(
                 "Unable to subscribe. To receive notifications, "
                 "you need to invite @GitHub to this conversation "
                 "using `/invite @Selene`")
+
         repository = args[0]
         if repository.find('/') == -1:
             return self.send_wrong_syntax_message()
@@ -305,12 +307,12 @@ class Runner(SlackBotBase):
         current_channel: str,
     ) -> bool:
         subscriptions = self.storage.get_subscriptions(channel=current_channel)
-        print(subscriptions)
+
         if len(subscriptions) != 0:
             return True
         try:
             response = self.client.conversations_members(
-                channel=current_channel, )
+                channel=current_channel)
             return self.bot_id in response["members"]
 
         except SlackApiError as E:
