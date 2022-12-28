@@ -653,8 +653,8 @@ def find_ref(x: str) -> str:
 
 def convert_links(x: str) -> str:
     """
-    Helper function to format links from Github format to Slack format
-    :param x: Raw Github text.
+    Helper function to format links from GitHub format to Slack format
+    :param x: Raw GitHub text.
     :return: Formatted text.
     """
     reg: str = r'\[([a-zA-Z0-9!@#$%^&*,./?\'";:_=~` ]+)\]\(([(http(s)?):\/\/(www\.)?a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b[-a-zA-Z0-9@:%_\+.~#?&//=]*)\)'
