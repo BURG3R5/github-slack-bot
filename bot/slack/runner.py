@@ -36,7 +36,6 @@ class Runner(SlackBotBase):
         token: str,
         bot_id: str,
     ):
-        SlackBotBase.__init__(self, token)
         super(self.__class__, self).__init__(token)
         self.logger = logger
         self.base_url = base_url
