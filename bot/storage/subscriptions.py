@@ -64,7 +64,7 @@ class SubscriptionStorage:
         self,
         channel: Optional[str] = None,
         repository: Optional[str] = None,
-    ) -> tuple["Subscription"]:
+    ) -> tuple["Subscription", ...]:
         """
         Queries the subscriptions database. Filters are applied depending on arguments passed.
 

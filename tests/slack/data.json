@@ -1,10 +1,11 @@
 {
   "run|calls_subscribe": [
     {
-      "channel_name": "example-channel",
-      "user_name": "example.user.123",
-      "command": "/subscribe",
-      "text": "github-slack-bot *"
+      "channel_id": "selene",
+      "team_id": "workspace",
+      "user_id": "USER101",
+      "command": "/sel-subscribe",
+      "text": "BURG3R5/github-slack-bot *"
     },
     {}
   ],
@@ -320,7 +321,22 @@
           "type": "section",
           "text": {
             "type": "mrkdwn",
-            "text": "This channel has not yet subscribed to anything. You can subscribe to your favorite repositories using the `/subscribe` command. For more info, use the `/help` command."
+            "text": "This channel has not yet subscribed to anything. You can subscribe to your favorite repositories using the `/sel-subscribe` command. For more info, use the `/sel-help` command."
+          }
+        }
+      ]
+    }
+  ],
+  "run_list_command|empty_quiet": [
+    {},
+    {
+      "response_type": "ephemeral",
+      "blocks": [
+        {
+          "type": "section",
+          "text": {
+            "type": "mrkdwn",
+            "text": "This channel has not yet subscribed to anything. You can subscribe to your favorite repositories using the `/sel-subscribe` command. For more info, use the `/sel-help` command."
           }
         }
       ]

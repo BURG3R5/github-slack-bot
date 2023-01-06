@@ -25,6 +25,7 @@ from bot import views
 from bot.github import GitHubApp
 from bot.models.github.event import GitHubEvent
 from bot.slack import SlackBot
+from bot.slack.templates import error_message
 from bot.utils.log import Logger
 
 app = Flask(__name__)
@@ -39,9 +40,9 @@ def manage_github_events():
     Then uses an instance of `SlackBot` to send appropriate messages to appropriate channels.
     """
 
-    is_valid_request, error_message = github_app.verify(request)
+    is_valid_request, message = github_app.verify(request)
     if not is_valid_request:
-        return make_response(error_message, 400)
+        return make_response(message, 400)
 
     event: Optional[GitHubEvent] = github_app.parse(
         event_type=request.headers["X-GitHub-Event"],
@@ -68,21 +69,7 @@ def manage_slack_commands() -> Union[dict, str, None]:
         headers=request.headers,
     )
     if not is_valid_request:
-        attachments = [{
-            "color":
-            "#bb2124",
-            "blocks": [{
-                "type": "section",
-                "text": {
-                    "type": "mrkdwn",
-                    "text": f"⚠️ Couldn't fulfill your request: {message}"
-                }
-            }]
-        }]
-        return {
-            "response_type": "ephemeral",
-            "attachments": attachments,
-        }
+        return error_message(f"⚠️ Couldn't fulfill your request: {message}")
 
     # Unlike GitHub webhooks, Slack does not send the data in `requests.json`.
     # Instead, the data is passed in `request.form`.
@@ -119,6 +106,7 @@ if __name__ == "__main__":
         logger=Logger(int(os.environ.get("LOG_LAST_N_COMMANDS", 100))),
         base_url=os.environ["BASE_URL"],
         secret=os.environ["SLACK_SIGNING_SECRET"],
+        bot_id=os.environ["SLACK_BOT_ID"],
     )
 
     github_app = GitHubApp(

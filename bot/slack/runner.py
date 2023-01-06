@@ -8,6 +8,8 @@ import urllib.parse
 from json import dumps as json_dumps
 from typing import Any
 
+from sentry_sdk import capture_message
+from slack.errors import SlackApiError
 from werkzeug.datastructures import Headers, ImmutableMultiDict
 
 from ..models.github import EventType, convert_keywords_to_events
@@ -15,6 +17,7 @@ from ..utils.json import JSON
 from ..utils.list_manip import intersperse
 from ..utils.log import Logger
 from .base import SlackBotBase
+from .templates import error_message
 
 
 class Runner(SlackBotBase):
@@ -29,11 +32,14 @@ class Runner(SlackBotBase):
         logger: Logger,
         base_url: str,
         secret: str,
+        token: str,
+        bot_id: str,
     ):
-        SlackBotBase.__init__(self)
+        super(self.__class__, self).__init__(token)
         self.logger = logger
         self.base_url = base_url
         self.secret = secret.encode("utf-8")
+        self.bot_id = bot_id
 
     def verify(
         self,
@@ -125,6 +131,13 @@ class Runner(SlackBotBase):
         :param user_id: Slack User-id of the user who entered the command.
         :param args: `list` of events to subscribe to.
         """
+
+        in_channel = self.check_bot_in_channel(current_channel=current_channel)
+        if not in_channel:
+            return error_message(
+                "Unable to subscribe. To receive notifications, "
+                "you need to invite @GitHub to this conversation "
+                "using `/invite @Selene`")
 
         repository = args[0]
         if repository.find('/') == -1:
@@ -300,6 +313,24 @@ class Runner(SlackBotBase):
             "response_type": "ephemeral" if ephemeral else "in_channel",
             "blocks": blocks,
         }
+
+    def check_bot_in_channel(
+        self,
+        current_channel: str,
+    ) -> bool:
+        subscriptions = self.storage.get_subscriptions(channel=current_channel)
+
+        if len(subscriptions) != 0:
+            return True
+        try:
+            response = self.client.conversations_members(
+                channel=current_channel)
+            return self.bot_id in response["members"]
+
+        except SlackApiError as E:
+            capture_message(
+                f"SlackApiError {E} Failed to fetch conversation member for {current_channel}"
+            )
 
     @staticmethod
     def run_help_command(args: list[str]) -> dict[str, Any]:
