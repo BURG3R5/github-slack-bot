@@ -4,7 +4,7 @@ Contains the `JSON` class, which wraps a `dict` to safely extract values using m
 
 from typing import Any
 
-from bottle import MultiDict
+from werkzeug.datastructures import ImmutableMultiDict
 
 
 class JSON:
@@ -40,10 +40,10 @@ class JSON:
         return keys[0].upper()
 
     @staticmethod
-    def from_multi_dict(multi_dict: MultiDict):
+    def from_multi_dict(multi_dict: ImmutableMultiDict):
         """
-        Converts `bottle.MultiDict` to `JSON`.
-        :param multi_dict: Incoming `MultiDict`.
-        :return: `JSON` object containing the data from the `MultiDict`.
+        Converts `werkzeug.datastructures.ImmutableMultiDict` to `JSON`.
+        :param multi_dict: Incoming `ImmutableMultiDict`.
+        :return: `JSON` object containing the data from the `ImmutableMultiDict`.
         """
         return JSON({key: multi_dict[key] for key in multi_dict.keys()})

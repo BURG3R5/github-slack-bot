@@ -5,13 +5,12 @@ import hashlib
 import hmac
 import time
 import urllib.parse
-from io import BytesIO
 from json import dumps as json_dumps
 from typing import Any
 
-from bottle import MultiDict, WSGIHeaderDict
 from sentry_sdk import capture_message
 from slack.errors import SlackApiError
+from werkzeug.datastructures import Headers, ImmutableMultiDict
 
 from ..models.github import EventType, convert_keywords_to_events
 from ..utils.json import JSON
@@ -44,8 +43,8 @@ class Runner(SlackBotBase):
 
     def verify(
         self,
-        body: BytesIO,
-        headers: WSGIHeaderDict,
+        body: bytes,
+        headers: Headers,
     ) -> tuple[bool, str]:
         """
         Checks validity of incoming Slack request.
@@ -66,7 +65,7 @@ class Runner(SlackBotBase):
             return False, "Request is too old"
 
         expected_digest = headers["X-Slack-Signature"].split('=', 1)[-1]
-        sig_basestring = ('v0:' + timestamp + ':').encode() + body.getvalue()
+        sig_basestring = ('v0:' + timestamp + ':').encode() + body
         digest = hmac.new(self.secret, sig_basestring,
                           hashlib.sha256).hexdigest()
         is_valid = hmac.compare_digest(expected_digest, digest)
@@ -76,7 +75,7 @@ class Runner(SlackBotBase):
 
         return True, "Request is secure and valid"
 
-    def run(self, raw_json: MultiDict) -> dict[str, Any] | None:
+    def run(self, raw_json: ImmutableMultiDict) -> dict[str, Any] | None:
         """
         Runs Slack slash commands sent to the bot.
         :param raw_json: Slash command data sent by Slack.

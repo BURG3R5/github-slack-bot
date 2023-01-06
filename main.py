@@ -1,7 +1,7 @@
 """
 Execution entrypoint for the project.
 
-Sets up a `bottle` server with three endpoints: "/", "/github/events" and "/slack/commands".
+Sets up a `Flask` server with three endpoints: "/", "/github/events" and "/slack/commands".
 
 "/" is used for testing and status checks.
 
@@ -17,45 +17,23 @@ from pathlib import Path
 from typing import Any, Optional, Union
 
 import sentry_sdk
-from bottle import get, post, request
-from bottle import response as http_response
-from bottle import run
 from dotenv import load_dotenv
-from sentry_sdk.integrations.bottle import BottleIntegration
+from flask import Flask, make_response, request
+from sentry_sdk.integrations.flask import FlaskIntegration
 
+from bot import views
 from bot.github import GitHubApp
 from bot.models.github.event import GitHubEvent
 from bot.slack import SlackBot
 from bot.slack.templates import error_message
 from bot.utils.log import Logger
 
+app = Flask(__name__)
 
-@get("/")
-def test_get() -> str:
-    """
-    First test endpoint.
-    :return: Plaintext confirming server status.
-    """
-    return "This server is running!"
+app.add_url_rule("/", view_func=views.test_get)
 
 
-@post("/")
-def test_post() -> str:
-    """
-    Second test endpoint.
-    :return: Status confirmation plaintext containing name supplied in request body.
-    """
-    try:
-        name: str = request.json["name"]
-    except KeyError:
-        name: str = "(empty JSON)"
-    except TypeError:
-        name: str = "(invalid JSON)"
-    return (f"This server is working, and to prove it to you, "
-            f"I'll guess your name!\nYour name is... {name}!")
-
-
-@post("/github/events")
+@app.route("/github/events", methods=['POST'])
 def manage_github_events():
     """
     Uses `GitHubApp` to verify, parse and cast the payload into a `GitHubEvent`.
@@ -64,8 +42,7 @@ def manage_github_events():
 
     is_valid_request, message = github_app.verify(request)
     if not is_valid_request:
-        http_response.status = "400 Bad Request"
-        return message
+        return make_response(message, 400)
 
     event: Optional[GitHubEvent] = github_app.parse(
         event_type=request.headers["X-GitHub-Event"],
@@ -74,9 +51,12 @@ def manage_github_events():
 
     if event is not None:
         slack_bot.inform(event)
+        return "Informed appropriate channels"
+
+    return "Unrecognized Event"
 
 
-@post("/slack/commands")
+@app.route("/slack/commands", methods=['POST'])
 def manage_slack_commands() -> Union[dict, str, None]:
     """
     Uses a `SlackBot` instance to run the slash command triggered by the user.
@@ -85,41 +65,40 @@ def manage_slack_commands() -> Union[dict, str, None]:
     """
 
     is_valid_request, message = slack_bot.verify(
-        body=request.body,
+        body=request.get_data(),
         headers=request.headers,
     )
     if not is_valid_request:
         return error_message(f"⚠️ Couldn't fulfill your request: {message}")
 
     # Unlike GitHub webhooks, Slack does not send the data in `requests.json`.
-    # Instead, the data is passed in `request.forms`.
-    response: dict[str, Any] | None = slack_bot.run(raw_json=request.forms)
+    # Instead, the data is passed in `request.form`.
+    response: dict[str, Any] | None = slack_bot.run(raw_json=request.form)
     return response
 
 
-@get("/github/auth")
+@app.route("/github/auth")
 def initiate_auth():
-    github_app.redirect_to_oauth_flow(request.params.get("state"))
+    return github_app.redirect_to_oauth_flow(request.args.get("state"))
 
 
-@get("/github/auth/redirect")
+@app.route("/github/auth/redirect")
 def complete_auth():
     return github_app.set_up_webhooks(
-        code=request.query.get("code"),
-        state=request.params.get("state"),
+        code=request.args.get("code"),
+        state=request.args.get("state"),
     )
 
 
 if __name__ == "__main__":
     load_dotenv(Path(".") / ".env")
 
-    debug = os.environ["DEBUG"] == "1"
-    port = int(os.environ.get("CONTAINER_PORT", 5000))
+    debug = os.environ["FLASK_DEBUG"] == "True"
 
     if (not debug) and ("SENTRY_DSN" in os.environ):
         sentry_sdk.init(
             dsn=os.environ["SENTRY_DSN"],
-            integrations=[BottleIntegration()],
+            integrations=[FlaskIntegration()],
         )
 
     slack_bot = SlackBot(
@@ -136,4 +115,4 @@ if __name__ == "__main__":
         client_secret=os.environ["GITHUB_APP_CLIENT_SECRET"],
     )
 
-    run(host="", port=port, debug=debug)
+    app.run(port=int(os.environ.get("CONTAINER_PORT", 5000)))

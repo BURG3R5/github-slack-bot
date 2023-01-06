@@ -10,7 +10,7 @@ from abc import ABC, abstractmethod
 from typing import Type
 
 import sentry_sdk
-from bottle import LocalRequest
+from flask.wrappers import Request
 
 from ..models.github import Commit, EventType, Issue, PullRequest, Ref, Repository, User
 from ..models.github.event import GitHubEvent
@@ -69,7 +69,7 @@ class Parser(GitHubBase):
 
         return None
 
-    def verify(self, request: LocalRequest) -> tuple[bool, str]:
+    def verify(self, request: Request) -> tuple[bool, str]:
         """
         Verifies incoming GitHub event.
 
@@ -91,7 +91,7 @@ class Parser(GitHubBase):
         expected_digest = headers["X-Hub-Signature-256"].split('=', 1)[-1]
         digest = hmac.new(
             secret.encode(),
-            request.body.getvalue(),
+            request.get_data(),
             hashlib.sha256,
         ).hexdigest()
         is_valid = hmac.compare_digest(expected_digest, digest)
