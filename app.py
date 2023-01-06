@@ -28,6 +28,30 @@ from bot.slack import SlackBot
 from bot.slack.templates import error_message
 from bot.utils.log import Logger
 
+load_dotenv(Path(".") / ".env")
+
+debug = os.environ["FLASK_DEBUG"] == "1"
+
+if (not debug) and ("SENTRY_DSN" in os.environ):
+    sentry_sdk.init(
+        dsn=os.environ["SENTRY_DSN"],
+        integrations=[FlaskIntegration()],
+    )
+
+slack_bot = SlackBot(
+    token=os.environ["SLACK_OAUTH_TOKEN"],
+    logger=Logger(int(os.environ.get("LOG_LAST_N_COMMANDS", 100))),
+    base_url=os.environ["BASE_URL"],
+    secret=os.environ["SLACK_SIGNING_SECRET"],
+    bot_id=os.environ["SLACK_BOT_ID"],
+)
+
+github_app = GitHubApp(
+    base_url=os.environ["BASE_URL"],
+    client_id=os.environ["GITHUB_APP_CLIENT_ID"],
+    client_secret=os.environ["GITHUB_APP_CLIENT_SECRET"],
+)
+
 app = Flask(__name__)
 
 app.add_url_rule("/", view_func=views.test_get)
@@ -88,31 +112,3 @@ def complete_auth():
         code=request.args.get("code"),
         state=request.args.get("state"),
     )
-
-
-if __name__ == "__main__":
-    load_dotenv(Path(".") / ".env")
-
-    debug = os.environ["FLASK_DEBUG"] == "True"
-
-    if (not debug) and ("SENTRY_DSN" in os.environ):
-        sentry_sdk.init(
-            dsn=os.environ["SENTRY_DSN"],
-            integrations=[FlaskIntegration()],
-        )
-
-    slack_bot = SlackBot(
-        token=os.environ["SLACK_OAUTH_TOKEN"],
-        logger=Logger(int(os.environ.get("LOG_LAST_N_COMMANDS", 100))),
-        base_url=os.environ["BASE_URL"],
-        secret=os.environ["SLACK_SIGNING_SECRET"],
-        bot_id=os.environ["SLACK_BOT_ID"],
-    )
-
-    github_app = GitHubApp(
-        base_url=os.environ["BASE_URL"],
-        client_id=os.environ["GITHUB_APP_CLIENT_ID"],
-        client_secret=os.environ["GITHUB_APP_CLIENT_SECRET"],
-    )
-
-    app.run(port=int(os.environ.get("CONTAINER_PORT", 5000)))
